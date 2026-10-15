@@ -640,7 +640,27 @@ app.patch('/api/cases/:id', authenticateToken, (req: AuthenticatedRequest, res: 
   }
 
   // Server-side field-level permission check
-  const permCheck = validateCaseFieldPermissions(user.role, updates);
+  const permissionUpdates = { ...updates };
+
+if (
+  updates.gate_scores &&
+  typeof updates.gate_scores === 'object' &&
+  !Array.isArray(updates.gate_scores)
+) {
+  const changedGates = Object.fromEntries(
+    Object.entries(updates.gate_scores).filter(
+      ([key, value]) =>
+        (currentCase.gate_scores as any)[key] !== value
+    )
+  );
+
+  permissionUpdates.gate_scores = changedGates;
+}
+
+const permCheck = validateCaseFieldPermissions(
+  user.role,
+  permissionUpdates
+);
   if (!permCheck.allowed) {
     DB.logAuditEvent({
       institution_id: user.institution_id,
