@@ -155,6 +155,12 @@ export function validateCaseFieldPermissions(
   // Check gate scores updates
   if (fieldsToUpdate.gate_scores) {
     const gates = fieldsToUpdate.gate_scores;
+if (gates.beh !== undefined && role !== 'Warden') {
+  return {
+    allowed: false,
+    disallowedField: 'gate_scores.beh (Behaviour Gate)',
+  };
+}
     if (gates.wb !== undefined && role !== 'Psychologist') {
       return { allowed: false, disallowedField: 'gate_scores.wb (Clinical Well-being Gate)' };
     }
