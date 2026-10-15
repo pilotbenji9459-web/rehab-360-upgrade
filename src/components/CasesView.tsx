@@ -76,7 +76,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
   const [selectedSubLevel, setSelectedSubLevel] = useState<number>((c.pathway_position ?? a.pos) % 3);
   const [decisionReason, setDecisionReason] = useState<string>(c.decision_reason || '');
 
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync form when case changes
   useEffect(() => {
