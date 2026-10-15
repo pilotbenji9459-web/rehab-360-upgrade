@@ -1,0 +1,8 @@
+{
+  "name": "RehabPath360",
+  "description": "Evidence-based offender rehabilitation pathway planning, AI placement recommendations, human-in-the-loop verification, multi-dimensional assessment matrix, and encrypted handover platform.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

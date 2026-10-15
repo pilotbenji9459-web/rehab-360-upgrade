@@ -1,0 +1,665 @@
+{
+  "users": [
+    {
+      "id": "usr-admin",
+      "email": "admin@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "Arthur Pendelton",
+      "role": "Administrator",
+      "badge_number": "ADM-01",
+      "department": "Executive Administration",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": "2026-10-15T18:29:12.258Z"
+    },
+    {
+      "id": "usr-warden",
+      "email": "warden@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "Marcus Vance",
+      "role": "Warden",
+      "badge_number": "WRD-04",
+      "department": "Custodial & Operations",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": "2026-10-15T18:22:29.482Z"
+    },
+    {
+      "id": "usr-psych",
+      "email": "psychologist@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "Dr. Fiona Gallagher",
+      "role": "Psychologist",
+      "badge_number": "PSY-12",
+      "department": "Clinical Psychology & Mental Health",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": null
+    },
+    {
+      "id": "usr-cm",
+      "email": "casemanager@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "David Reynolds",
+      "role": "Case Manager",
+      "badge_number": "CSM-07",
+      "department": "Individual Rehabilitation & Care",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": null
+    },
+    {
+      "id": "usr-edu",
+      "email": "educator@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "Elena Rostova",
+      "role": "Educator",
+      "badge_number": "EDU-03",
+      "department": "Vocational Training & Literacy",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": "2026-10-15T18:22:38.674Z"
+    },
+    {
+      "id": "usr-cro",
+      "email": "probation@rehabpath.gov",
+      "password_hash": "$2b$10$ftjcKEJaP3vYiXv4eBGW4ucPGVvHijkWTrd/VEAB8KUQAgpoBc4rS",
+      "full_name": "Hannah Brooks",
+      "role": "Community Rehabilitation Officer",
+      "badge_number": "CRO-19",
+      "department": "Community Reintegration & Parole",
+      "status": "active",
+      "created_at": "2026-01-01T08:00:00.000Z",
+      "last_login_at": null
+    }
+  ],
+  "cases": [
+    {
+      "id": "RP-1041",
+      "first_name": "Julian",
+      "last_name": "Crest",
+      "date_of_birth": "1987-04-12",
+      "age_band": "35–44",
+      "crime_severity": 2,
+      "crime_type": "Non-violent property offences",
+      "sentence_length_months": 36,
+      "education_level": 4,
+      "mental_wellbeing": 4,
+      "support_network": 4,
+      "programme_engagement": 5,
+      "assessment_completeness": 96,
+      "session_attendance": 95,
+      "mood_history": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "low_mood_count": 0,
+      "gate_scores": {
+        "edu": 88,
+        "beh": 82,
+        "wb": 80,
+        "skl": 85
+      },
+      "score_history": [
+        58,
+        63,
+        68,
+        72,
+        74
+      ],
+      "gate_history": [
+        55,
+        64,
+        72,
+        80,
+        84
+      ],
+      "certifications": [
+        "Level 2 Business Admin",
+        "Forklift licence"
+      ],
+      "decision": "approved",
+      "pathway_position": 9,
+      "decision_reason": "High engagement across all four domains; meets prerequisites for Reintegration A.",
+      "rehabilitation_remarks": [
+        "Candidate actively mentoring peer learners in computer literacy.",
+        "Completed workplace safety refresher with distinction."
+      ],
+      "education_history": "Secondary school; Level 2 vocational study",
+      "employment_history": "Warehouse operative, 6 years continuous service",
+      "rehabilitation_history": "One earlier programme completed satisfactorily",
+      "version": 5,
+      "updated_at": "2026-10-15T18:53:26.797Z",
+      "updated_by_id": "usr-warden",
+      "updated_by_name": "Marcus Vance"
+    },
+    {
+      "id": "RP-1042",
+      "first_name": "Tyler",
+      "last_name": "Vance",
+      "date_of_birth": "2004-09-21",
+      "age_band": "18–24",
+      "crime_severity": 4,
+      "crime_type": "Aggravated robbery with weapon",
+      "sentence_length_months": 60,
+      "education_level": 2,
+      "mental_wellbeing": 2,
+      "support_network": 2,
+      "programme_engagement": 3,
+      "assessment_completeness": 78,
+      "session_attendance": 58,
+      "mood_history": [
+        3,
+        3,
+        3,
+        2,
+        2
+      ],
+      "low_mood_count": 4,
+      "gate_scores": {
+        "edu": 40,
+        "beh": 55,
+        "wb": 35,
+        "skl": 50
+      },
+      "score_history": [
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "gate_history": [
+        28,
+        32,
+        35,
+        38,
+        43
+      ],
+      "certifications": [],
+      "decision": null,
+      "pathway_position": null,
+      "decision_reason": "",
+      "rehabilitation_remarks": [
+        "Exhibits signs of withdrawal in group sessions; attendance barriers identified."
+      ],
+      "education_history": "Left school at 15; no formal qualifications",
+      "employment_history": "Casual labour, under 1 year irregular work",
+      "rehabilitation_history": "None prior to current custodial period",
+      "version": 1,
+      "updated_at": "2026-02-18T14:30:00.000Z",
+      "updated_by_id": "usr-cm",
+      "updated_by_name": "David Reynolds"
+    },
+    {
+      "id": "RP-1043",
+      "first_name": "Aaron",
+      "last_name": "Bishop",
+      "date_of_birth": "1995-11-03",
+      "age_band": "25–34",
+      "crime_severity": 3,
+      "crime_type": "Affray and public order offence",
+      "sentence_length_months": 24,
+      "education_level": 3,
+      "mental_wellbeing": 3,
+      "support_network": 3,
+      "programme_engagement": 3,
+      "assessment_completeness": 88,
+      "session_attendance": 81,
+      "mood_history": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "low_mood_count": 1,
+      "gate_scores": {
+        "edu": 66,
+        "beh": 72,
+        "wb": 60,
+        "skl": 70
+      },
+      "score_history": [
+        44,
+        46,
+        49,
+        50,
+        52
+      ],
+      "gate_history": [
+        45,
+        52,
+        58,
+        62,
+        66
+      ],
+      "certifications": [
+        "Functional Literacy L1"
+      ],
+      "decision": null,
+      "pathway_position": null,
+      "decision_reason": "",
+      "rehabilitation_remarks": [
+        "Making steady progress in workshop environment; anger-management techniques being applied."
+      ],
+      "education_history": "Secondary school; partial trade course in catering",
+      "employment_history": "Kitchen assistant, 3 years",
+      "rehabilitation_history": "Short anger-management course completed in 2024",
+      "version": 1,
+      "updated_at": "2026-02-19T09:15:00.000Z",
+      "updated_by_id": "usr-cm",
+      "updated_by_name": "David Reynolds"
+    },
+    {
+      "id": "RP-1044",
+      "first_name": "Connor",
+      "last_name": "Drake",
+      "date_of_birth": "1993-02-17",
+      "age_band": "25–34",
+      "crime_severity": 5,
+      "crime_type": "Serious repeat violent offences",
+      "sentence_length_months": 84,
+      "education_level": 3,
+      "mental_wellbeing": 2,
+      "support_network": 3,
+      "programme_engagement": 4,
+      "assessment_completeness": 90,
+      "session_attendance": 67,
+      "mood_history": [
+        3,
+        3,
+        2,
+        2,
+        2
+      ],
+      "low_mood_count": 3,
+      "gate_scores": {
+        "edu": 60,
+        "beh": 52,
+        "wb": 48,
+        "skl": 55
+      },
+      "score_history": [
+        38,
+        36,
+        33,
+        35,
+        35
+      ],
+      "gate_history": [
+        40,
+        42,
+        44,
+        47,
+        54
+      ],
+      "certifications": [],
+      "decision": "modified",
+      "pathway_position": 1,
+      "decision_reason": "Officer held at sub-level B pending behaviour and custodial disciplinary review.",
+      "rehabilitation_remarks": [
+        "Assigned to intensive emotional regulation track prior to vocational workshop access."
+      ],
+      "education_history": "Basic literacy only; disengaged early",
+      "employment_history": "Irregular contract work in construction",
+      "rehabilitation_history": "One earlier programme commenced but not completed",
+      "version": 2,
+      "updated_at": "2026-02-20T11:45:00.000Z",
+      "updated_by_id": "usr-admin",
+      "updated_by_name": "Arthur Pendelton"
+    },
+    {
+      "id": "RP-1045",
+      "first_name": "Geoffrey",
+      "last_name": "Thorpe",
+      "date_of_birth": "1975-06-30",
+      "age_band": "45–54",
+      "crime_severity": 1,
+      "crime_type": "Minor economic regulatory infraction",
+      "sentence_length_months": 18,
+      "education_level": 5,
+      "mental_wellbeing": 4,
+      "support_network": 5,
+      "programme_engagement": 5,
+      "assessment_completeness": 98,
+      "session_attendance": 98,
+      "mood_history": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "low_mood_count": 0,
+      "gate_scores": {
+        "edu": 95,
+        "beh": 92,
+        "wb": 90,
+        "skl": 96
+      },
+      "score_history": [
+        70,
+        76,
+        81,
+        85,
+        88
+      ],
+      "gate_history": [
+        72,
+        80,
+        86,
+        90,
+        93
+      ],
+      "certifications": [
+        "Diploma in Horticulture",
+        "First Aid",
+        "Level 3 Literacy"
+      ],
+      "decision": "approved",
+      "pathway_position": 10,
+      "decision_reason": "Exemplary conduct; preparing transitional community garden programme.",
+      "rehabilitation_remarks": [
+        "Supervising grounds maintenance team with positive staff commendation."
+      ],
+      "education_history": "University diploma in education & environmental sciences",
+      "employment_history": "Teaching assistant, 12 years continuous service",
+      "rehabilitation_history": "Two earlier voluntary restorative justice programmes completed",
+      "version": 1,
+      "updated_at": "2026-02-21T16:00:00.000Z",
+      "updated_by_id": "usr-warden",
+      "updated_by_name": "Marcus Vance"
+    },
+    {
+      "id": "RP-1046",
+      "first_name": "Callum",
+      "last_name": "Rowe",
+      "date_of_birth": "1984-12-14",
+      "age_band": "35–44",
+      "crime_severity": 3,
+      "crime_type": "Dangerous driving and obstruction",
+      "sentence_length_months": 30,
+      "education_level": 4,
+      "mental_wellbeing": 4,
+      "support_network": 3,
+      "programme_engagement": 4,
+      "assessment_completeness": 92,
+      "session_attendance": 89,
+      "mood_history": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "low_mood_count": 0,
+      "gate_scores": {
+        "edu": 78,
+        "beh": 66,
+        "wb": 81,
+        "skl": 74
+      },
+      "score_history": [
+        50,
+        54,
+        57,
+        60,
+        62
+      ],
+      "gate_history": [
+        50,
+        56,
+        61,
+        66,
+        72
+      ],
+      "certifications": [
+        "Level 2 Numeracy"
+      ],
+      "decision": "approved",
+      "pathway_position": 5,
+      "decision_reason": "Progressing on target in developmental band.",
+      "rehabilitation_remarks": [
+        "Active participant in peer discussion circles regarding consequential thinking."
+      ],
+      "education_history": "Secondary school; numeracy certificate attained",
+      "employment_history": "Commercial delivery driver, 5 years",
+      "rehabilitation_history": "One earlier driver awareness programme completed",
+      "version": 1,
+      "updated_at": "2026-02-22T08:30:00.000Z",
+      "updated_by_id": "usr-cm",
+      "updated_by_name": "David Reynolds"
+    }
+  ],
+  "clinical_notes": [
+    {
+      "id": "cn-001",
+      "case_id": "RP-1042",
+      "author_id": "usr-psych",
+      "author_name": "Dr. Fiona Gallagher",
+      "author_role": "Psychologist",
+      "note_type": "psychological_evaluation",
+      "confidentiality": "restricted_clinical",
+      "title": "Initial Intake Psychometric & Mood Depressive Index",
+      "content": "Client presents symptoms consistent with moderate adjustment reaction and social withdrawal. Elevated scores on subscale for perceived helplessness. Self-rated mood dropped across recent cycles. Recommended individualized weekly supportive sessions before re-engaging in high-stimulus group workshops.",
+      "recommendations": [
+        "Weekly 1-on-1 cognitive reframing sessions",
+        "Monitor attendance barriers collaboratively",
+        "Review antidepressant medication compliance with medical wing"
+      ],
+      "created_at": "2026-02-10T11:00:00.000Z"
+    },
+    {
+      "id": "cn-002",
+      "case_id": "RP-1044",
+      "author_id": "usr-psych",
+      "author_name": "Dr. Fiona Gallagher",
+      "author_role": "Psychologist",
+      "note_type": "risk_assessment",
+      "confidentiality": "restricted_clinical",
+      "title": "De-escalation and Impulsivity Assessment",
+      "content": "Trigger mapping indicates reactivity to perceived challenges from authority figures. Defensive posture noted when discussing previous non-completion. However, cognitive restructuring exercises show receptive engagement when framed around long-term independence.",
+      "recommendations": [
+        "Maintain at Foundation B until 4 consecutive weeks of non-conflict behaviour",
+        "Targeted emotional regulation modules"
+      ],
+      "created_at": "2026-02-12T15:30:00.000Z"
+    }
+  ],
+  "documents": [],
+  "audit_events": [
+    {
+      "actor_id": "usr-admin",
+      "actor_email": "admin@rehabpath.gov",
+      "actor_name": "Arthur Pendelton",
+      "actor_role": "Administrator",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-admin",
+      "details": "Authenticated as Administrator (Executive Administration).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792088952262-5ud8eg",
+      "timestamp": "2026-10-15T18:29:12.262Z"
+    },
+    {
+      "actor_id": "usr-edu",
+      "actor_email": "educator@rehabpath.gov",
+      "actor_name": "Elena Rostova",
+      "actor_role": "Educator",
+      "action": "PERMISSION_CHECK_FAIL",
+      "resource_type": "api_endpoint",
+      "resource_id": "/api/cases/RP-1041/clinical-notes",
+      "details": "Access denied. Role Educator lacks required role (Psychologist, Administrator).",
+      "ip_address": "127.0.0.1",
+      "status": "denied",
+      "id": "aud-1792088558692-6m3x3j",
+      "timestamp": "2026-10-15T18:22:38.692Z"
+    },
+    {
+      "actor_id": "usr-edu",
+      "actor_email": "educator@rehabpath.gov",
+      "actor_name": "Elena Rostova",
+      "actor_role": "Educator",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-edu",
+      "details": "Authenticated as Educator (Vocational Training & Literacy).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792088558675-56vdmv",
+      "timestamp": "2026-10-15T18:22:38.675Z"
+    },
+    {
+      "actor_id": "usr-edu",
+      "actor_email": "educator@rehabpath.gov",
+      "actor_name": "Elena Rostova",
+      "actor_role": "Educator",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-edu",
+      "details": "Authenticated as Educator (Vocational Training & Literacy).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792088554222-7qqcfd",
+      "timestamp": "2026-10-15T18:22:34.222Z"
+    },
+    {
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-warden",
+      "details": "Authenticated as Warden (Custodial & Operations).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792088549483-gk2oc3",
+      "timestamp": "2026-10-15T18:22:29.483Z"
+    },
+    {
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-warden",
+      "details": "Authenticated as Warden (Custodial & Operations).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792088544649-qsza3p",
+      "timestamp": "2026-10-15T18:22:24.649Z"
+    },
+    {
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "LOGOUT",
+      "resource_type": "auth",
+      "resource_id": "usr-warden",
+      "details": "Staff member logged out gracefully.",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792086093509-w4wf2m",
+      "timestamp": "2026-10-15T17:41:33.509Z"
+    },
+    {
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-warden",
+      "details": "Authenticated as Warden (Custodial & Operations).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792086058262-j6a9mk",
+      "timestamp": "2026-10-15T17:40:58.262Z"
+    },
+    {
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "LOGIN_SUCCESS",
+      "resource_type": "auth",
+      "resource_id": "usr-warden",
+      "details": "Authenticated as Warden (Custodial & Operations).",
+      "ip_address": "127.0.0.1",
+      "status": "success",
+      "id": "aud-1792085250495-bz3nd5",
+      "timestamp": "2026-10-15T17:27:30.495Z"
+    },
+    {
+      "id": "aud-001",
+      "timestamp": "2026-02-01T08:00:00.000Z",
+      "actor_id": "usr-admin",
+      "actor_email": "admin@rehabpath.gov",
+      "actor_name": "Arthur Pendelton",
+      "actor_role": "Administrator",
+      "action": "SYSTEM_INITIALIZATION",
+      "resource_type": "database",
+      "resource_id": "rehabpath360-core",
+      "details": "Secure persistent relational schema initialized with synthetic caseload.",
+      "ip_address": "127.0.0.1",
+      "status": "success"
+    },
+    {
+      "id": "aud-002",
+      "timestamp": "2026-02-15T10:00:00.000Z",
+      "actor_id": "usr-warden",
+      "actor_email": "warden@rehabpath.gov",
+      "actor_name": "Marcus Vance",
+      "actor_role": "Warden",
+      "action": "DECISION_APPROVE",
+      "resource_type": "case",
+      "resource_id": "RP-1041",
+      "details": "Approved AI recommendation for Reintegration A (88% confidence).",
+      "ip_address": "10.0.4.15",
+      "status": "success"
+    },
+    {
+      "id": "aud-003",
+      "timestamp": "2026-02-20T11:45:00.000Z",
+      "actor_id": "usr-admin",
+      "actor_email": "admin@rehabpath.gov",
+      "actor_name": "Arthur Pendelton",
+      "actor_role": "Administrator",
+      "action": "DECISION_MODIFY",
+      "resource_type": "case",
+      "resource_id": "RP-1044",
+      "details": "Modified pathway to Foundation B. Reason: Held pending behaviour review.",
+      "ip_address": "10.0.1.2",
+      "status": "success"
+    }
+  ],
+  "change_history": [],
+  "drafts": [],
+  "institution": {
+    "id": "inst-demo",
+    "name": "Her Majesty's Prison Frankland (Exhibition Demo)",
+    "code": "HMP-FRK",
+    "logo_url": "",
+    "theme_primary": "#0284c7",
+    "theme_teal": "#5cc2bd",
+    "staff_designations": {
+      "Administrator": "Executive Administrator",
+      "Warden": "Governing Governor / Warden",
+      "Psychologist": "Senior Clinical Psychologist",
+      "Case Manager": "Lead Rehabilitation Case Manager",
+      "Educator": "Head of Vocational Training & Education",
+      "Community Rehabilitation Officer": "Probation & Reintegration Officer"
+    },
+    "is_demo": true,
+    "created_at": "2026-01-01T08:00:00.000Z",
+    "updated_at": "2026-01-01T08:00:00.000Z"
+  }
+}

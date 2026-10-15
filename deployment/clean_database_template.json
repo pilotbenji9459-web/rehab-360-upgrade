@@ -1,0 +1,29 @@
+{
+  "institution": {
+    "id": "inst-primary-01",
+    "name": "Correctional Rehabilitation Facility",
+    "code": "CRF-01",
+    "logo_url": "",
+    "theme_primary": "#0284c7",
+    "theme_teal": "#5cc2bd",
+    "staff_designations": {
+      "Administrator": "System Administrator",
+      "Warden": "Warden / Superintendent",
+      "Psychologist": "Clinical Psychologist",
+      "Case Manager": "Rehabilitation Case Manager",
+      "Educator": "Education & Vocational Officer",
+      "Community Rehabilitation Officer": "Community Rehabilitation Officer"
+    },
+    "is_demo": false,
+    "created_at": "2026-10-15T12:00:00.000Z",
+    "updated_at": "2026-10-15T12:00:00.000Z"
+  },
+  "users": [],
+  "cases": [],
+  "clinical_notes": [],
+  "documents": [],
+  "audit_events": [],
+  "change_history": [],
+  "drafts": [],
+  "bootstrap_completed": false
+}
