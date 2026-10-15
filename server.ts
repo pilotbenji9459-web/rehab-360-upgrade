@@ -581,6 +581,7 @@ app.patch('/api/cases/:id', authenticateToken, (req: AuthenticatedRequest, res: 
     'education_history',
     'employment_history',
     'rehabilitation_history',
+    'gate_scores',
     'version',
   ]);
 
@@ -593,6 +594,41 @@ app.patch('/api/cases/:id', authenticateToken, (req: AuthenticatedRequest, res: 
       error: `Unsupported or protected field(s): ${unexpectedFields.join(', ')}`,
     });
     return;
+  }
+
+  // Validate progression gate scores before saving them.
+  if (updates.gate_scores !== undefined) {
+    const gates = updates.gate_scores;
+
+    if (!gates || typeof gates !== 'object' || Array.isArray(gates)) {
+      res.status(400).json({ error: 'Gate scores must be an object.' });
+      return;
+    }
+
+    const allowedGateKeys = new Set(['edu', 'beh', 'wb', 'skl']);
+    const invalidKeys = Object.keys(gates).filter(
+      (key) => !allowedGateKeys.has(key)
+    );
+
+    if (invalidKeys.length > 0) {
+      res.status(400).json({ error: 'Unsupported gate score field.' });
+      return;
+    }
+
+    const invalidValues = Object.values(gates).some(
+      (value) =>
+        typeof value !== 'number' ||
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value > 100
+    );
+
+    if (invalidValues) {
+      res.status(400).json({
+        error: 'Gate scores must be whole-number percentages from 0 to 100.',
+      });
+      return;
+    }
   }
 
   // Optimistic concurrency check
@@ -1346,10 +1382,18 @@ app.get('/api/reports/export-csv', authenticateToken, (req: AuthenticatedRequest
 // -------------------------------------------------------------
 async function startServer() {
   if (!isProduction) {
-    const vite = await createViteServer({
-      server: { middlewareMode: true, host: HOST, port: PORT },
-      appType: 'spa',
-    });
+    
+const vite = await createViteServer({
+  server: {
+    middlewareMode: true,
+    host: HOST,
+    port: PORT,
+    watch: {
+      ignored: ['**/data/**', '**/uploads/**'],
+    },
+  },
+  appType: 'spa',
+});
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(process.cwd(), 'dist');
