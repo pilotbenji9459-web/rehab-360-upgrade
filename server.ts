@@ -1,9 +1,9 @@
+import 'dotenv/config';
 import express, { Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 
 import {
@@ -26,7 +26,6 @@ import {
   verifyDocumentWithAI,
 } from './server/documentAi';
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -563,6 +562,38 @@ app.patch('/api/cases/:id', authenticateToken, (req: AuthenticatedRequest, res: 
   }
 
   const updates = req.body;
+ if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+    res.status(400).json({
+      error: 'Request body must be a JSON object.',
+    });
+    return;
+  }
+
+  const editableFields = new Set([
+    'first_name',
+    'last_name',
+    'crime_severity',
+    'education_level',
+    'mental_wellbeing',
+    'support_network',
+    'programme_engagement',
+    'session_attendance',
+    'education_history',
+    'employment_history',
+    'rehabilitation_history',
+    'version',
+  ]);
+
+  const unexpectedFields = Object.keys(updates).filter(
+    (field) => !editableFields.has(field)
+  );
+
+  if (unexpectedFields.length > 0) {
+    res.status(400).json({
+      error: `Unsupported or protected field(s): ${unexpectedFields.join(', ')}`,
+    });
+    return;
+  }
 
   // Optimistic concurrency check
   if (updates.version !== undefined && updates.version !== currentCase.version) {
@@ -921,6 +952,12 @@ app.post(
 app.post('/api/cases/:id/draft', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   const caseId = req.params.id;
   const user = req.user!;
+if (!DB.findCaseById(caseId, user.institution_id)) {
+  res.status(404).json({
+    error: 'Case not found in this institution.',
+  });
+  return;
+}
   const draftData = req.body.draft;
 
   const draft = DB.saveDraft(caseId, user.id, draftData, user.institution_id);
@@ -931,6 +968,12 @@ app.post('/api/cases/:id/draft', authenticateToken, (req: AuthenticatedRequest, 
 app.get('/api/cases/:id/draft', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   const caseId = req.params.id;
   const user = req.user!;
+if (!DB.findCaseById(caseId, user.institution_id)) {
+  res.status(404).json({
+    error: 'Case not found in this institution.',
+  });
+  return;
+}
   const draft = DB.getDraft(caseId, user.id, user.institution_id);
   res.json({ draft: draft?.draft_data || null, updated_at: draft?.updated_at || null });
 });
@@ -939,6 +982,12 @@ app.get('/api/cases/:id/draft', authenticateToken, (req: AuthenticatedRequest, r
 app.delete('/api/cases/:id/draft', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   const caseId = req.params.id;
   const user = req.user!;
+if (!DB.findCaseById(caseId, user.institution_id)) {
+  res.status(404).json({
+    error: 'Case not found in this institution.',
+  });
+  return;
+}
   DB.clearDraft(caseId, user.id);
   res.json({ success: true });
 });
@@ -1066,15 +1115,89 @@ app.post(
       return;
     }
 
-    // Build update object
+    
+    // Only explicitly approved fields may be imported from documents.
+    const allowedDocumentFields = new Set<string>([
+      'session_attendance',
+      'education_level',
+      'mental_wellbeing',
+      'certifications',
+      'gate_scores.skl',
+    ]);
+
+    if (
+      accepted_fields.some(
+        (item: any) =>
+          !item ||
+          typeof item.fieldName !== 'string' ||
+          !allowedDocumentFields.has(item.fieldName)
+      )
+    ) {
+      res.status(400).json({
+        error: 'Document import contains an unsupported or protected field.',
+      });
+      return;
+    }
+
     const updates: Record<string, any> = {};
-    for (const item of accepted_fields) {
-      if (item.fieldName.startsWith('gate_scores.')) {
-        const sub = item.fieldName.split('.')[1];
-        updates.gate_scores = updates.gate_scores || { ...currentCase.gate_scores };
-        updates.gate_scores[sub] = parseInt(item.finalValue, 10);
+
+    for (const item of accepted_fields as {
+      fieldName: string;
+      finalValue: any;
+    }[]) {
+      if (item.fieldName === 'certifications') {
+        const raw = item.finalValue;
+        const values = Array.isArray(raw)
+          ? raw
+          : typeof raw === 'string'
+            ? raw.split(',')
+            : null;
+
+        if (
+          !values ||
+          values.some((value: any) => typeof value !== 'string')
+        ) {
+          res.status(400).json({
+            error: 'Invalid certifications value.',
+          });
+          return;
+        }
+
+        updates.certifications = values
+          .map((value: string) => value.trim())
+          .filter(Boolean)
+          .slice(0, 50);
+
+        continue;
+      }
+
+      const value = Number(item.finalValue);
+      const isRating = [
+        'education_level',
+        'mental_wellbeing',
+      ].includes(item.fieldName);
+
+      const min = isRating ? 1 : 0;
+      const max = isRating ? 5 : 100;
+
+      if (
+        !Number.isInteger(value) ||
+        value < min ||
+        value > max
+      ) {
+        res.status(400).json({
+          error: `Invalid value for ${item.fieldName}.`,
+        });
+        return;
+      }
+
+      if (item.fieldName === 'gate_scores.skl') {
+        updates.gate_scores = {
+          ...currentCase.gate_scores,
+          skl: value,
+        };
       } else {
-        updates[item.fieldName] = item.finalValue;
+        updates[item.fieldName] = value;
       }
     }
 

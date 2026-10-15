@@ -784,13 +784,25 @@ export const DB = {
         'Bootstrap Locked: An administrator has already been registered for this institution. Additional accounts must be provisioned by the Administrator.'
       );
     }
-
-    // Optional environment secret check
+    // Deployment setup must be explicitly authorized with a unique token.
     const requiredSetupToken = process.env.SETUP_TOKEN;
-    if (requiredSetupToken && params.setup_token !== requiredSetupToken) {
-      throw new Error('Bootstrap Authorization Failed: Invalid setup token provided.');
+
+    if (
+      isDeploymentMode() &&
+      (!requiredSetupToken || requiredSetupToken.length < 32)
+    ) {
+      throw new Error(
+        'Bootstrap disabled: Configure SETUP_TOKEN with a unique value of at least 32 characters before deployment.'
+      );
     }
 
+    if (requiredSetupToken && params.setup_token !== requiredSetupToken) {
+      throw new Error(
+        'Bootstrap Authorization Failed: Invalid setup token provided.'
+      );
+    }
+
+    
     const salt = bcrypt.genSaltSync(10);
     const passwordHash = bcrypt.hashSync(params.admin_password, salt);
 

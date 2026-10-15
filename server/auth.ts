@@ -2,7 +2,28 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { DB, StaffRole, UserAccount } from './db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rehabpath360_fallback_secure_jwt_token_key_2026';
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+
+  const isProduction =
+  process.env.NODE_ENV === 'production' ||
+  process.env.APP_MODE === 'deployment' ||
+  process.env.DEPLOYMENT_MODE === 'true' ||
+  process.env.NODE_ENV === 'deployment';
+
+  if (secret && secret.length >= 32) {
+    return secret;
+  }
+
+  if (isProduction) {
+    throw new Error(
+      'Production requires a unique JWT_SECRET of at least 32 characters.'
+    );
+  }
+
+  return 'rehabpath360-local-demo-only-secret-not-for-production';
+}
 const SESSION_EXPIRY = '2h';
 
 export interface AuthUserPayload {
@@ -29,7 +50,7 @@ export function generateToken(user: UserAccount): string {
     badge_number: user.badge_number,
     department: user.department,
   };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_EXPIRY });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: SESSION_EXPIRY });
 }
 
 export function authenticateToken(
@@ -46,7 +67,7 @@ export function authenticateToken(
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUserPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as AuthUserPayload;
     // Check if user still exists in DB and is active
     const userInDb = DB.findUserById(decoded.id, decoded.institution_id);
     if (!userInDb || userInDb.status !== 'active') {
