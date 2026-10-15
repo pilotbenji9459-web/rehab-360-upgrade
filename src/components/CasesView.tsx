@@ -214,7 +214,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
 
   const canEditWellbeing = hasRole(['Psychologist', 'Administrator']);
   const canDecidePlacement = hasRole(['Warden', 'Administrator']);
-  const canEditEducation = hasRole(['Educator', 'Case Manager', 'Warden', 'Administrator']);
+  const canEditEducation = hasRole(['Educator', 'Case Manager', 'Administrator']);
 
   const lowest = getLowestDomains(c, user?.role || 'Warden');
   const missingAlerts: string[] = [];
