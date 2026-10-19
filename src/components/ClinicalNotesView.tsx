@@ -119,6 +119,30 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Clinical Telemetry Visual Banner */}
+      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#071325] shadow-xl">
+        <div className="px-5 py-3 bg-[#0a1a33] border-b border-[#1e3a5f] flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block animate-pulse" />
+            <span className="font-mono font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-purple-400" />
+              PROTECTED CLINICAL PSYCHOMETRIC TELEMETRY · CASE {currentRecord.id}
+            </span>
+          </div>
+          <span className="font-semibold text-[#5cc2bd] font-mono">
+            RNR Multi-Axis Evaluation · Section 7 Confidential
+          </span>
+        </div>
+
+        <div className="p-3 sm:p-5 flex items-center justify-center bg-[#071325] w-full">
+          <img
+            src="/assets/images/clinical_psychometric_telemetry.svg"
+            alt="Clinical psychological evaluation telemetry radar and longitudinal mood tracking"
+            className="w-full h-auto max-h-[380px] sm:max-h-[420px] object-contain"
+          />
+        </div>
+      </div>
+
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

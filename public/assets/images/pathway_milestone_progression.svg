@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420">
+  <defs>
+    <linearGradient id="pmp-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040b17"/>
+      <stop offset="40%" stop-color="#08182f"/>
+      <stop offset="80%" stop-color="#0b2344"/>
+      <stop offset="100%" stop-color="#051020"/>
+    </linearGradient>
+    <linearGradient id="pmp-g1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+    <linearGradient id="pmp-g2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="pmp-g3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="pmp-g4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="pmp-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="960" height="420" fill="url(#pmp-bg)"/>
+
+  <!-- Subtle Perspective Grid -->
+  <g stroke="#152e4d" stroke-width="1" opacity="0.3">
+    <line x1="0" y1="360" x2="960" y2="360"/>
+    <line x1="0" y1="390" x2="960" y2="390"/>
+    <line x1="120" y1="200" x2="40" y2="420"/>
+    <line x1="360" y1="160" x2="280" y2="420"/>
+    <line x1="600" y1="120" x2="520" y2="420"/>
+    <line x1="840" y1="80" x2="760" y2="420"/>
+  </g>
+
+  <!-- Ascending Illuminated Pathway Wave -->
+  <path d="M 60 350 C 220 340, 260 270, 360 260 C 460 250, 500 180, 600 170 C 700 160, 750 90, 880 80" 
+        fill="none" stroke="#5cc2bd" stroke-width="6" opacity="0.4" filter="url(#pmp-glow)"/>
+  <path d="M 60 350 C 220 340, 260 270, 360 260 C 460 250, 500 180, 600 170 C 700 160, 750 90, 880 80" 
+        fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+
+  <!-- Stepping Stair Nodes along Pathway -->
+  <g fill="#0b1e36" stroke="#5cc2bd" stroke-width="1.5">
+    <polygon points="100,345 130,342 125,355 95,358"/>
+    <polygon points="160,335 190,330 185,343 155,348"/>
+    <polygon points="220,315 250,305 245,318 215,328"/>
+    <polygon points="280,285 310,275 305,288 275,298"/>
+    <polygon points="400,245 430,235 425,248 395,258"/>
+    <polygon points="460,225 490,212 485,225 455,238"/>
+    <polygon points="520,195 550,182 545,195 515,208"/>
+    <polygon points="640,155 670,142 665,155 635,168"/>
+    <polygon points="700,135 730,122 725,135 695,148"/>
+    <polygon points="760,105 790,92 785,105 755,118"/>
+  </g>
+
+  <!-- 4 Major Progressive Gate Portals -->
+
+  <!-- GATE 1: FOUNDATION (Emerald) -->
+  <g transform="translate(60, 180)">
+    <!-- Glowing Arch Outer -->
+    <path d="M 20 170 L 20 80 Q 20 20 70 20 Q 120 20 120 80 L 120 170" fill="none" stroke="#10b981" stroke-width="4" filter="url(#pmp-glow)"/>
+    <path d="M 30 170 L 30 85 Q 30 35 70 35 Q 110 35 110 85 L 110 170" fill="#062e22" fill-opacity="0.8" stroke="#34d399" stroke-width="1.5"/>
+    <!-- Portal Inner Horizon Glow -->
+    <ellipse cx="70" cy="110" rx="30" ry="40" fill="#10b981" fill-opacity="0.25" filter="url(#pmp-glow)"/>
+    <!-- Gate Shield Badge -->
+    <rect x="35" y="60" width="70" height="24" rx="4" fill="#042118" stroke="#10b981" stroke-width="1.2"/>
+    <text x="70" y="75" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle">LEVEL 1</text>
+    <!-- Sub-levels indicator -->
+    <text x="70" y="100" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle">FOUNDATION</text>
+    <text x="70" y="115" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">1A · 1B · 1C</text>
+    <!-- Threshold Meter -->
+    <rect x="25" y="132" width="90" height="14" rx="3" fill="#031610" stroke="#059669" stroke-width="1"/>
+    <rect x="27" y="134" width="65" height="10" rx="2" fill="url(#pmp-g1)"/>
+    <text x="70" y="142" fill="#ecfdf5" font-family="system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">70% GATE MET</text>
+  </g>
+
+  <!-- GATE 2: DEVELOPMENT (Sky / Cyan) -->
+  <g transform="translate(300, 110)">
+    <path d="M 20 160 L 20 70 Q 20 15 70 15 Q 120 15 120 70 L 120 160" fill="none" stroke="#38bdf8" stroke-width="4" filter="url(#pmp-glow)"/>
+    <path d="M 30 160 L 30 75 Q 30 28 70 28 Q 110 28 110 75 L 110 160" fill="#08223d" fill-opacity="0.8" stroke="#38bdf8" stroke-width="1.5"/>
+    <ellipse cx="70" cy="100" rx="30" ry="40" fill="#0284c7" fill-opacity="0.25" filter="url(#pmp-glow)"/>
+    <rect x="35" y="50" width="70" height="24" rx="4" fill="#081d33" stroke="#38bdf8" stroke-width="1.2"/>
+    <text x="70" y="65" fill="#bae6fd" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle">LEVEL 2</text>
+    <text x="70" y="90" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle">DEVELOPMENT</text>
+    <text x="70" y="105" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">2A · 2B · 2C</text>
+    <rect x="25" y="122" width="90" height="14" rx="3" fill="#041221" stroke="#0284c7" stroke-width="1"/>
+    <rect x="27" y="124" width="70" height="10" rx="2" fill="url(#pmp-g2)"/>
+    <text x="70" y="132" fill="#f0f9ff" font-family="system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">74% GATE MET</text>
+  </g>
+
+  <!-- GATE 3: CAPABILITY (Purple / Violet) -->
+  <g transform="translate(540, 50)">
+    <path d="M 20 150 L 20 65 Q 20 10 70 10 Q 120 10 120 65 L 120 150" fill="none" stroke="#c084fc" stroke-width="4" filter="url(#pmp-glow)"/>
+    <path d="M 30 150 L 30 70 Q 30 22 70 22 Q 110 22 110 70 L 110 150" fill="#201036" fill-opacity="0.8" stroke="#c084fc" stroke-width="1.5"/>
+    <ellipse cx="70" cy="90" rx="30" ry="40" fill="#7c3aed" fill-opacity="0.25" filter="url(#pmp-glow)"/>
+    <rect x="35" y="42" width="70" height="24" rx="4" fill="#1b0c30" stroke="#c084fc" stroke-width="1.2"/>
+    <text x="70" y="57" fill="#f3e8ff" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle">LEVEL 3</text>
+    <text x="70" y="80" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle">CAPABILITY</text>
+    <text x="70" y="95" fill="#e9d5ff" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">3A · 3B · 3C</text>
+    <rect x="25" y="112" width="90" height="14" rx="3" fill="#130722" stroke="#7c3aed" stroke-width="1"/>
+    <rect x="27" y="114" width="75" height="10" rx="2" fill="url(#pmp-g3)"/>
+    <text x="70" y="122" fill="#faf5ff" font-family="system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">78% GATE MET</text>
+  </g>
+
+  <!-- GATE 4: REINTEGRATION (Amber / Gold) -->
+  <g transform="translate(780, 0)">
+    <path d="M 20 150 L 20 60 Q 20 5 70 5 Q 120 5 120 60 L 120 150" fill="none" stroke="#fbbf24" stroke-width="4.5" filter="url(#pmp-glow)"/>
+    <path d="M 30 150 L 30 65 Q 30 18 70 18 Q 110 18 110 65 L 110 150" fill="#2d1c07" fill-opacity="0.85" stroke="#fbbf24" stroke-width="1.8"/>
+    <!-- Radiant Beacon of Freedom and Society -->
+    <circle cx="70" cy="50" r="16" fill="#fef08a" filter="url(#pmp-glow)"/>
+    <rect x="35" y="42" width="70" height="24" rx="4" fill="#261604" stroke="#fbbf24" stroke-width="1.2"/>
+    <text x="70" y="57" fill="#fef3c7" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle">LEVEL 4</text>
+    <text x="70" y="80" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle">REINTEGRATION</text>
+    <text x="70" y="95" fill="#fde68a" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">4A · 4B · 4C</text>
+    <rect x="25" y="112" width="90" height="14" rx="3" fill="#160c02" stroke="#d97706" stroke-width="1"/>
+    <rect x="27" y="114" width="85" height="10" rx="2" fill="url(#pmp-g4)"/>
+    <text x="70" y="122" fill="#fffbeb" font-family="system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">88% POST-RELEASE</text>
+  </g>
+
+  <!-- Top Institutional Header Strip -->
+  <g transform="translate(60, 20)">
+    <rect width="400" height="28" rx="6" fill="#0b1e38" stroke="#1d4370" stroke-width="1"/>
+    <circle cx="16" cy="14" r="5" fill="#5cc2bd"/>
+    <text x="30" y="18" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11" font-weight="700">
+      EVIDENCE-BASED 4-LEVEL PATHWAY ARCHITECTURE
+    </text>
+    <text x="385" y="18" fill="#5cc2bd" font-family="system-ui, sans-serif" font-size="9" font-weight="600" text-anchor="end">
+      12 Granular Sub-Levels
+    </text>
+  </g>
+
+  <!-- Footer Verification Guarantee Strip -->
+  <g transform="translate(40, 380)">
+    <rect width="880" height="30" rx="6" fill="#091c34" stroke="#1c3e66" stroke-width="1"/>
+    <circle cx="18" cy="15" r="4" fill="#10b981"/>
+    <text x="30" y="19" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="600">
+      Progression Rule: All 4 gate domains (Education, Behavior, Well-being, Skills) must reach &#8805; 70% verified evidence before stage advancement.
+    </text>
+    <text x="860" y="19" fill="#5cc2bd" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="end">
+      Zero Black-Box Progression
+    </text>
+  </g>
+</svg>
