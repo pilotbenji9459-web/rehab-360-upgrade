@@ -104,6 +104,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
                   <input
+                    style={{ paddingLeft: '48px' }}
                     type="email"
                     required
                     value={email}
@@ -130,6 +131,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
                   <input
+                    style={{ paddingLeft: '48px' }}
                     type="password"
                     required
                     value={password}
