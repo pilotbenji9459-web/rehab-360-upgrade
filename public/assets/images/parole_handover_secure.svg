@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="phs-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040e1c"/>
+      <stop offset="50%" stop-color="#081c33"/>
+      <stop offset="100%" stop-color="#041022"/>
+    </linearGradient>
+    <linearGradient id="phs-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#5cc2bd"/>
+    </linearGradient>
+    <linearGradient id="phs-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="phs-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="phs-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d2442"/>
+      <stop offset="100%" stop-color="#09182d"/>
+    </linearGradient>
+    <filter id="phs-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#phs-bg)"/>
+
+  <!-- Circuit & Alignment Grid -->
+  <g stroke="#143052" stroke-width="1" opacity="0.4">
+    <line x1="0" y1="75" x2="800" y2="75"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="225" x2="800" y2="225"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+    <line x1="0" y1="375" x2="800" y2="375"/>
+    <line x1="100" y1="0" x2="100" y2="450"/>
+    <line x1="200" y1="0" x2="200" y2="450"/>
+    <line x1="300" y1="0" x2="300" y2="450"/>
+    <line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="500" y1="0" x2="500" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+    <line x1="700" y1="0" x2="700" y2="450"/>
+  </g>
+
+  <!-- Cryptographic Handover Dossier (Center Stage) -->
+  <g transform="translate(180, 50)">
+    <!-- Main Dossier Card Shadow & Border -->
+    <rect x="-10" y="-10" width="460" height="340" rx="20" fill="#040b17" opacity="0.6"/>
+    <rect x="0" y="0" width="440" height="320" rx="16" fill="url(#phs-card)" stroke="#1e3e66" stroke-width="2"/>
+
+    <!-- Glowing Dossier Top Bar -->
+    <rect x="0" y="0" width="440" height="44" rx="16" fill="#0b1f38"/>
+    <rect x="0" y="32" width="440" height="12" fill="#0b1f38"/>
+    <line x1="0" y1="44" x2="440" y2="44" stroke="#1e3e66" stroke-width="1.5"/>
+
+    <!-- Dossier Indicators -->
+    <circle cx="24" cy="22" r="5" fill="#ef4444"/>
+    <circle cx="40" cy="22" r="5" fill="#f59e0b"/>
+    <circle cx="56" cy="22" r="5" fill="#10b981"/>
+    <text x="80" y="27" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">
+      OFFICIAL PAROLE HANDOVER PACKAGE · CONFIDENTIAL
+    </text>
+    <rect x="340" y="12" width="84" height="20" rx="4" fill="#0f2b1d" stroke="#10b981" stroke-width="1"/>
+    <text x="382" y="26" fill="#10b981" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">
+      AES-GCM-256
+    </text>
+
+    <!-- Institutional Hologram Seal (Left) -->
+    <g transform="translate(65, 115)">
+      <circle cx="0" cy="0" r="42" fill="#061628" stroke="#5cc2bd" stroke-width="2" filter="url(#phs-glow)"/>
+      <circle cx="0" cy="0" r="34" fill="#0a213a" stroke="#38bdf8" stroke-width="1"/>
+      <!-- Shield Motif -->
+      <path d="M 0 -18 L 16 -10 L 16 6 C 16 16, 0 24, 0 24 C 0 24, -16 16, -16 6 L -16 -10 Z" 
+            fill="none" stroke="#5cc2bd" stroke-width="2"/>
+      <circle cx="0" cy="3" r="5" fill="#38bdf8"/>
+      <!-- Verification Starburst Points -->
+      <line x1="0" y1="-26" x2="0" y2="-30" stroke="#5cc2bd" stroke-width="2"/>
+      <line x1="0" y1="26" x2="0" y2="30" stroke="#5cc2bd" stroke-width="2"/>
+      <line x1="-26" y1="0" x2="-30" y2="0" stroke="#5cc2bd" stroke-width="2"/>
+      <line x1="26" y1="0" x2="30" y2="0" stroke="#5cc2bd" stroke-width="2"/>
+      <text x="0" y="55" fill="#5cc2bd" font-family="system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+        VERIFIED SEAL
+      </text>
+    </g>
+
+    <!-- Offender Transition Telemetry Details (Right) -->
+    <g transform="translate(140, 75)">
+      <!-- Case Meta Box -->
+      <rect x="0" y="0" width="270" height="42" rx="8" fill="#061424" stroke="#1b395d" stroke-width="1"/>
+      <text x="12" y="18" fill="#64748b" font-family="system-ui, sans-serif" font-size="9" font-weight="600">SUBJECT ID</text>
+      <text x="12" y="34" fill="#f8fafc" font-family="monospace" font-size="13" font-weight="700">RP-1041 · MARCUS VANCE</text>
+      <text x="175" y="18" fill="#64748b" font-family="system-ui, sans-serif" font-size="9" font-weight="600">STAGE REACHED</text>
+      <text x="175" y="34" fill="#38bdf8" font-family="monospace" font-size="13" font-weight="700">LEVEL 4B (10/12)</text>
+
+      <!-- 4 Gate Completion Checklist -->
+      <g transform="translate(0, 56)">
+        <!-- Gate 1: Education -->
+        <rect x="0" y="0" width="130" height="32" rx="6" fill="#081e35" stroke="#10b981" stroke-width="1"/>
+        <circle cx="16" cy="16" r="6" fill="#10b981"/>
+        <path d="M 13 16 L 15 18 L 19 14" stroke="#04121d" stroke-width="1.8" fill="none"/>
+        <text x="28" y="16" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Education Gate</text>
+        <text x="28" y="26" fill="#10b981" font-family="monospace" font-size="9">85% PASS</text>
+
+        <!-- Gate 2: Behaviour -->
+        <rect x="140" y="0" width="130" height="32" rx="6" fill="#081e35" stroke="#10b981" stroke-width="1"/>
+        <circle cx="156" cy="16" r="6" fill="#10b981"/>
+        <path d="M 153 16 L 155 18 L 159 14" stroke="#04121d" stroke-width="1.8" fill="none"/>
+        <text x="168" y="16" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Behaviour Gate</text>
+        <text x="168" y="26" fill="#10b981" font-family="monospace" font-size="9">80% PASS</text>
+
+        <!-- Gate 3: Well-being -->
+        <rect x="0" y="40" width="130" height="32" rx="6" fill="#081e35" stroke="#10b981" stroke-width="1"/>
+        <circle cx="16" cy="56" r="6" fill="#10b981"/>
+        <path d="M 13 56 L 15 58 L 19 54" stroke="#04121d" stroke-width="1.8" fill="none"/>
+        <text x="28" y="56" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Clinical Health</text>
+        <text x="28" y="66" fill="#10b981" font-family="monospace" font-size="9">75% PASS</text>
+
+        <!-- Gate 4: Vocational Skills -->
+        <rect x="140" y="40" width="130" height="32" rx="6" fill="#081e35" stroke="#10b981" stroke-width="1"/>
+        <circle cx="156" cy="56" r="6" fill="#10b981"/>
+        <path d="M 153 56 L 155 58 L 159 54" stroke="#04121d" stroke-width="1.8" fill="none"/>
+        <text x="168" y="56" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Skills Gate</text>
+        <text x="168" y="66" fill="#10b981" font-family="monospace" font-size="9">90% PASS</text>
+      </g>
+
+      <!-- Digital Signature Hash Strip -->
+      <g transform="translate(0, 142)">
+        <rect x="0" y="0" width="270" height="26" rx="5" fill="#05101f" stroke="#1e3e66" stroke-width="1"/>
+        <text x="8" y="17" fill="#5cc2bd" font-family="monospace" font-size="9">
+          SHA256: d4a73e8f...c9102b54e7 [GOVERNOR SIGNED]
+        </text>
+      </g>
+    </g>
+
+    <!-- Handover Dispatch Flow Arrows & Badge (Bottom) -->
+    <g transform="translate(20, 260)">
+      <rect x="0" y="0" width="400" height="42" rx="8" fill="#071b30" stroke="#0284c7" stroke-width="1.5"/>
+      <circle cx="24" cy="21" r="10" fill="#0284c7"/>
+      <path d="M 21 21 L 27 21 M 25 18 L 28 21 L 25 24" stroke="#ffffff" stroke-width="2" fill="none"/>
+      <text x="44" y="18" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="700">
+        DESTINATION: NORTH REGIONAL PROBATION SERVICE
+      </text>
+      <text x="44" y="32" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="9">
+        Assigned Officer: Sarah Jenkins (Badge PROB-04) · Contact Protocol Active
+      </text>
+      <rect x="330" y="10" width="60" height="22" rx="4" fill="#0d9488" stroke="#5cc2bd" stroke-width="1"/>
+      <text x="360" y="25" fill="#ffffff" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">
+        READY
+      </text>
+    </g>
+  </g>
+
+  <!-- Left Supporting Node: Custodial Discharge Checklist -->
+  <g transform="translate(25, 120)">
+    <rect width="130" height="180" rx="12" fill="#07182c" stroke="#1b395d" stroke-width="1.5"/>
+    <rect width="130" height="28" rx="12" fill="#0c233e"/>
+    <rect y="20" width="130" height="8" fill="#0c233e"/>
+    <text x="65" y="19" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="9" font-weight="800" text-anchor="middle">
+      CUSTODIAL RELEASE
+    </text>
+    <g transform="translate(12, 45)" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="9" font-weight="600">
+      <circle cx="4" cy="8" r="3" fill="#10b981"/>
+      <text x="14" y="11">Identity Verified</text>
+      <circle cx="4" cy="30" r="3" fill="#10b981"/>
+      <text x="14" y="33">Housing Secured</text>
+      <circle cx="4" cy="52" r="3" fill="#10b981"/>
+      <text x="14" y="55">GP Registration</text>
+      <circle cx="4" cy="74" r="3" fill="#10b981"/>
+      <text x="14" y="77">Licence Conditions</text>
+      <circle cx="4" cy="96" r="3" fill="#10b981"/>
+      <text x="14" y="99">Travel Voucher</text>
+      <circle cx="4" cy="118" r="3" fill="#10b981"/>
+      <text x="14" y="121">Brief Encrypted</text>
+    </g>
+  </g>
+
+  <!-- Right Supporting Node: Community Supervision Protocol -->
+  <g transform="translate(645, 120)">
+    <rect width="130" height="180" rx="12" fill="#07182c" stroke="#1b395d" stroke-width="1.5"/>
+    <rect width="130" height="28" rx="12" fill="#0c233e"/>
+    <rect y="20" width="130" height="8" fill="#0c233e"/>
+    <text x="65" y="19" fill="#5cc2bd" font-family="system-ui, sans-serif" font-size="9" font-weight="800" text-anchor="middle">
+      COMMUNITY INTAKE
+    </text>
+    <g transform="translate(12, 45)" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="9" font-weight="600">
+      <circle cx="4" cy="8" r="3" fill="#38bdf8"/>
+      <text x="14" y="11">Day 1 Reporting</text>
+      <circle cx="4" cy="30" r="3" fill="#38bdf8"/>
+      <text x="14" y="33">Weekly Check-in</text>
+      <circle cx="4" cy="52" r="3" fill="#38bdf8"/>
+      <text x="14" y="55">Drug/Alc Testing</text>
+      <circle cx="4" cy="74" r="3" fill="#38bdf8"/>
+      <text x="14" y="77">Job Interview Prep</text>
+      <circle cx="4" cy="96" r="3" fill="#38bdf8"/>
+      <text x="14" y="99">Peer Mentorship</text>
+      <circle cx="4" cy="118" r="3" fill="#38bdf8"/>
+      <text x="14" y="121">Desistance Log</text>
+    </g>
+  </g>
+</svg>

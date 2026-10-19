@@ -135,6 +135,22 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Intake & Document Verification Visual Banner */}
+      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
+        <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-950">
+          <img
+            src="/assets/images/document_intake_telemetry.svg"
+            alt="Multi-format document ingestion, neural text extraction, and human verification pipeline"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1a30] via-transparent to-transparent" />
+          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-sky-950/80 border border-sky-500/50 text-xs font-mono text-[#38bdf8] backdrop-blur-sm">
+            MULTI-SOURCE PARSER · WORD, EXCEL &amp; PDF REPOSITORIES
+          </div>
+        </div>
+      </div>
+
       {/* Header card */}
       <div className="card">
         <div className="flex items-center gap-3 mb-2">

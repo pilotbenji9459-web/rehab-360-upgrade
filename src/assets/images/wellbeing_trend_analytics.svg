@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="wta-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040b17"/>
+      <stop offset="50%" stop-color="#081b34"/>
+      <stop offset="100%" stop-color="#030e1c"/>
+    </linearGradient>
+    <linearGradient id="wta-area" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5cc2bd" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0d9488" stop-opacity="0.0"/>
+    </linearGradient>
+    <linearGradient id="wta-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#5cc2bd"/>
+    </linearGradient>
+    <filter id="wta-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#wta-bg)"/>
+
+  <!-- Analytics Grid -->
+  <g stroke="#132b4b" stroke-width="1" opacity="0.45">
+    <line x1="80" y1="80" x2="740" y2="80"/>
+    <line x1="80" y1="140" x2="740" y2="140"/>
+    <line x1="80" y1="200" x2="740" y2="200"/>
+    <line x1="80" y1="260" x2="740" y2="260"/>
+    <line x1="80" y1="320" x2="740" y2="320"/>
+
+    <line x1="120" y1="60" x2="120" y2="340"/>
+    <line x1="240" y1="60" x2="240" y2="340"/>
+    <line x1="360" y1="60" x2="360" y2="340"/>
+    <line x1="480" y1="60" x2="480" y2="340"/>
+    <line x1="600" y1="60" x2="600" y2="340"/>
+    <line x1="720" y1="60" x2="720" y2="340"/>
+  </g>
+
+  <!-- Title & Status Header -->
+  <g transform="translate(80, 40)">
+    <circle cx="6" cy="6" r="6" fill="#5cc2bd"/>
+    <text x="22" y="10" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="14" font-weight="800">
+      LONGITUDINAL PSYCHOMETRIC &amp; WELL-BEING TRAJECTORY
+    </text>
+    <text x="500" y="10" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="11" font-weight="700">
+      5 REVIEW CYCLES · VERIFIED STABILITY
+    </text>
+  </g>
+
+  <!-- 70% Progress Gate Milestone Threshold -->
+  <line x1="80" y1="150" x2="740" y2="150" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <rect x="630" y="138" width="105" height="18" rx="4" fill="#2d1c06" stroke="#f59e0b" stroke-width="1"/>
+  <text x="682" y="151" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">
+    70% GATE THRESHOLD
+  </text>
+
+  <!-- Area Gradient Fill -->
+  <polygon points="120,290 240,245 360,210 480,140 600,105 720,85 720,320 120,320" fill="url(#wta-area)"/>
+
+  <!-- High-Fidelity Trajectory Curve Line -->
+  <path d="M 120 290 Q 180 270 240 245 T 360 210 T 480 140 T 600 105 T 720 85" 
+        fill="none" stroke="url(#wta-line)" stroke-width="3.5" filter="url(#wta-glow)"/>
+
+  <!-- Review Cycle Measurement Nodes -->
+  <g>
+    <!-- Cycle 1 (Baseline: 42%) -->
+    <circle cx="120" cy="290" r="7" fill="#041427" stroke="#0284c7" stroke-width="2.5"/>
+    <circle cx="120" cy="290" r="3" fill="#0284c7"/>
+    <rect x="90" y="250" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="120" y="265" fill="#bae6fd" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">42% (C1)</text>
+
+    <!-- Cycle 2 (Engagement: 54%) -->
+    <circle cx="240" cy="245" r="7" fill="#041427" stroke="#0284c7" stroke-width="2.5"/>
+    <circle cx="240" cy="245" r="3" fill="#0284c7"/>
+    <rect x="210" y="205" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="240" y="220" fill="#bae6fd" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">54% (C2)</text>
+
+    <!-- Cycle 3 (Stabilizing: 64%) -->
+    <circle cx="360" cy="210" r="7" fill="#041427" stroke="#38bdf8" stroke-width="2.5"/>
+    <circle cx="360" cy="210" r="3" fill="#38bdf8"/>
+    <rect x="330" y="170" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="360" y="185" fill="#38bdf8" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">64% (C3)</text>
+
+    <!-- Cycle 4 (Advancement: 78%) -->
+    <circle cx="480" cy="140" r="7" fill="#041427" stroke="#5cc2bd" stroke-width="2.5"/>
+    <circle cx="480" cy="140" r="3" fill="#5cc2bd"/>
+    <rect x="450" y="100" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="480" y="115" fill="#5cc2bd" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">78% (C4)</text>
+
+    <!-- Cycle 5 (Mastery: 86%) -->
+    <circle cx="600" cy="105" r="7" fill="#041427" stroke="#10b981" stroke-width="2.5"/>
+    <circle cx="600" cy="105" r="3" fill="#10b981"/>
+    <rect x="570" y="65" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="600" y="80" fill="#10b981" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">86% (C5)</text>
+
+    <!-- Cycle 6 Projection (Readiness: 92%) -->
+    <circle cx="720" cy="85" r="7" fill="#041427" stroke="#10b981" stroke-width="2.5"/>
+    <circle cx="720" cy="85" r="3" fill="#10b981"/>
+    <rect x="690" y="45" width="60" height="22" rx="4" fill="#07192f" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="720" y="60" fill="#10b981" font-family="monospace" font-size="10" font-weight="700" text-anchor="middle">92% (PROJ)</text>
+  </g>
+
+  <!-- Bottom Metric Summary Cards -->
+  <g transform="translate(80, 360)">
+    <!-- Card 1 -->
+    <rect x="0" y="0" width="190" height="60" rx="8" fill="#071b32" stroke="#1b395d" stroke-width="1"/>
+    <text x="14" y="20" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" font-weight="600">OVERALL TRAJECTORY</text>
+    <text x="14" y="44" fill="#5cc2bd" font-family="monospace" font-size="18" font-weight="800">+44% GAIN</text>
+
+    <!-- Card 2 -->
+    <rect x="210" y="0" width="190" height="60" rx="8" fill="#071b32" stroke="#1b395d" stroke-width="1"/>
+    <text x="14" y="20" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" font-weight="600">LOW-MOOD CYCLES</text>
+    <text x="14" y="44" fill="#38bdf8" font-family="monospace" font-size="18" font-weight="800">REDUCED TO 0</text>
+
+    <!-- Card 3 -->
+    <rect x="420" y="0" width="240" height="60" rx="8" fill="#071b32" stroke="#1b395d" stroke-width="1"/>
+    <text x="14" y="20" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" font-weight="600">CLINICAL STABILITY AUDIT</text>
+    <text x="14" y="44" fill="#10b981" font-family="system-ui, sans-serif" font-size="13" font-weight="700">VERIFIED FOR ADVANCEMENT</text>
+  </g>
+</svg>

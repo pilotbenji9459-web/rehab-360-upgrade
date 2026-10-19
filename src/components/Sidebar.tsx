@@ -205,7 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto p-3.5 space-y-1 scrollbar-thin" aria-label="Main Navigation">
-          <div className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+          <div className="px-2 pb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
             Institutional Portal
           </div>
           {visibleItems.map((item) => {
@@ -216,15 +216,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'bg-gradient-to-r from-[#0284c7] to-[#0369a1] text-white shadow-md shadow-[#0284c7]/25 font-semibold'
-                    : 'text-slate-300 hover:text-white hover:bg-[#0f2744]/70'
+                    : 'text-slate-200 hover:text-white hover:bg-[#0f2744]/70'
                 }`}
               >
                 <div className="flex items-center gap-3 truncate">
                   <Icon
-                    className={`w-4 h-4 shrink-0 ${
+                    className={`w-5 h-5 shrink-0 ${
                       isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                     }`}
                   />
@@ -232,7 +232,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 {item.badge && (
                   <span
-                    className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full uppercase ${
+                    className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
                       isActive
                         ? 'bg-white/20 text-white'
                         : 'bg-[#5cc2bd]/20 text-[#5cc2bd] border border-[#5cc2bd]/30'
@@ -249,15 +249,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Active Staff User Profile Footer */}
         {user && (
           <div className="p-3.5 border-t border-[#1e3a5f] bg-[#0b1a30]/80">
-            <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#0f2744] border border-[#1e3a5f]/80">
+            <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]/80">
               <div className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold text-white truncate">
+                <span className="block text-sm font-semibold text-white truncate">
                   {user.full_name}
                 </span>
-                <span className="block text-[10px] text-[#5cc2bd] font-medium truncate">
+                <span className="block text-xs text-[#5cc2bd] font-semibold truncate">
                   {getCustomDesignation(user.role)}
                 </span>
-                <span className="block text-[9px] text-slate-400 font-mono">
+                <span className="block text-xs text-slate-400 font-mono mt-0.5">
                   #{user.badge_number} · {user.department}
                 </span>
               </div>

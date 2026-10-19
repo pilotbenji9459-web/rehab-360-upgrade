@@ -224,6 +224,22 @@ export const CasesView: React.FC<CasesViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Multi-Agency Civic Directory Banner */}
+      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
+        <div className="relative h-44 sm:h-52 w-full overflow-hidden bg-slate-950">
+          <img
+            src="/assets/images/community_transition_network.svg"
+            alt="Multi-agency civic transition network and case directory"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1a30] via-transparent to-transparent" />
+          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-900/80 border border-[#1e3a5f] text-xs font-mono text-[#5cc2bd] backdrop-blur-sm">
+            CASELOAD REPOSITORY · MULTI-AGENCY INTEROPERABILITY
+          </div>
+        </div>
+      </div>
+
       {/* Caseload Directory & Search */}
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -272,20 +288,20 @@ export const CasesView: React.FC<CasesViewProps> = ({
         {/* Filter controls */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-[var(--mute)] absolute left-3 top-3 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by ID, name, or offence..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded border border-[var(--line)] bg-[var(--panel)]"
+              className="w-full pl-9.5 pr-3 py-2 text-xs rounded-xl border border-[var(--line)] bg-[var(--panel)] text-white focus:outline-none focus:border-[#0284c7]"
             />
           </div>
 
           <select
             value={filterSeverity}
             onChange={(e) => setFilterSeverity(e.target.value)}
-            className="text-xs rounded border border-[var(--line)] py-1.5 px-2 bg-[var(--panel)]"
+            className="text-xs rounded-xl border border-[var(--line)] py-2 px-3 bg-[var(--panel)] text-white"
           >
             <option value="all">All Crime Severities</option>
             <option value="1">Severity 1 (Low)</option>
@@ -298,7 +314,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
           <select
             value={filterDecision}
             onChange={(e) => setFilterDecision(e.target.value)}
-            className="text-xs rounded border border-[var(--line)] py-1.5 px-2 bg-[var(--panel)]"
+            className="text-xs rounded-xl border border-[var(--line)] py-2 px-3 bg-[var(--panel)] text-white"
           >
             <option value="all">All Verification Statuses</option>
             <option value="pending">Pending Human Review</option>
@@ -308,7 +324,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
           </select>
         </div>
 
-        <div className="scroll-container">
+        <div className="overflow-x-auto rounded-xl border border-[var(--line)]">
           <table className="app-table">
             <thead>
               <tr>

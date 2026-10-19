@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="ctn-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040b17"/>
+      <stop offset="50%" stop-color="#071932"/>
+      <stop offset="100%" stop-color="#030c18"/>
+    </linearGradient>
+    <linearGradient id="ctn-hub" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#5cc2bd"/>
+    </linearGradient>
+    <filter id="ctn-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#ctn-bg)"/>
+
+  <!-- Network Connectivity Grid -->
+  <g stroke="#122c4a" stroke-width="1" opacity="0.35">
+    <circle cx="400" cy="225" r="120" fill="none"/>
+    <circle cx="400" cy="225" r="190" fill="none"/>
+    <line x1="100" y1="225" x2="700" y2="225"/>
+    <line x1="400" y1="40" x2="400" y2="410"/>
+  </g>
+
+  <!-- Title Banner -->
+  <g transform="translate(60, 30)">
+    <circle cx="10" cy="12" r="6" fill="#5cc2bd"/>
+    <text x="26" y="16" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="13" font-weight="800">
+      MULTI-AGENCY CIVIC RE-ENTRY &amp; TRANSITION NETWORK
+    </text>
+    <text x="500" y="16" fill="#38bdf8" font-family="monospace" font-size="10" font-weight="700">
+      CROSS-AGENCY INTEROPERABILITY
+    </text>
+  </g>
+
+  <!-- Radial Linking Beams -->
+  <!-- Link to Node 1: Custodial Centre -->
+  <line x1="400" y1="225" x2="180" y2="120" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <!-- Link to Node 2: Probation Service -->
+  <line x1="400" y1="225" x2="620" y2="120" stroke="#5cc2bd" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <!-- Link to Node 3: Housing Authority -->
+  <line x1="400" y1="225" x2="180" y2="330" stroke="#10b981" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <!-- Link to Node 4: Healthcare / NHS Continuity -->
+  <line x1="400" y1="225" x2="620" y2="330" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <!-- Link to Node 5: Employer Partners (Top) -->
+  <line x1="400" y1="225" x2="400" y2="75" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 4"/>
+  <!-- Link to Node 6: Family & Peer Support (Bottom) -->
+  <line x1="400" y1="225" x2="400" y2="375" stroke="#ec4899" stroke-width="2" stroke-dasharray="4 4"/>
+
+  <!-- Center Hub: Secure Multi-Agency Core -->
+  <g transform="translate(400, 225)">
+    <circle cx="0" cy="0" r="54" fill="#061a30" stroke="#5cc2bd" stroke-width="3" filter="url(#ctn-glow)"/>
+    <circle cx="0" cy="0" r="42" fill="#09284d" stroke="#38bdf8" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="28" fill="#0c3866"/>
+    <!-- Central Shield Motif -->
+    <path d="M 0 -14 L 12 -7 L 12 5 C 12 12, 0 17, 0 17 C 0 17, -12 12, -12 5 L -12 -7 Z" 
+          fill="none" stroke="#5cc2bd" stroke-width="2"/>
+    <circle cx="0" cy="2" r="4" fill="#38bdf8"/>
+    <text x="0" y="70" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="11" font-weight="800" text-anchor="middle">
+      SECURE TRANSITION HUB
+    </text>
+    <text x="0" y="84" fill="#5cc2bd" font-family="monospace" font-size="9" text-anchor="middle">
+      ENCRYPTED DATA FLOW
+    </text>
+  </g>
+
+  <!-- Node 1: Custodial Centre (Top Left) -->
+  <g transform="translate(180, 120)">
+    <rect x="-80" y="-35" width="160" height="70" rx="10" fill="#081e36" stroke="#0284c7" stroke-width="1.5"/>
+    <circle cx="-55" cy="0" r="15" fill="#0a2a4c" stroke="#38bdf8" stroke-width="1"/>
+    <text x="-55" y="4" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">HMP</text>
+    <text x="-25" y="-8" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="700">Custodial Institution</text>
+    <text x="-25" y="6" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="8">4-Gate Completion</text>
+    <text x="-25" y="18" fill="#38bdf8" font-family="monospace" font-size="8">DISCHARGE READY</text>
+  </g>
+
+  <!-- Node 2: Community Probation Service (Top Right) -->
+  <g transform="translate(620, 120)">
+    <rect x="-80" y="-35" width="160" height="70" rx="10" fill="#072224" stroke="#5cc2bd" stroke-width="1.5"/>
+    <circle cx="-55" cy="0" r="15" fill="#0c373b" stroke="#5cc2bd" stroke-width="1"/>
+    <text x="-55" y="4" fill="#5cc2bd" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">PROB</text>
+    <text x="-25" y="-8" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="700">Probation Service</text>
+    <text x="-25" y="6" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="8">Licence Supervision</text>
+    <text x="-25" y="18" fill="#5cc2bd" font-family="monospace" font-size="8">ASSIGNED OFFICER</text>
+  </g>
+
+  <!-- Node 3: Housing Referral Authority (Bottom Left) -->
+  <g transform="translate(180, 330)">
+    <rect x="-80" y="-35" width="160" height="70" rx="10" fill="#061e18" stroke="#10b981" stroke-width="1.5"/>
+    <circle cx="-55" cy="0" r="15" fill="#0b382d" stroke="#10b981" stroke-width="1"/>
+    <text x="-55" y="4" fill="#10b981" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">HOME</text>
+    <text x="-25" y="-8" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="700">Approved Housing</text>
+    <text x="-25" y="6" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="8">Supported Placement</text>
+    <text x="-25" y="18" fill="#10b981" font-family="monospace" font-size="8">ADDRESS CONFIRMED</text>
+  </g>
+
+  <!-- Node 4: Healthcare & NHS Continuity (Bottom Right) -->
+  <g transform="translate(620, 330)">
+    <rect x="-80" y="-35" width="160" height="70" rx="10" fill="#241805" stroke="#f59e0b" stroke-width="1.5"/>
+    <circle cx="-55" cy="0" r="15" fill="#422908" stroke="#f59e0b" stroke-width="1"/>
+    <text x="-55" y="4" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">NHS</text>
+    <text x="-25" y="-8" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="10" font-weight="700">Healthcare Continuity</text>
+    <text x="-25" y="6" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="8">GP &amp; Substance Support</text>
+    <text x="-25" y="18" fill="#f59e0b" font-family="monospace" font-size="8">TRANSFER READY</text>
+  </g>
+
+  <!-- Node 5: Industry Employers Network (Top Center) -->
+  <g transform="translate(400, 75)">
+    <rect x="-70" y="-20" width="140" height="40" rx="8" fill="#170c26" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="0" y="-3" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">Certified Employers</text>
+    <text x="0" y="10" fill="#c084fc" font-family="monospace" font-size="8" text-anchor="middle">APPRENTICESHIP LINKS</text>
+  </g>
+
+  <!-- Node 6: Family & Peer Mentorship Network (Bottom Center) -->
+  <g transform="translate(400, 375)">
+    <rect x="-70" y="-20" width="140" height="40" rx="8" fill="#240c1a" stroke="#ec4899" stroke-width="1.5"/>
+    <text x="0" y="-3" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">Family &amp; Mentorship</text>
+    <text x="0" y="10" fill="#f472b6" font-family="monospace" font-size="8" text-anchor="middle">PRO-SOCIAL TIES</text>
+  </g>
+</svg>

@@ -16,6 +16,17 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+import heroBannerImg from '../assets/images/rehab_hero_banner_1792261204190.jpg';
+import clinicalTelemetryImg from '../assets/images/clinical_psychometric_telemetry.svg';
+import tradeMasteryImg from '../assets/images/vocational_trade_mastery_1792261681702.jpg';
+import paroleHandoverImg from '../assets/images/parole_handover_secure.svg';
+import pathwayMilestoneImg from '../assets/images/pathway_milestone_progression.svg';
+import foundationImg from '../assets/images/psych_assessment_1792261204307.jpg';
+import developmentImg from '../assets/images/education_classroom_1792261680983.jpg';
+import capabilityImg from '../assets/images/vocational_skills_1792261206507.jpg';
+import reintegrationImg from '../assets/images/community_reintegration_1792261209316.jpg';
+import caseReviewImg from '../assets/images/milestone_gate_review_1792261681316.jpg';
+
 interface LandingPageProps {
   onOpenLogin: () => void;
   onExploreDemo: () => void;
@@ -112,23 +123,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
             </a>
           </div>
 
+          {/* Hero Showcase Illustration */}
+          <div className="mt-12 relative max-w-4xl mx-auto rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl shadow-[#0284c7]/20 group">
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#0a1a33] border-b border-[#1e3a5f] text-xs text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                <span className="ml-2 font-mono text-xs text-slate-300">RehabPath360 · Multi-Disciplinary Case Pathway Planning</span>
+              </div>
+              <span className="text-xs text-[#5cc2bd] font-medium hidden sm:inline-block">AI Placement Verification Active</span>
+            </div>
+            <img
+              src={heroBannerImg}
+              alt="RehabPath360 Case Management and Pathway Planning Dashboard Workspace"
+              referrerPolicy="no-referrer"
+              className="w-full h-auto object-cover max-h-[480px] transition-transform duration-300 group-hover:scale-[1.01]"
+            />
+          </div>
+
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto text-left">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <span className="text-2xl font-bold text-white font-serif">9 Domains</span>
-              <p className="text-xs text-slate-400 mt-1">Multi-dimensional matrix covering education, behavior, and wellbeing</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto text-left">
+            <div className="p-4.5 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm">
+              <span className="text-3xl font-bold text-white font-serif">9 Domains</span>
+              <p className="text-sm text-slate-300 mt-1.5 leading-snug">Multi-dimensional matrix covering education, behavior, and wellbeing</p>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <span className="text-2xl font-bold text-[#5cc2bd] font-serif">70% Gate</span>
-              <p className="text-xs text-slate-400 mt-1">Strict evidentiary milestone threshold required prior to advancement</p>
+            <div className="p-4.5 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm">
+              <span className="text-3xl font-bold text-[#5cc2bd] font-serif">70% Gate</span>
+              <p className="text-sm text-slate-300 mt-1.5 leading-snug">Strict evidentiary milestone threshold required prior to advancement</p>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <span className="text-2xl font-bold text-[#38bdf8] font-serif">100% Verified</span>
-              <p className="text-xs text-slate-400 mt-1">Mandatory human officer verification for all algorithmic suggestions</p>
+            <div className="p-4.5 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm">
+              <span className="text-3xl font-bold text-[#38bdf8] font-serif">100% Verified</span>
+              <p className="text-sm text-slate-300 mt-1.5 leading-snug">Mandatory human officer verification for all algorithmic suggestions</p>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <span className="text-2xl font-bold text-amber-400 font-serif">AES-256-GCM</span>
-              <p className="text-xs text-slate-400 mt-1">Client-side authenticated encryption for community parole handover briefs</p>
+            <div className="p-4.5 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm">
+              <span className="text-3xl font-bold text-amber-400 font-serif">AES-256-GCM</span>
+              <p className="text-sm text-slate-300 mt-1.5 leading-snug">Client-side authenticated encryption for community parole handover briefs</p>
             </div>
           </div>
         </div>
@@ -142,98 +172,98 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
             <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">
               Engineered for Accountability &amp; Clinical Precision
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base">
+            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
               Every design decision prioritizes data integrity, role-based privacy separation, and transparent rehabilitation progression.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-[#38bdf8] flex items-center justify-center mb-5">
                   <BrainCircuit className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Explainable AI (XAI) Placement</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Explainable AI (XAI) Placement</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   Calculates protective index from engagement, education, and support against risk loads. Transparently maps scores into Foundation, Development, Capability, and Reintegration bands.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-[#38bdf8] font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#38bdf8] font-medium">
                 No black boxes · Human override required
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-[#5cc2bd] flex items-center justify-center mb-5">
                   <FileSpreadsheet className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Multiformat Document Intake</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Multiformat Document Intake</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   Ingest Word (.docx), Excel spreadsheets (.xlsx, .csv), and PDFs directly. AI extracts candidate fields, detects record discrepancies, and requires human confirmation before saving.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-[#5cc2bd] font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#5cc2bd] font-medium">
                 Column mapper &amp; source citations
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-5">
                   <Lock className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Strict Clinical Least-Privilege</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Strict Clinical Least-Privilege</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   Psychological evaluations and mental health notes are strictly isolated. Educators and Case Managers only see authorized operational parameters, enforced on the server and database.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-purple-400 font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-purple-400 font-medium">
                 Row-level security &amp; field masking
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-5">
                   <Activity className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Longitudinal Review Trends</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Longitudinal Review Trends</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   Multi-cycle SVG progress tracking maps placement score curves alongside average gate completion across successive review cycles against the 70% threshold.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-amber-400 font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-amber-400 font-medium">
                 5-cycle comparative history
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Tamper-Evident Audit Trail</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Tamper-Evident Audit Trail</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   Immutable server-side logging of logins, clinical note submissions, gate changes, and document imports. Cryptographic hash-chaining prevents retroactive alterations.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-emerald-400 font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-emerald-400 font-medium">
                 Full chronological accountability
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-5">
                   <Award className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 font-serif">Parole Handover Encryption</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Parole Handover Encryption</h3>
+                <p className="text-base text-slate-300 leading-relaxed">
                   When offenders reach Reintegration, generate an authenticated AES-256-GCM encrypted brief package for community probation officers to ensure seamless post-release care.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-xs text-rose-400 font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-rose-400 font-medium">
                 WebCrypto browser-grade encryption
               </div>
             </div>
@@ -241,52 +271,253 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
         </div>
       </section>
 
+      {/* Visual Domain Showcase */}
+      <section className="py-20 px-6 bg-[#071325] border-t border-slate-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Comprehensive Intervention Framework</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">
+              Three Pillars of Offender Transformation
+            </h2>
+            <p className="text-slate-300 text-base leading-relaxed">
+              Targeting criminogenic needs through coordinated psychological support, vocational skill mastery, and sustained community reintegration.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Pillar 1: Clinical Psychology */}
+            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#5cc2bd]/50 transition-all">
+              <div className="h-52 overflow-hidden bg-[#071325] flex items-center justify-center p-2">
+                <img
+                  src="/assets/images/clinical_psychometric_telemetry.svg"
+                  alt="Clinical psychology psychometric telemetry and multi-axis evaluation"
+                  className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#5cc2bd] block mb-2">Domain 1 · Clinical Health</span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-serif mb-2.5">Psychological Assessment</h3>
+                  <p className="text-base text-slate-300 leading-relaxed">
+                    Licensed psychologists administer cognitive behavioral assessments, track mood indices across review cycles, and author protected evaluations with strict least-privilege isolation.
+                  </p>
+                </div>
+                <div className="mt-5 pt-3 border-t border-slate-800 text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-purple-400" />
+                  Protected Clinical Access
+                </div>
+              </div>
+            </div>
+
+            {/* Pillar 2: Vocational Skills */}
+            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#0284c7]/50 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950">
+                <img
+                  src="/assets/images/vocational_trade_mastery_1792261681702.jpg"
+                  alt="Vocational workshop training and accredited technical education"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#38bdf8] block mb-2">Domain 2 · Vocational &amp; Literacy</span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-serif mb-2.5">Vocational &amp; Trade Skills</h3>
+                  <p className="text-base text-slate-300 leading-relaxed">
+                    Offenders earn verified industry credentials (forklift licences, business administration, health &amp; safety), raising vocational capability gates before stage advancement.
+                  </p>
+                </div>
+                <div className="mt-5 pt-3 border-t border-slate-800 text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  Accredited Certification Tracking
+                </div>
+              </div>
+            </div>
+
+            {/* Pillar 3: Community Reintegration */}
+            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-emerald-500/50 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950">
+                <img
+                  src="/assets/images/parole_handover_secure.svg"
+                  alt="Cryptographic parole handover and community supervision dispatch"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-2">Domain 3 · Reintegration</span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-serif mb-2.5">Community Reintegration</h3>
+                  <p className="text-base text-slate-300 leading-relaxed">
+                    Parole officers receive AES-256-GCM encrypted transfer briefs, coordinating community housing, healthcare continuity, and family support networks for lasting desistance.
+                  </p>
+                </div>
+                <div className="mt-5 pt-3 border-t border-slate-800 text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  AES-256 Encrypted Transfer Brief
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 4-Level Framework */}
-      <section id="framework" className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+      <section id="framework" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
             <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Structured Rehabilitation</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">The 4-Level Pathway Model</h2>
-            <p className="text-slate-400 text-sm max-w-2xl mx-auto">
+            <p className="text-slate-300 text-base max-w-2xl mx-auto leading-relaxed">
               Every individual progresses through distinct evidence-based stages with Sub-levels A, B, and C ensuring granular milestones.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/70 border-l-4 border-emerald-500 border-y border-r border-slate-800">
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Level 1</span>
-              <h3 className="text-xl font-bold text-white mt-1 mb-2 font-serif">Foundation</h3>
-              <p className="text-xs font-semibold text-slate-300 mb-2">Objective: Behavioural and personal foundation</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Focuses on self-awareness, conflict de-escalation, motivation, values, family connections, basic literacy, and clinical stabilization.
-              </p>
+          {/* Pathway Progression Visual Banner */}
+          <div className="mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
+            <img
+              src="/assets/images/pathway_milestone_progression.svg"
+              alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
+              referrerPolicy="no-referrer"
+              className="w-full h-auto object-cover max-h-[380px]"
+            />
+            <div className="p-4 bg-[#071325] border-t border-[#1e3a5f] flex flex-wrap items-center justify-between gap-4 text-xs">
+              <span className="font-semibold text-white tracking-wide">
+                Progression Rule: All 4 gate domains (Education, Behavior, Well-being, Skills) must reach &ge; 70% verified evidence before stage advancement.
+              </span>
+              <span className="text-[#5cc2bd] font-medium font-mono">12 Sub-levels · Human Verified</span>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-7">
+            {/* Level 1: Foundation */}
+            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-emerald-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950 relative">
+                <img
+                  src="/assets/images/psych_assessment_1792261204307.jpg"
+                  alt="Level 1 Foundation: Psychological clinical evaluation and emotional stabilization"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Level 1 · Sub-levels 1A, 1B, 1C
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Foundation</h3>
+                <p className="text-base font-semibold text-emerald-400 mb-2">
+                  Objective: Behavioural and emotional foundation
+                </p>
+                <p className="text-base text-slate-300 leading-relaxed">
+                  Focuses on self-awareness, conflict de-escalation, motivation, values, family connections, basic literacy, and clinical mental stabilization.
+                </p>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/70 border-l-4 border-[#0079d6] border-y border-r border-slate-800">
-              <span className="text-xs font-bold text-[#38bdf8] uppercase tracking-wider">Level 2</span>
-              <h3 className="text-xl font-bold text-white mt-1 mb-2 font-serif">Development</h3>
-              <p className="text-xs font-semibold text-slate-300 mb-2">Objective: Strengthen education &amp; social capability</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Advanced behavioral programmes, communication workshops, problem-solving groups, family counseling, and vocational exposure.
-              </p>
+            {/* Level 2: Development */}
+            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-[#0079d6] overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950 relative">
+                <img
+                  src="/assets/images/education_classroom_1792261680983.jpg"
+                  alt="Level 2 Development: Adult education classroom learning and pro-social capability"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-500/50 text-[#38bdf8] text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Level 2 · Sub-levels 2A, 2B, 2C
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Development</h3>
+                <p className="text-base font-semibold text-[#38bdf8] mb-2">
+                  Objective: Strengthen education &amp; social capability
+                </p>
+                <p className="text-base text-slate-300 leading-relaxed">
+                  Advanced behavioral programmes, communication workshops, collaborative problem-solving groups, family counseling, and vocational exposure.
+                </p>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/70 border-l-4 border-purple-500 border-y border-r border-slate-800">
-              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Level 3</span>
-              <h3 className="text-xl font-bold text-white mt-1 mb-2 font-serif">Capability</h3>
-              <p className="text-xs font-semibold text-slate-300 mb-2">Objective: Independent-life &amp; trade credentials</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Vocational training with accredited certification, digital skills, workplace health &amp; safety, and ongoing psychological resilience.
-              </p>
+            {/* Level 3: Capability */}
+            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-purple-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950 relative">
+                <img
+                  src="/assets/images/vocational_skills_1792261206507.jpg"
+                  alt="Level 3 Capability: Vocational trade workshop and certified technical skills"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-purple-950/80 border border-purple-500/50 text-purple-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Level 3 · Sub-levels 3A, 3B, 3C
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Capability</h3>
+                <p className="text-base font-semibold text-purple-300 mb-2">
+                  Objective: Independent-life &amp; trade credentials
+                </p>
+                <p className="text-base text-slate-300 leading-relaxed">
+                  Vocational workshop training with accredited certification, digital skills, workplace health &amp; safety, and ongoing psychological resilience.
+                </p>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/70 border-l-4 border-amber-500 border-y border-r border-slate-800">
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Level 4</span>
-              <h3 className="text-xl font-bold text-white mt-1 mb-2 font-serif">Reintegration</h3>
-              <p className="text-xs font-semibold text-slate-300 mb-2">Objective: Community transition &amp; employment readiness</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Job interview simulations, CV preparation, community housing referrals, healthcare continuity, and encrypted handover dispatch.
+            {/* Level 4: Reintegration */}
+            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-amber-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+              <div className="h-52 overflow-hidden bg-slate-950 relative">
+                <img
+                  src="/assets/images/community_reintegration_1792261209316.jpg"
+                  alt="Level 4 Reintegration: Community transition and probation officer handover support"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Level 4 · Sub-levels 4A, 4B, 4C
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Reintegration</h3>
+                <p className="text-base font-semibold text-amber-400 mb-2">
+                  Objective: Community transition &amp; employment readiness
+                </p>
+                <p className="text-base text-slate-300 leading-relaxed">
+                  Job interview simulations, CV preparation, community housing referrals, healthcare continuity, and encrypted handover dispatch to probation officers.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Multidisciplinary Case Review Showcase */}
+          <div className="mt-14 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0e2444] to-[#11305c] border border-[#1e3a5f] overflow-hidden shadow-2xl flex flex-col lg:flex-row items-center">
+            <div className="lg:w-1/2 h-72 lg:h-80 overflow-hidden bg-slate-950 w-full shrink-0">
+              <img
+                src="/assets/images/milestone_gate_review_1792261681316.jpg"
+                alt="Multidisciplinary Case Conference Team evaluating offender evidence"
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-8 lg:p-10 flex-1">
+              <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold block mb-2">
+                Human-in-the-Loop Governance
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-serif">
+                Multidisciplinary Case Conferences
+              </h3>
+              <p className="text-base text-slate-300 leading-relaxed mb-4">
+                Before any offender advances through a pathway gate, clinical psychologists, case managers, education officers, and custodial wardens convene. Placement suggestions from explainable algorithms must be confirmed or adjusted with formal rationale recorded in the immutable audit trail.
               </p>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-3 py-1 rounded-lg bg-[#071325]/80 border border-[#1e3a5f] text-xs font-semibold text-white">
+                  100% Verified By Staff
+                </span>
+                <span className="px-3 py-1 rounded-lg bg-[#071325]/80 border border-[#1e3a5f] text-xs font-semibold text-[#5cc2bd]">
+                  ≥70% Multi-Domain Evidence
+                </span>
+                <span className="px-3 py-1 rounded-lg bg-[#071325]/80 border border-[#1e3a5f] text-xs font-semibold text-[#38bdf8]">
+                  Zero Black-Box Progression
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -304,15 +535,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-sm text-slate-200">
               <thead className="bg-slate-800/80 text-white font-semibold border-b border-slate-700">
                 <tr>
-                  <th className="py-3 px-4">Role</th>
-                  <th className="py-3 px-4">Pathway Verification</th>
-                  <th className="py-3 px-4">Clinical Notes</th>
-                  <th className="py-3 px-4">Education / Gate Edits</th>
-                  <th className="py-3 px-4">Document Import &amp; AI</th>
-                  <th className="py-3 px-4">Audit Logs</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Role</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Pathway Verification</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Clinical Notes</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Education / Gate Edits</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Document Import &amp; AI</th>
+                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Audit Logs</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-medium">
