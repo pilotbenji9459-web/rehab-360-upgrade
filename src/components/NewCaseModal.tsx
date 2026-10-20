@@ -75,9 +75,9 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in"
+      className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto overscroll-contain bg-black/75 backdrop-blur-sm px-3 py-4 sm:p-6 animate-fade-in"
     >
-      <div className="relative w-full max-w-2xl rounded-2xl bg-[#0c1c36] border border-slate-700 text-slate-100 shadow-2xl p-6 sm:p-8 my-8">
+      <div className="relative my-auto w-full max-w-2xl shrink-0 rounded-2xl bg-[#0c1c36] border border-slate-700 text-slate-100 shadow-2xl p-4 sm:p-8">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0284c7] via-[#5cc2bd] to-[#38bdf8]" />
 
         <button
