@@ -153,7 +153,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in min-w-0">
       {/* Top Welcome & Institutional Status Strip */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0f2744] to-[#123158] border border-[#1e3a5f] text-white shadow-xl relative overflow-hidden">
         {/* Subtle decorative glow */}
@@ -282,11 +282,11 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       {/* Main Grid: Rehabilitation Progress Chart + Needs Attention Queue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rehabilitation Progress Chart (2 Cols) */}
-        <div className="lg:col-span-2 card bg-[#0b1a30]">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-2 card min-w-0 bg-[#0b1a30]">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold font-serif text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#0284c7]" />
+              <h2 className="text-lg sm:text-xl font-bold font-serif text-white flex items-start gap-2 leading-snug">
+                <TrendingUp className="w-5 h-5 text-[#0284c7] shrink-0 mt-1" />
                 <span>Rehabilitation Pathway Cohort Progress</span>
               </h2>
               <p className="text-sm text-slate-300 mt-0.5">
@@ -296,7 +296,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             <button
               type="button"
               onClick={() => onSelectTab('prog')}
-              className="text-sm text-[#38bdf8] hover:underline font-semibold cursor-pointer"
+              className="text-sm text-[#38bdf8] hover:underline font-semibold cursor-pointer shrink-0 self-start whitespace-nowrap"
             >
               Progression Matrix →
             </button>
@@ -315,45 +315,45 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <span className="text-xs font-bold text-slate-300 block mb-2 uppercase tracking-wider">
                   Pathway Level Distribution
                 </span>
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  <div className="p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3 text-center text-xs">
+                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
                     <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
                       Level 1
                     </span>
-                    <span className="font-bold text-base text-white font-serif block">Foundation</span>
+                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Foundation</span>
                     <span className="text-2xl font-bold text-emerald-400 mt-1 block">{foundationCohort}</span>
                     <span className="text-xs text-slate-300">
                       {Math.round((foundationCohort / totalCases) * 100)}% cohort
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
+                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
                     <span className="text-xs font-bold text-[#38bdf8] uppercase tracking-wider block">
                       Level 2
                     </span>
-                    <span className="font-bold text-base text-white font-serif block">Development</span>
+                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Development</span>
                     <span className="text-2xl font-bold text-[#38bdf8] mt-1 block">{developmentCohort}</span>
                     <span className="text-xs text-slate-300">
                       {Math.round((developmentCohort / totalCases) * 100)}% cohort
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
+                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
                     <span className="text-xs font-bold text-purple-400 uppercase tracking-wider block">
                       Level 3
                     </span>
-                    <span className="font-bold text-base text-white font-serif block">Capability</span>
+                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Capability</span>
                     <span className="text-2xl font-bold text-purple-400 mt-1 block">{capabilityCohort}</span>
                     <span className="text-xs text-slate-300">
                       {Math.round((capabilityCohort / totalCases) * 100)}% cohort
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
+                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
                     <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
                       Level 4
                     </span>
-                    <span className="font-bold text-base text-white font-serif block">Reintegration</span>
+                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Reintegration</span>
                     <span className="text-2xl font-bold text-amber-400 mt-1 block">{reintegrationCohort}</span>
                     <span className="text-xs text-slate-300">
                       {Math.round((reintegrationCohort / totalCases) * 100)}% cohort
@@ -364,7 +364,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
 
               {/* Average Gate Domain Achievements */}
               <div className="p-4 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                     Average Gate Domain Fulfilment (70% Threshold Line)
                   </span>
