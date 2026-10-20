@@ -70,8 +70,8 @@ export const Header: React.FC<HeaderProps> = ({
   const hideCaseSelector = ['dashboard', 'intake', 'staff', 'audit', 'settings', 'guide'].includes(currentTab);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-[#0b1a30]/95 backdrop-blur-md border-b border-[#1e3a5f] shadow-sm">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-3 min-w-0 w-full bg-[#0b1a30]/95 backdrop-blur-md border-b border-[#1e3a5f] shadow-sm">
+      <div className="flex items-center gap-2 min-w-0 shrink-0">
         {/* Mobile menu toggle */}
         <button
           type="button"
@@ -83,9 +83,9 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Institution breadcrumb */}
-        <div className="hidden sm:flex items-center gap-2 text-sm md:text-base min-w-0">
+        <div className="hidden xl:flex items-center gap-2 text-sm min-w-0">
           <Building2 className="w-5 h-5 text-[#5cc2bd] shrink-0" />
-          <span className="font-semibold text-white tracking-tight truncate max-w-[160px] md:max-w-[240px] lg:max-w-[340px]" title={institution?.name || 'Rehabilitation Management Facility'}>
+          <span className="font-semibold text-white tracking-tight truncate max-w-[140px] 2xl:max-w-[240px]" title={institution?.name || 'Rehabilitation Management Facility'}>
             {institution?.name || 'Rehabilitation Management Facility'}
           </span>
           <span className="text-slate-500 shrink-0">/</span>
@@ -101,10 +101,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0">
         {/* Case selector for case-specific views */}
         {!hideCaseSelector && cases.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 min-w-0">
             <label htmlFor="case-selector" className="text-sm font-semibold text-slate-200 hidden md:inline">
               Selected Case:
             </label>
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
               id="case-selector"
               value={selectedCaseId}
               onChange={(e) => onCaseChange(e.target.value)}
-              className="text-sm sm:text-base py-2 px-3.5 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[#0284c7] cursor-pointer max-w-[210px] sm:max-w-[290px] truncate"
+              className="text-sm sm:text-base py-2 px-3.5 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[#0284c7] cursor-pointer w-[132px] min-[420px]:w-[160px] sm:w-[200px] xl:w-[260px] max-w-full truncate"
             >
               {cases.map((c) => (
                 <option key={c.id} value={c.id} className="bg-[#0b1a30]">
