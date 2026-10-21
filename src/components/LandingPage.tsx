@@ -66,14 +66,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
                 <span className="hidden sm:block whitespace-nowrap text-[9px] tracking-[0.08em] uppercase font-medium text-slate-400">Rehabilitation Management Platform</span>
               </span>
             </a>
-            <div className="hidden xl:flex items-center justify-center gap-1 rounded-full border border-[#28425b] bg-[#10263e] p-1.5 text-[13px] font-semibold text-slate-200">
+            <div className="hidden xl:flex flex-1 max-w-[650px] items-center justify-between gap-1 rounded-full border border-[#28425b] bg-[#10263e] p-2 text-sm font-semibold text-slate-200">
               {showSecurityPage ? (
-                <a href="#home" className="rounded-full px-5 py-2.5 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">← Back to Homepage</a>
+                <a href="#home" className="flex-1 text-center whitespace-nowrap rounded-full px-5 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">← Back to Homepage</a>
               ) : (
                 <>
-                  <a href="#features" className="rounded-full px-4 py-2.5 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Our 3 Pillars</a>
-                  <a href="#framework" className="rounded-full px-4 py-2.5 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">4-Level Pathway</a>
-                  <a href="#security" className="rounded-full px-4 py-2.5 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Roles &amp; Permissions</a>
+                  <a href="#features" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Our 3 Pillars</a>
+                  <a href="#framework" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">4-Level Pathway</a>
+                  <a href="#security" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Roles &amp; Permissions</a>
                 </>
               )}
             </div>
