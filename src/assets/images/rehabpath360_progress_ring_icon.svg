@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+<defs><linearGradient id="ring" x1="18" y1="105" x2="111" y2="17" gradientUnits="userSpaceOnUse"><stop stop-color="#067DEE"/><stop offset=".5" stop-color="#1BCBE6"/><stop offset="1" stop-color="#5DDABB"/></linearGradient><linearGradient id="leaf" x1="57" y1="88" x2="86" y2="59" gradientUnits="userSpaceOnUse"><stop stop-color="#1293DC"/><stop offset="1" stop-color="#5DDFBC"/></linearGradient></defs>
+<circle cx="64" cy="64" r="50" stroke="url(#ring)" stroke-width="14" stroke-linecap="round" stroke-dasharray="65 13 65 13 65 13 65 15" transform="rotate(-86 64 64)"/>
+<path d="M64 27C76 35 88 39 97 40V71C97 86 83 98 64 106C45 98 31 86 31 71V40C40 39 52 35 64 27Z" stroke="#F8FAFC" stroke-width="5" stroke-linejoin="round" fill="#0B2139"/>
+<circle cx="64" cy="51" r="7" fill="#F8FAFC"/><path d="M44 57C53 70 60 69 64 76C68 69 75 70 84 57C80 73 72 84 64 91C56 84 48 73 44 57Z" fill="#F8FAFC"/>
+<path d="M64 90C65 74 75 64 86 61C81 74 73 85 64 90Z" fill="url(#leaf)"/>
+</svg>
