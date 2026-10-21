@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck,
   FileCheck,
-  BrainCircuit,
   Lock,
   Layers,
   Users,
   Award,
   ChevronRight,
   TrendingUp,
-  FileSpreadsheet,
   FileText,
-  Activity,
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
@@ -189,115 +186,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
         </div>
       </section>
 
-      {/* Core Platform Capabilities */}
-      <section id="features" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Institutional Grade Architecture</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">
-              Engineered for Accountability &amp; Clinical Precision
-            </h2>
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Every design decision prioritizes data integrity, role-based privacy separation, and transparent rehabilitation progression.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-[#38bdf8] flex items-center justify-center mb-5">
-                  <BrainCircuit className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Explainable AI (XAI) Placement</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Calculates protective index from engagement, education, and support against risk loads. Transparently maps scores into Foundation, Development, Capability, and Reintegration bands.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#38bdf8] font-medium">
-                No black boxes · Human override required
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-[#5cc2bd] flex items-center justify-center mb-5">
-                  <FileSpreadsheet className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Multiformat Document Intake</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Ingest Word (.docx), Excel spreadsheets (.xlsx, .csv), and PDFs directly. AI extracts candidate fields, detects record discrepancies, and requires human confirmation before saving.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#5cc2bd] font-medium">
-                Column mapper &amp; source citations
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-5">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Strict Clinical Least-Privilege</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Psychological evaluations and mental health notes are strictly isolated. Educators and Case Managers only see authorized operational parameters, enforced on the server and database.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-purple-400 font-medium">
-                Row-level security &amp; field masking
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-5">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Longitudinal Review Trends</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Multi-cycle SVG progress tracking maps placement score curves alongside average gate completion across successive review cycles against the 70% threshold.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-amber-400 font-medium">
-                5-cycle comparative history
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Tamper-Evident Audit Trail</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Immutable server-side logging of logins, clinical note submissions, gate changes, and document imports. Cryptographic hash-chaining prevents retroactive alterations.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-emerald-400 font-medium">
-                Full chronological accountability
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-5">
-                  <Award className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Parole Handover Encryption</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  When offenders reach Reintegration, generate an authenticated AES-256-GCM encrypted brief package for community probation officers to ensure seamless post-release care.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-rose-400 font-medium">
-                WebCrypto browser-grade encryption
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Visual Domain Showcase */}
-      <section className="py-20 px-6 bg-[#071325] border-t border-slate-800">
+      <section id="features" className="py-20 px-6 bg-[#071325] border-t border-slate-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Comprehensive Intervention Framework</span>
