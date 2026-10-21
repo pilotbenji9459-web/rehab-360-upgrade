@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck,
   FileCheck,
-  BrainCircuit,
   Lock,
   Layers,
   Users,
   Award,
   ChevronRight,
   TrendingUp,
-  FileSpreadsheet,
   FileText,
-  Activity,
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
+
+import { SecurityPermissionsPage } from './SecurityPermissionsPage';
 
 import heroBannerImg from '../assets/images/rehab_hero_banner_1792261204190.jpg';
 import clinicalTelemetryImg from '../assets/images/clinical_psychometric_telemetry.svg';
@@ -29,11 +28,27 @@ import caseReviewImg from '../assets/images/milestone_gate_review_1792261681316.
 
 interface LandingPageProps {
   onOpenLogin: () => void;
-  onExploreDemo: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExploreDemo }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [showSecurityPage, setShowSecurityPage] = useState(
+    () => typeof window !== 'undefined' && window.location.hash === '#security'
+  );
+
+  // Hash-based navigation gives the permission matrix its own view and
+  // supports browser Back/Forward and direct links without server changes.
+  useEffect(() => {
+    const syncSecurityView = () => setShowSecurityPage(window.location.hash === '#security');
+    window.addEventListener('hashchange', syncSecurityView);
+    return () => window.removeEventListener('hashchange', syncSecurityView);
+  }, []);
+
+  useEffect(() => {
+    if (showSecurityPage || window.location.hash === '#home') {
+      window.scrollTo(0, 0);
+    }
+  }, [showSecurityPage]);
 
   return (
     <div className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
@@ -57,20 +72,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-300 font-medium">
-            <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
-            <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
-            <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
-            <a href="#documents" className="hover:text-white transition-colors">AI Document Intake</a>
+            {showSecurityPage ? (
+              <a href="#home" className="hover:text-white transition-colors">← Back to Homepage</a>
+            ) : (
+              <>
+                <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
+                <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
+                <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onExploreDemo}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all cursor-pointer"
-            >
-              Public Overview
-            </button>
             <button
               type="button"
               onClick={onOpenLogin}
@@ -83,6 +96,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
         </div>
       </nav>
 
+      {showSecurityPage ? (
+        <SecurityPermissionsPage />
+      ) : (
+        <>
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 px-6 overflow-hidden">
         {/* Subtle background glow */}
@@ -120,6 +137,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-sm transition-all flex items-center justify-center gap-2"
             >
               Explore 4-Level Framework
+            </a>
+          </div>
+          <div className="mt-4 md:hidden">
+            <a href="#security" className="text-sm font-semibold text-[#5cc2bd] hover:text-white underline underline-offset-4 transition-colors">
+              RBAC &amp; Least-Privilege →
             </a>
           </div>
 
@@ -164,115 +186,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
         </div>
       </section>
 
-      {/* Core Platform Capabilities */}
-      <section id="features" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Institutional Grade Architecture</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">
-              Engineered for Accountability &amp; Clinical Precision
-            </h2>
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              Every design decision prioritizes data integrity, role-based privacy separation, and transparent rehabilitation progression.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-[#38bdf8] flex items-center justify-center mb-5">
-                  <BrainCircuit className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Explainable AI (XAI) Placement</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Calculates protective index from engagement, education, and support against risk loads. Transparently maps scores into Foundation, Development, Capability, and Reintegration bands.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#38bdf8] font-medium">
-                No black boxes · Human override required
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-[#5cc2bd] flex items-center justify-center mb-5">
-                  <FileSpreadsheet className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Multiformat Document Intake</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Ingest Word (.docx), Excel spreadsheets (.xlsx, .csv), and PDFs directly. AI extracts candidate fields, detects record discrepancies, and requires human confirmation before saving.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-[#5cc2bd] font-medium">
-                Column mapper &amp; source citations
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-5">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Strict Clinical Least-Privilege</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Psychological evaluations and mental health notes are strictly isolated. Educators and Case Managers only see authorized operational parameters, enforced on the server and database.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-purple-400 font-medium">
-                Row-level security &amp; field masking
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-5">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Longitudinal Review Trends</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Multi-cycle SVG progress tracking maps placement score curves alongside average gate completion across successive review cycles against the 70% threshold.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-amber-400 font-medium">
-                5-cycle comparative history
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Tamper-Evident Audit Trail</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Immutable server-side logging of logins, clinical note submissions, gate changes, and document imports. Cryptographic hash-chaining prevents retroactive alterations.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-emerald-400 font-medium">
-                Full chronological accountability
-              </div>
-            </div>
-
-            <div className="p-7 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-5">
-                  <Award className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2.5 font-serif">Parole Handover Encryption</h3>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  When offenders reach Reintegration, generate an authenticated AES-256-GCM encrypted brief package for community probation officers to ensure seamless post-release care.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center text-sm text-rose-400 font-medium">
-                WebCrypto browser-grade encryption
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Visual Domain Showcase */}
-      <section className="py-20 px-6 bg-[#071325] border-t border-slate-800">
+      <section id="features" className="py-20 px-6 bg-[#071325] border-t border-slate-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Comprehensive Intervention Framework</span>
@@ -523,84 +438,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
         </div>
       </section>
 
-      {/* Role-Based Permissions Matrix */}
-      <section id="security" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Institutional Governance</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">Staff Role Permissions Matrix</h2>
-            <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-              Permissions are validated server-side. Users can never escalate privileges by modifying client JavaScript variables.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
-            <table className="w-full text-left text-sm text-slate-200">
-              <thead className="bg-slate-800/80 text-white font-semibold border-b border-slate-700">
-                <tr>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Role</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Pathway Verification</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Clinical Notes</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Education / Gate Edits</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Document Import &amp; AI</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Audit Logs</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Administrator</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Access</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Governance Read</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Edit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Audit Access</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Warden</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Approve / Modify / Override</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Edit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Audit Access</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Psychologist</td>
-                  <td className="py-3.5 px-4 text-slate-400">Clinical Review</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Author &amp; Read</td>
-                  <td className="py-3.5 px-4 text-amber-400">Well-being Gate Only</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Case Manager</td>
-                  <td className="py-3.5 px-4 text-slate-400">Propose Plan</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-amber-400">Case Remarks / Attendance</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Educator</td>
-                  <td className="py-3.5 px-4 text-slate-400">View Only</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Edu &amp; Skills Gate Edits</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Course Document Intake</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Community Rehab Officer</td>
-                  <td className="py-3.5 px-4 text-slate-400">Reintegration Handover</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-slate-400">Post-Release Support</td>
-                  <td className="py-3.5 px-4 text-slate-400">Handover Intake</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       {/* Footer CTA */}
       <section className="py-20 px-6 text-center border-t border-slate-800 bg-[#071325]">
         <div className="max-w-3xl mx-auto">
@@ -621,6 +458,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
           </button>
         </div>
       </section>
+        </>
+      )}
 
       <footer className="border-t border-slate-800/80 py-8 px-6 text-center text-xs text-slate-500">
         <p>REHABPATH360 Institutional Platform · All synthetic demonstration records · Government-Grade Security Standards</p>
