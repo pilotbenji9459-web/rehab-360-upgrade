@@ -10,10 +10,12 @@ import {
   TrendingUp,
   FileText,
   ArrowRight,
-  Sparkles,
+  Menu,
+  X,
 } from 'lucide-react';
 
 import { SecurityPermissionsPage } from './SecurityPermissionsPage';
+import progressRingLogo from '../assets/images/rehabpath360_progress_ring_icon.svg';
 
 import heroBannerImg from '../assets/images/rehab_hero_banner_1792261204190.jpg';
 import clinicalTelemetryImg from '../assets/images/clinical_psychometric_telemetry.svg';
@@ -32,6 +34,7 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSecurityPage, setShowSecurityPage] = useState(
     () => typeof window !== 'undefined' && window.location.hash === '#security'
   );
@@ -52,49 +55,54 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
 
   return (
     <div className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-[#005a9e] via-[#0079d6] to-[#0ea5e9] py-2 px-4 text-center text-xs font-semibold tracking-wide text-white flex items-center justify-center gap-2 shadow-sm">
-        <Sparkles className="w-3.5 h-3.5" />
-        <span>REHABPATH360 ENTERPRISE — Coordinated Care &amp; Human-in-the-Loop Rehabilitation Intelligence</span>
-      </div>
-
-      {/* Navigation Header */}
-      <nav className="sticky top-0 z-40 backdrop-blur-md bg-[#0a1a33]/90 border-b border-slate-800 px-6 py-4 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0079d6] to-[#5cc2bd] flex items-center justify-center shadow-lg shadow-[#0079d6]/30">
-              <ShieldCheck className="w-6 h-6 text-white" />
+      {/* Compact branded navigation */}
+      <header className="sticky top-0 z-40 border-b border-[#20415b] bg-[#08192d]/95 backdrop-blur-xl">
+        <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div className="flex min-h-[78px] items-center justify-between gap-1.5 lg:gap-5">
+            <a href="#home" onClick={() => setIsMobileMenuOpen(false)} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd]" aria-label="REHABPATH360 homepage">
+              <img src={progressRingLogo} alt="" aria-hidden="true" className="h-9 w-9 sm:h-12 sm:w-12 shrink-0" />
+              <span className="min-w-0">
+                <span className="block whitespace-nowrap font-serif text-base sm:text-xl font-bold tracking-tight text-white leading-tight">REHABPATH<span className="text-[#5cc2bd]">360</span></span>
+                <span className="hidden sm:block whitespace-nowrap text-[9px] tracking-[0.08em] uppercase font-medium text-slate-400">Rehabilitation Management Platform</span>
+              </span>
+            </a>
+            <div className="hidden xl:flex flex-1 max-w-[650px] items-center justify-between gap-1 rounded-full border border-[#28425b] bg-[#10263e] p-2 text-sm font-semibold text-slate-200">
+              {showSecurityPage ? (
+                <a href="#home" className="flex-1 text-center whitespace-nowrap rounded-full px-5 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">← Back to Homepage</a>
+              ) : (
+                <>
+                  <a href="#features" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Our 3 Pillars</a>
+                  <a href="#framework" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">4-Level Pathway</a>
+                  <a href="#security" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Roles &amp; Permissions</a>
+                </>
+              )}
             </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-white font-serif">REHABPATH<span className="text-[#5cc2bd]">360</span></span>
-              <span className="block text-[10px] uppercase tracking-widest text-slate-400 font-medium">Rehabilitation Management Platform</span>
+            <div className="flex shrink-0 items-center gap-2">
+              <button type="button" onClick={onOpenLogin} className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#0284c7] px-2.5 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#0284c7]/20 hover:bg-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors cursor-pointer">
+                <span className="sm:hidden">Login</span>
+                <span className="hidden sm:inline">Staff Portal Login</span>
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <button type="button" aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={isMobileMenuOpen} aria-controls="homepage-mobile-menu" onClick={() => setIsMobileMenuOpen((prev) => !prev)} className="xl:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#28425b] bg-[#10263e] text-slate-100 hover:bg-[#1c3b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] cursor-pointer">
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
           </div>
-
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-300 font-medium">
-            {showSecurityPage ? (
-              <a href="#home" className="hover:text-white transition-colors">← Back to Homepage</a>
-            ) : (
-              <>
-                <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
-                <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
-                <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onOpenLogin}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-[#0079d6] to-[#0284c7] text-white hover:from-[#0066b8] hover:to-[#0369a1] shadow-md shadow-[#0079d6]/30 transition-all cursor-pointer"
-            >
-              Staff Portal Login
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </nav>
+          {isMobileMenuOpen && (
+            <div id="homepage-mobile-menu" className="xl:hidden border-t border-[#28425b] pb-4 pt-3 flex flex-col gap-1 text-sm font-semibold text-slate-200">
+              {showSecurityPage ? (
+                <a href="#home" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 hover:bg-[#17304c]">← Back to Homepage</a>
+              ) : (
+                <>
+                  <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 hover:bg-[#17304c]">Our 3 Pillars</a>
+                  <a href="#framework" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 hover:bg-[#17304c]">4-Level Pathway</a>
+                  <a href="#security" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 hover:bg-[#17304c]">Roles &amp; Permissions</a>
+                </>
+              )}
+            </div>
+          )}
+        </nav>
+      </header>
 
       {showSecurityPage ? (
         <SecurityPermissionsPage />
@@ -137,11 +145,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-sm transition-all flex items-center justify-center gap-2"
             >
               Explore 4-Level Framework
-            </a>
-          </div>
-          <div className="mt-4 md:hidden">
-            <a href="#security" className="text-sm font-semibold text-[#5cc2bd] hover:text-white underline underline-offset-4 transition-colors">
-              RBAC &amp; Least-Privilege →
             </a>
           </div>
 
