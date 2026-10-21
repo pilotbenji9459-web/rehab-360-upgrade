@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck,
   FileCheck,
@@ -15,6 +15,8 @@ import {
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
+
+import { SecurityPermissionsPage } from './SecurityPermissionsPage';
 
 import heroBannerImg from '../assets/images/rehab_hero_banner_1792261204190.jpg';
 import clinicalTelemetryImg from '../assets/images/clinical_psychometric_telemetry.svg';
@@ -33,6 +35,23 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [showSecurityPage, setShowSecurityPage] = useState(
+    () => typeof window !== 'undefined' && window.location.hash === '#security'
+  );
+
+  // Hash-based navigation gives the permission matrix its own view and
+  // supports browser Back/Forward and direct links without server changes.
+  useEffect(() => {
+    const syncSecurityView = () => setShowSecurityPage(window.location.hash === '#security');
+    window.addEventListener('hashchange', syncSecurityView);
+    return () => window.removeEventListener('hashchange', syncSecurityView);
+  }, []);
+
+  useEffect(() => {
+    if (showSecurityPage || window.location.hash === '#home') {
+      window.scrollTo(0, 0);
+    }
+  }, [showSecurityPage]);
 
   return (
     <div className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
@@ -56,9 +75,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-300 font-medium">
-            <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
-            <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
-            <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
+            {showSecurityPage ? (
+              <a href="#home" className="hover:text-white transition-colors">← Back to Homepage</a>
+            ) : (
+              <>
+                <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
+                <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
+                <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -74,6 +99,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
         </div>
       </nav>
 
+      {showSecurityPage ? (
+        <SecurityPermissionsPage />
+      ) : (
+        <>
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 px-6 overflow-hidden">
         {/* Subtle background glow */}
@@ -514,84 +543,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
         </div>
       </section>
 
-      {/* Role-Based Permissions Matrix */}
-      <section id="security" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Institutional Governance</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">Staff Role Permissions Matrix</h2>
-            <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-              Permissions are validated server-side. Users can never escalate privileges by modifying client JavaScript variables.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
-            <table className="w-full text-left text-sm text-slate-200">
-              <thead className="bg-slate-800/80 text-white font-semibold border-b border-slate-700">
-                <tr>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Role</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Pathway Verification</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Clinical Notes</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Education / Gate Edits</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Document Import &amp; AI</th>
-                  <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Audit Logs</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Administrator</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Access</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Governance Read</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Edit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Audit Access</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Warden</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Approve / Modify / Override</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Edit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Audit Access</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Psychologist</td>
-                  <td className="py-3.5 px-4 text-slate-400">Clinical Review</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Full Author &amp; Read</td>
-                  <td className="py-3.5 px-4 text-amber-400">Well-being Gate Only</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Case Manager</td>
-                  <td className="py-3.5 px-4 text-slate-400">Propose Plan</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-amber-400">Case Remarks / Attendance</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Upload &amp; Commit</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Educator</td>
-                  <td className="py-3.5 px-4 text-slate-400">View Only</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Edu &amp; Skills Gate Edits</td>
-                  <td className="py-3.5 px-4 text-emerald-400">Course Document Intake</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-4 font-bold text-white">Community Rehab Officer</td>
-                  <td className="py-3.5 px-4 text-slate-400">Reintegration Handover</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted (Denied)</td>
-                  <td className="py-3.5 px-4 text-slate-400">Post-Release Support</td>
-                  <td className="py-3.5 px-4 text-slate-400">Handover Intake</td>
-                  <td className="py-3.5 px-4 text-rose-400">Restricted</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       {/* Footer CTA */}
       <section className="py-20 px-6 text-center border-t border-slate-800 bg-[#071325]">
         <div className="max-w-3xl mx-auto">
@@ -612,6 +563,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           </button>
         </div>
       </section>
+        </>
+      )}
 
       <footer className="border-t border-slate-800/80 py-8 px-6 text-center text-xs text-slate-500">
         <p>REHABPATH360 Institutional Platform · All synthetic demonstration records · Government-Grade Security Standards</p>
