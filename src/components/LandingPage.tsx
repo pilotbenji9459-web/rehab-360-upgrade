@@ -142,6 +142,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
               Explore 4-Level Framework
             </a>
           </div>
+          <div className="mt-4 md:hidden">
+            <a href="#security" className="text-sm font-semibold text-[#5cc2bd] hover:text-white underline underline-offset-4 transition-colors">
+              RBAC &amp; Least-Privilege →
+            </a>
+          </div>
 
           {/* Hero Showcase Illustration */}
           <div className="mt-12 relative max-w-4xl mx-auto rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl shadow-[#0284c7]/20 group">
