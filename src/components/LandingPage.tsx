@@ -57,16 +57,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
     <div className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
       {/* Compact branded navigation */}
       <header className="sticky top-0 z-40 border-b border-[#20415b] bg-[#08192d]/95 backdrop-blur-xl">
-        <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="flex min-h-[78px] items-center justify-between gap-2 lg:gap-5">
+        <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div className="flex min-h-[78px] items-center justify-between gap-1.5 lg:gap-5">
             <a href="#home" onClick={() => setIsMobileMenuOpen(false)} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd]" aria-label="REHABPATH360 homepage">
-              <img src={progressRingLogo} alt="" aria-hidden="true" className="h-10 w-10 sm:h-12 sm:w-12 shrink-0" />
+              <img src={progressRingLogo} alt="" aria-hidden="true" className="h-9 w-9 sm:h-12 sm:w-12 shrink-0" />
               <span className="min-w-0">
-                <span className="block whitespace-nowrap font-serif text-lg sm:text-xl font-bold tracking-tight text-white leading-tight">REHABPATH<span className="text-[#5cc2bd]">360</span></span>
+                <span className="block whitespace-nowrap font-serif text-base sm:text-xl font-bold tracking-tight text-white leading-tight">REHABPATH<span className="text-[#5cc2bd]">360</span></span>
                 <span className="hidden sm:block whitespace-nowrap text-[9px] tracking-[0.08em] uppercase font-medium text-slate-400">Rehabilitation Management Platform</span>
               </span>
             </a>
-            <div className="hidden lg:flex items-center justify-center gap-1 rounded-full border border-[#28425b] bg-[#10263e] p-1.5 text-[13px] font-semibold text-slate-200">
+            <div className="hidden xl:flex items-center justify-center gap-1 rounded-full border border-[#28425b] bg-[#10263e] p-1.5 text-[13px] font-semibold text-slate-200">
               {showSecurityPage ? (
                 <a href="#home" className="rounded-full px-5 py-2.5 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">← Back to Homepage</a>
               ) : (
@@ -78,18 +78,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
               )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onClick={onOpenLogin} className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#0284c7] px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#0284c7]/20 hover:bg-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors cursor-pointer">
-                <span className="sm:hidden">Staff Login</span>
+              <button type="button" onClick={onOpenLogin} className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#0284c7] px-2.5 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#0284c7]/20 hover:bg-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors cursor-pointer">
+                <span className="sm:hidden">Login</span>
                 <span className="hidden sm:inline">Staff Portal Login</span>
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
-              <button type="button" aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={isMobileMenuOpen} aria-controls="homepage-mobile-menu" onClick={() => setIsMobileMenuOpen((prev) => !prev)} className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#28425b] bg-[#10263e] text-slate-100 hover:bg-[#1c3b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] cursor-pointer">
+              <button type="button" aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={isMobileMenuOpen} aria-controls="homepage-mobile-menu" onClick={() => setIsMobileMenuOpen((prev) => !prev)} className="xl:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#28425b] bg-[#10263e] text-slate-100 hover:bg-[#1c3b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] cursor-pointer">
                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
           {isMobileMenuOpen && (
-            <div id="homepage-mobile-menu" className="lg:hidden border-t border-[#28425b] pb-4 pt-3 flex flex-col gap-1 text-sm font-semibold text-slate-200">
+            <div id="homepage-mobile-menu" className="xl:hidden border-t border-[#28425b] pb-4 pt-3 flex flex-col gap-1 text-sm font-semibold text-slate-200">
               {showSecurityPage ? (
                 <a href="#home" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 hover:bg-[#17304c]">← Back to Homepage</a>
               ) : (
