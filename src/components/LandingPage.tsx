@@ -29,10 +29,9 @@ import caseReviewImg from '../assets/images/milestone_gate_review_1792261681316.
 
 interface LandingPageProps {
   onOpenLogin: () => void;
-  onExploreDemo: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExploreDemo }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   return (
@@ -60,17 +59,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onExplore
             <a href="#features" className="hover:text-white transition-colors">Core Capabilities</a>
             <a href="#framework" className="hover:text-white transition-colors">4-Level Pathway</a>
             <a href="#security" className="hover:text-white transition-colors">RBAC &amp; Least-Privilege</a>
-            <a href="#documents" className="hover:text-white transition-colors">AI Document Intake</a>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onExploreDemo}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all cursor-pointer"
-            >
-              Public Overview
-            </button>
             <button
               type="button"
               onClick={onOpenLogin}
