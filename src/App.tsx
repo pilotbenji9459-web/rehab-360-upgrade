@@ -170,7 +170,6 @@ const AppContent: React.FC = () => {
       <>
         <LandingPage
           onOpenLogin={() => setIsLoginModalOpen(true)}
-          onExploreDemo={() => setIsLoginModalOpen(true)}
         />
         <LoginModal
           isOpen={isLoginModalOpen}
