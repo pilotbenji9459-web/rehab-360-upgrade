@@ -26,6 +26,7 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
   const [notes, setNotes] = useState<ClinicalNote[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [notesError, setNotesError] = useState(false);
 
   // New Note Form State
   const [title, setTitle] = useState('');
@@ -41,23 +42,30 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
   useEffect(() => {
     if (!isAuthorized) {
+      setNotes([]);
       setIsLoading(false);
       return;
     }
 
+    let cancelled = false;
+    setNotes([]);
+    setNotesError(false);
+    setIsLoading(true);
+
     const fetchNotes = async () => {
-      setIsLoading(true);
       try {
         const res = await Api.getClinicalNotes(currentRecord.id);
-        setNotes(res.notes || []);
+        if (!cancelled) setNotes(res.notes || []);
       } catch (err: any) {
         console.error('Failed to load clinical notes:', err);
+        if (!cancelled) setNotesError(true);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    fetchNotes();
+    void fetchNotes();
+    return () => { cancelled = true; };
   }, [currentRecord.id, isAuthorized]);
 
   if (!isAuthorized) {
@@ -119,29 +127,97 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Clinical Telemetry Visual Banner */}
-      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#071325] shadow-xl">
+      {/* Case-specific summary: never show fixed synthetic clinical scores for another person. */}
+      <section aria-label={`Case ${currentRecord.id} clinical summary`} className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#071325] shadow-xl">
         <div className="px-5 py-3 bg-[#0a1a33] border-b border-[#1e3a5f] flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block animate-pulse" />
-            <span className="font-mono font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-purple-400" />
-              PROTECTED CLINICAL PSYCHOMETRIC TELEMETRY · CASE {currentRecord.id}
-            </span>
-          </div>
+          <span className="font-mono font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+            <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+            PROTECTED CLINICAL SUMMARY · CASE {currentRecord.id}
+          </span>
           <span className="font-semibold text-[#5cc2bd] font-mono">
-            RNR Multi-Axis Evaluation · Section 7 Confidential
+            Individual record · Authorized staff only
           </span>
         </div>
 
-        <div className="p-3 sm:p-5 flex items-center justify-center bg-[#071325] w-full">
-          <img
-            src="/assets/images/clinical_psychometric_telemetry.svg"
-            alt="Clinical psychological evaluation telemetry radar and longitudinal mood tracking"
-            className="w-full h-auto max-h-[380px] sm:max-h-[420px] object-contain"
-          />
+        <div className="p-4 sm:p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base sm:text-lg font-serif font-bold text-white">
+                {currentRecord.first_name} {currentRecord.last_name} · Clinical Overview
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Figures below are from the selected case record, not a standardized psychometric diagnosis.
+              </p>
+            </div>
+            <span className="rounded-full border border-[#28506c] bg-[#10263e] px-3 py-1.5 text-xs font-mono text-[#5cc2bd]">
+              {currentRecord.id}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-[#214064] bg-[#0b1e35] p-4">
+              <h3 className="text-xs uppercase tracking-widest font-bold text-[#93c5fd]">
+                Mood History · Recorded Review Cycles
+              </h3>
+              {Array.isArray(currentRecord.mood_history) && currentRecord.mood_history.length > 0 ? (
+                <>
+                  <svg viewBox="0 0 440 190" className="w-full h-auto mt-3" role="img" aria-label={`Mood history for case ${currentRecord.id}: ${currentRecord.mood_history.join(', ')}`}>
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <g key={level}>
+                        <line x1="35" x2="425" y1={153 - ((level - 1) / 4) * 126} y2={153 - ((level - 1) / 4) * 126} stroke="#244160" strokeDasharray="3 5" />
+                        <text x="22" y={157 - ((level - 1) / 4) * 126} textAnchor="middle" fontSize="11" fill="#94a3b8">{level}</text>
+                      </g>
+                    ))}
+                    <polyline fill="none" stroke="#5cc2bd" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"
+                      points={currentRecord.mood_history.map((v, i, arr) =>
+                        `${35 + (i * 390) / Math.max(1, arr.length - 1)},${153 - ((Math.max(1, Math.min(5, v)) - 1) / 4) * 126}`
+                      ).join(' ')} />
+                    {currentRecord.mood_history.map((value, i, arr) => (
+                      <g key={i}>
+                        <circle cx={35 + (i * 390) / Math.max(1, arr.length - 1)}
+                          cy={153 - ((Math.max(1, Math.min(5, value)) - 1) / 4) * 126}
+                          r="4.5" fill="#38bdf8" stroke="#f8fafc" strokeWidth="1.5">
+                          <title>{`Review ${i + 1}: ${value}/5`}</title>
+                        </circle>
+                        <text x={35 + (i * 390) / Math.max(1, arr.length - 1)} y="176" textAnchor="middle" fontSize="10" fill="#94a3b8">{i + 1}</text>
+                      </g>
+                    ))}
+                  </svg>
+                  <p className="text-xs text-slate-400 mt-1">Recorded mood indicator (1–5), by review cycle. Not a clinical diagnosis.</p>
+                </>
+              ) : (
+                <p className="py-10 text-sm text-slate-400">No mood-history measurements recorded for this case.</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="rounded-xl border border-[#214064] bg-[#0b1e35] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Session Attendance</p>
+                <p className="mt-2 text-2xl font-bold text-[#5cc2bd]">{Number.isFinite(currentRecord.session_attendance) ? `${currentRecord.session_attendance}%` : 'Not recorded'}</p>
+                <p className="mt-1 text-xs text-slate-400">From case record</p>
+              </div>
+              <div className="rounded-xl border border-[#214064] bg-[#0b1e35] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Assessment Completeness</p>
+                <p className="mt-2 text-2xl font-bold text-sky-400">{Number.isFinite(currentRecord.assessment_completeness) ? `${currentRecord.assessment_completeness}%` : 'Not recorded'}</p>
+                <p className="mt-1 text-xs text-slate-400">From case record</p>
+              </div>
+              <div className="rounded-xl border border-[#214064] bg-[#0b1e35] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Programme Engagement</p>
+                <p className="mt-2 text-2xl font-bold text-white">{Number.isFinite(currentRecord.programme_engagement) ? `${currentRecord.programme_engagement}/5` : 'Not recorded'}</p>
+                <p className="mt-1 text-xs text-slate-400">Recorded engagement level</p>
+              </div>
+              <div className="rounded-xl border border-[#214064] bg-[#0b1e35] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Clinical Notes</p>
+                <p className="mt-2 text-2xl font-bold text-purple-300">{isLoading ? 'Loading…' : notesError ? 'Unavailable' : notes.length}</p>
+                <p className="mt-1 text-xs text-slate-400">Restricted notes for this case</p>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 border-t border-[#214064] pt-3">
+            Actual risk ratings, diagnostic scores and clinician certifications are not inferred from these general case indicators.
+          </p>
         </div>
-      </div>
+      </section>
 
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -260,7 +336,11 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
       {/* Notes Timeline */}
       <div className="space-y-4">
-        {notes.length === 0 ? (
+        {isLoading ? (
+          <div className="card text-center py-10 text-xs text-[var(--mute)]">Loading clinical notes for {currentRecord.id}…</div>
+        ) : notesError ? (
+          <div className="card text-center py-10 text-xs text-rose-400">Could not load clinical notes for {currentRecord.id}. Please retry later.</div>
+        ) : notes.length === 0 ? (
           <div className="card text-center py-10 text-xs text-[var(--mute)]">
             No clinical psychological notes recorded for this individual yet.
           </div>
