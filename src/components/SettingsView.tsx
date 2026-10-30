@@ -43,6 +43,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const isValidHex = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
+  const primaryPreview = isValidHex(themePrimary) ? themePrimary : '#0284c7';
+  const tealPreview = isValidHex(themeTeal) ? themeTeal : '#5cc2bd';
 
   useEffect(() => {
     if (institution) {
@@ -64,6 +67,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
       return;
     }
 
+    if (!isValidHex(themePrimary) || !isValidHex(themeTeal)) {
+      showAlert('Enter valid six-digit hex colours, e.g. #0284c7 or #5cc2bd.', 'Invalid Brand Colour');
+      return;
+    }
     setIsSaving(true);
     setSavedSuccess(false);
 
@@ -172,8 +179,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
                 <input
                   type="color"
                   disabled={!isAdmin}
-                  value={themePrimary}
+                  value={primaryPreview}
                   onChange={(e) => setThemePrimary(e.target.value)}
+                  aria-label="Pick primary accent colour"
                   className="w-9 h-9 rounded-lg border border-slate-700 p-0.5 cursor-pointer bg-slate-900"
                 />
                 <input
@@ -194,8 +202,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
                 <input
                   type="color"
                   disabled={!isAdmin}
-                  value={themeTeal}
+                  value={tealPreview}
                   onChange={(e) => setThemeTeal(e.target.value)}
+                  aria-label="Pick secondary teal colour"
                   className="w-9 h-9 rounded-lg border border-slate-700 p-0.5 cursor-pointer bg-slate-900"
                 />
                 <input
@@ -207,6 +216,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
                 />
               </div>
             </div>
+          </div>
+          <div className="mt-5 rounded-xl border border-[#2b4660] bg-[#07172d] p-4">
+            <p className="text-xs font-semibold text-slate-300 mb-3">Brand Colour Preview</p>
+            <div className="flex flex-wrap gap-2 items-center">
+              <span style={{ background: primaryPreview }} className="rounded-lg px-4 py-2 text-white text-xs font-semibold">Primary accent</span>
+              <span style={{ background: tealPreview }} className="rounded-lg px-4 py-2 text-[#071325] text-xs font-semibold">Secondary accent</span>
+              <span className="text-xs text-slate-400">Save to apply to shared UI theme colours.</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-3">Some fixed navy/blue design elements retain their original colours.</p>
           </div>
         </div>
 

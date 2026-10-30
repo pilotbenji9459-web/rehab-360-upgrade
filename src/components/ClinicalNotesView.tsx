@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Api } from '../services/api';
+import { ClinicalCaseTelemetry } from './ClinicalCaseTelemetry';
 import { ClinicalNote, OffenderCase } from '../types';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -26,6 +27,7 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
   const [notes, setNotes] = useState<ClinicalNote[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [notesError, setNotesError] = useState(false);
 
   // New Note Form State
   const [title, setTitle] = useState('');
@@ -41,23 +43,30 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
   useEffect(() => {
     if (!isAuthorized) {
+      setNotes([]);
       setIsLoading(false);
       return;
     }
 
+    let cancelled = false;
+    setNotes([]);
+    setNotesError(false);
+    setIsLoading(true);
+
     const fetchNotes = async () => {
-      setIsLoading(true);
       try {
         const res = await Api.getClinicalNotes(currentRecord.id);
-        setNotes(res.notes || []);
+        if (!cancelled) setNotes(res.notes || []);
       } catch (err: any) {
         console.error('Failed to load clinical notes:', err);
+        if (!cancelled) setNotesError(true);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    fetchNotes();
+    void fetchNotes();
+    return () => { cancelled = true; };
   }, [currentRecord.id, isAuthorized]);
 
   if (!isAuthorized) {
@@ -119,29 +128,11 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Clinical Telemetry Visual Banner */}
-      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#071325] shadow-xl">
-        <div className="px-5 py-3 bg-[#0a1a33] border-b border-[#1e3a5f] flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block animate-pulse" />
-            <span className="font-mono font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-purple-400" />
-              PROTECTED CLINICAL PSYCHOMETRIC TELEMETRY · CASE {currentRecord.id}
-            </span>
-          </div>
-          <span className="font-semibold text-[#5cc2bd] font-mono">
-            RNR Multi-Axis Evaluation · Section 7 Confidential
-          </span>
-        </div>
+      <ClinicalCaseTelemetry
+        currentRecord={currentRecord}
+        notesCount={isLoading || notesError ? null : notes.length}
+      />
 
-        <div className="p-3 sm:p-5 flex items-center justify-center bg-[#071325] w-full">
-          <img
-            src="/assets/images/clinical_psychometric_telemetry.svg"
-            alt="Clinical psychological evaluation telemetry radar and longitudinal mood tracking"
-            className="w-full h-auto max-h-[380px] sm:max-h-[420px] object-contain"
-          />
-        </div>
-      </div>
 
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -260,7 +251,11 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
 
       {/* Notes Timeline */}
       <div className="space-y-4">
-        {notes.length === 0 ? (
+        {isLoading ? (
+          <div className="card text-center py-10 text-xs text-[var(--mute)]">Loading clinical notes for {currentRecord.id}…</div>
+        ) : notesError ? (
+          <div className="card text-center py-10 text-xs text-rose-400">Could not load clinical notes for {currentRecord.id}. Please retry later.</div>
+        ) : notes.length === 0 ? (
           <div className="card text-center py-10 text-xs text-[var(--mute)]">
             No clinical psychological notes recorded for this individual yet.
           </div>
