@@ -170,13 +170,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Institution Brand Header */}
         <div className="p-5 border-b border-[#1e3a5f]/80 bg-[#0b1a30]/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0284c7] to-[#5cc2bd] flex items-center justify-center text-white shadow-lg shadow-[#0284c7]/20 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white shadow-lg shadow-[#0284c7]/20 shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="font-serif font-bold text-base text-white tracking-tight">
-                  REHABPATH<span className="text-[#5cc2bd]">360</span>
+                  REHABPATH<span className="text-[var(--teal)]">360</span>
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 truncate font-medium">
@@ -188,7 +188,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Mode Pill: Exhibition Demo vs Clean Deployment */}
           <div className="mt-3.5 flex items-center justify-between px-2.5 py-1 rounded-lg bg-[#0f2744] border border-[#1e3a5f] text-[11px]">
             <span className="flex items-center gap-1.5 text-slate-300 font-medium truncate">
-              <Building2 className="w-3.5 h-3.5 text-[#5cc2bd] shrink-0" />
+              <Building2 className="w-3.5 h-3.5 text-[var(--teal)] shrink-0" />
               <span className="truncate">{institution?.code || 'FACILITY'}</span>
             </span>
             {isDemo ? (
@@ -218,7 +218,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => handleItemClick(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#0284c7] to-[#0369a1] text-white shadow-md shadow-[#0284c7]/25 font-semibold'
+                    ? 'bg-gradient-to-r from-[var(--acc)] to-[var(--teal)] text-white shadow-md shadow-[#0284c7]/25 font-semibold'
                     : 'text-slate-200 hover:text-white hover:bg-[#0f2744]/70'
                 }`}
               >
@@ -235,7 +235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
                       isActive
                         ? 'bg-white/20 text-white'
-                        : 'bg-[#5cc2bd]/20 text-[#5cc2bd] border border-[#5cc2bd]/30'
+                        : 'bg-[#5cc2bd]/20 text-[var(--teal)] border border-[#5cc2bd]/30'
                     }`}
                   >
                     {item.badge}
@@ -254,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="block text-sm font-semibold text-white truncate">
                   {user.full_name}
                 </span>
-                <span className="block text-xs text-[#5cc2bd] font-semibold truncate">
+                <span className="block text-xs text-[var(--teal)] font-semibold truncate">
                   {getCustomDesignation(user.role)}
                 </span>
                 <span className="block text-xs text-slate-400 font-mono mt-0.5">
