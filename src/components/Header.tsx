@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Institution breadcrumb */}
         <div className="hidden xl:flex items-center gap-2 text-sm min-w-0">
-          <Building2 className="w-5 h-5 text-[#5cc2bd] shrink-0" />
+          <Building2 className="w-5 h-5 text-[var(--teal)] shrink-0" />
           <span className="font-semibold text-white tracking-tight truncate max-w-[140px] 2xl:max-w-[240px]" title={institution?.name || 'Rehabilitation Management Facility'}>
             {institution?.name || 'Rehabilitation Management Facility'}
           </span>
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
               id="case-selector"
               value={selectedCaseId}
               onChange={(e) => onCaseChange(e.target.value)}
-              className="text-sm sm:text-base py-2 px-3.5 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[#0284c7] cursor-pointer w-[132px] min-[420px]:w-[160px] sm:w-[200px] xl:w-[260px] max-w-full truncate"
+              className="text-sm sm:text-base py-2 px-3.5 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[var(--acc)] cursor-pointer w-[132px] min-[420px]:w-[160px] sm:w-[200px] xl:w-[260px] max-w-full truncate"
             >
               {cases.map((c) => (
                 <option key={c.id} value={c.id} className="bg-[#0b1a30]">
@@ -154,14 +154,14 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-[#0f2744] hover:bg-[#143258] border border-[#1e3a5f] text-left cursor-pointer transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0284c7] to-[#5cc2bd] flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {user.full_name.charAt(0)}
               </div>
               <div className="hidden sm:block min-w-0 max-w-[160px]">
                 <span className="block text-sm font-semibold text-white truncate leading-tight">
                   {user.full_name}
                 </span>
-                <span className="block text-xs text-[#5cc2bd] truncate font-semibold">
+                <span className="block text-xs text-[var(--teal)] truncate font-semibold">
                   {getCustomDesignation(user.role)}
                 </span>
               </div>
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-[#0c1c36] border border-[#1e3a5f] shadow-2xl py-2 z-50 animate-fade-in text-sm">
                   <div className="px-4 py-2.5 border-b border-[#1e3a5f]">
                     <span className="block font-bold text-white text-sm">{user.full_name}</span>
-                    <span className="block text-xs text-[#5cc2bd] font-semibold">{getCustomDesignation(user.role)}</span>
+                    <span className="block text-xs text-[var(--teal)] font-semibold">{getCustomDesignation(user.role)}</span>
                     <span className="block text-xs text-slate-400 font-mono mt-0.5">
                       Badge #{user.badge_number} · {user.email}
                     </span>
@@ -207,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={onGoHome}
                     className="w-full px-3.5 py-2 text-left text-slate-300 hover:text-white hover:bg-[#0f2744] flex items-center gap-2 cursor-pointer"
                   >
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#5cc2bd]" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--teal)]" />
                     <span>Public Overview</span>
                   </button>
 
