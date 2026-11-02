@@ -30,7 +30,6 @@ import {
 
 
 const app = express();
-registerUiTranslationRoutes(app);
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const HOST = '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -38,6 +37,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Body parsing
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+registerUiTranslationRoutes(app);
 
 // Multer upload setup
 const upload = multer({
