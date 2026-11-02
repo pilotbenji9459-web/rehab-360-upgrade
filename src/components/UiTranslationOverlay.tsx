@@ -14,7 +14,7 @@ function manifest(){
 const translationCache=new Map<string,string>();
 const originals=new WeakMap<Text,string>();
 const originalAttributes=new WeakMap<Element,Map<string,string>>();
-const hiddenNodes='SCRIPT,STYLE,NOSCRIPT,INPUT,TEXTAREA,SELECT,OPTION,CODE,PRE,[contenteditable="true"],[data-no-translate]';
+const hiddenNodes='SCRIPT,STYLE,NOSCRIPT,INPUT,TEXTAREA,CODE,PRE,[contenteditable="true"],[data-no-translate]';
 const blacklist=/^(?:RP-\d+|[\d\s.,:;/%+-]+)$/;
 
 export function UiTranslationOverlay(){
