@@ -23,6 +23,8 @@ export const RehabPlanView: React.FC<RehabPlanViewProps> = ({
   onAddRemark,
   showAlert,
 }) => {
+  const { t } = useLanguage();
+
   const { user } = useAuth();
   const c = currentRecord;
   const p = getOffenderPos(c);
