@@ -10,9 +10,6 @@ import {
   Lock,
   Save,
   CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  Sparkles,
 } from 'lucide-react';
 
 interface SettingsViewProps {
