@@ -72,7 +72,8 @@ export function UiTranslationOverlay(){
           const cached=translationCache.get(language+':'+id);
           if(cached){
             // Retain whitespace added for layout around the UI phrase.
-            text.nodeValue=preserveWhitespace(original,cached);
+            const next=preserveWhitespace(original,cached);
+            if(text.nodeValue!==next)text.nodeValue=next;
           }else{
             const set=matched.get(id)||new Set<Text>();set.add(text);matched.set(id,set);pending.add(id);
           }
@@ -90,7 +91,7 @@ export function UiTranslationOverlay(){
             if(!prior.has(name))prior.set(name,original);
             touchedElements.add(el);
             const cached=translationCache.get(language+':'+id);
-            if(cached)el.setAttribute(name,cached);
+            if(cached){if(el.getAttribute(name)!==cached)el.setAttribute(name,cached);}
             else {const group=attrsMatched.get(id)||[];group.push({el,name});attrsMatched.set(id,group);pending.add(id);}
           }
         });
@@ -116,11 +117,12 @@ export function UiTranslationOverlay(){
             for(const node of matched.get(id)||[]){
               if(node.isConnected) {
                 const original=originals.get(node)||'';
-                node.nodeValue=preserveWhitespace(original,translated);
+                const next=preserveWhitespace(original,translated);
+                if(node.nodeValue!==next)node.nodeValue=next;
               }
             }
             for(const {el,name} of attrsMatched.get(id)||[]){
-              if(el.isConnected)el.setAttribute(name,translated);
+              if(el.isConnected&&el.getAttribute(name)!==translated)el.setAttribute(name,translated);
             }
             matched.delete(id);attrsMatched.delete(id);
           }
