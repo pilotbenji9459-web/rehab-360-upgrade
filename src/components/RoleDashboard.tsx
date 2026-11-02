@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
@@ -34,6 +35,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   onSelectCase,
   onOpenNewCaseModal,
 }) => {
+  const { t } = useLanguage();
   const { user, institution, systemStatus } = useAuth();
   if (!user) return null;
 
