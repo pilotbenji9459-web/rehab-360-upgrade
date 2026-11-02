@@ -3,6 +3,7 @@ import { LV, SUB, PROFILES, PROGRAMMES } from '../data/constants';
 import { OffenderCase, StaffRole, ChangeHistoryEntry, AutosaveStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import {
   calculateAIRecommendation,
   formatPathwayName,
@@ -42,6 +43,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
   showAlert,
 }) => {
   const { user, hasRole } = useAuth();
+  const { t } = useLanguage();
   const c = currentRecord;
   const a = calculateAIRecommendation(c);
 
