@@ -4,6 +4,8 @@ import { useLanguage } from '../context/LanguageContext';
 // Translates ONLY fixed developer-authored UI wording in a server-validated
 // allowlist. Personal/clinical/case content never enters translation requests.
 const normalize=(s:string)=>s.replace(/\s+/g,' ').trim();
+const preserveWhitespace=(original:string,translated:string)=>
+  (original.match(/^\s*/)?.[0]||'')+translated+(original.match(/\s*$/)?.[0]||'');
 const attrNames=['placeholder','title','aria-label','alt'] as const;
 let manifestPromise:Promise<{strings:string[];available:boolean}>|null=null;
 function manifest(){
@@ -70,7 +72,7 @@ export function UiTranslationOverlay(){
           const cached=translationCache.get(language+':'+id);
           if(cached){
             // Retain whitespace added for layout around the UI phrase.
-            text.nodeValue=original.replace(normalize(original),cached);
+            text.nodeValue=preserveWhitespace(original,cached);
           }else{
             const set=matched.get(id)||new Set<Text>();set.add(text);matched.set(id,set);pending.add(id);
           }
@@ -114,7 +116,7 @@ export function UiTranslationOverlay(){
             for(const node of matched.get(id)||[]){
               if(node.isConnected) {
                 const original=originals.get(node)||'';
-                node.nodeValue=original.replace(normalize(original),translated);
+                node.nodeValue=preserveWhitespace(original,translated);
               }
             }
             for(const {el,name} of attrsMatched.get(id)||[]){
