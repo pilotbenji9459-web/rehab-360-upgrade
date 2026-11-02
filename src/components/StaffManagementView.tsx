@@ -19,6 +19,7 @@ interface StaffManagementViewProps {
 }
 
 export const StaffManagementView: React.FC<StaffManagementViewProps> = ({ showAlert }) => {
+  const { t } = useLanguage();
   const { user, hasRole } = useAuth();
   const [staffList, setStaffList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
