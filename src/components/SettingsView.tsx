@@ -23,8 +23,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const { user, institution, systemStatus, refreshInstitution } = useAuth();
   const isAdmin = user?.role === 'Administrator';
 
-  const [name, setName] = useState(institution?.name || '');
-  const [code, setCode] = useState(institution?.code || '');
+  const [name, setName] = useState(institution?.name || 'RehabPath360');
+  const [code, setCode] = useState(institution?.code || 'REHAB-360');
   const [logoUrl, setLogoUrl] = useState(institution?.logo_url || '');
 
   const [designations, setDesignations] = useState<Record<StaffRole, string>>({
@@ -59,7 +59,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   useEffect(() => {
     if (institution) {
-      setName(institution.name);
+      setName(institution.name || 'RehabPath360');
       setCode(institution.code);
       setLogoUrl(institution.logo_url || '');
       if (institution.staff_designations) {
