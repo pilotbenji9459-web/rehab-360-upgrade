@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
 import { Api } from '../services/api';
 import { OffenderCase } from '../types';
@@ -16,6 +17,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
   onCaseCreated,
   showAlert,
 }) => {
+  const { t } = useLanguage();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState('1992-05-14');
