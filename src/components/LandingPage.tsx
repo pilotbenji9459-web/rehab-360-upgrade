@@ -294,10 +294,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           {/* Pathway Progression Visual Banner */}
           <div className="mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
             <img
-              src="/assets/images/pathway_milestone_progression.svg"
+              src={pathwayMilestoneImg}
               alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
               referrerPolicy="no-referrer"
-              className="w-full h-auto object-cover max-h-[380px]"
+              className="block w-full h-auto object-contain max-h-[420px] bg-[#071325]"
             />
             <div className="p-4 bg-[#071325] border-t border-[#1e3a5f] flex flex-wrap items-center justify-between gap-4 text-xs">
               <span className="font-semibold text-white tracking-wide">
