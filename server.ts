@@ -12,6 +12,7 @@ import {
   StaffRole,
   InstitutionConfig,
   isDeploymentMode,
+  setApplicationMode,
   loadDatabase,
 } from './server/db';
 import {
@@ -76,6 +77,16 @@ app.get('/api/system/status', (_req, res) => {
     bootstrap_completed: inst.is_demo ? true : loadDatabase().bootstrap_completed || false,
     institution: inst,
   });
+});
+
+app.post('/api/system/mode', authenticateToken, requireRoles(['Administrator']), (req: AuthenticatedRequest, res: Response): void => {
+  const mode = req.body?.mode;
+  if (mode !== 'demo' && mode !== 'deployment') { res.status(400).json({ error: 'Mode must be demo or deployment.' }); return; }
+  if ((mode === 'deployment') === isDeploymentMode()) { res.json({ success: true, mode, database_file: path.basename(DB.getActiveDbFile()) }); return; }
+  const user = req.user!;
+  DB.logAuditEvent({ institution_id: user.institution_id, actor_id: user.id, actor_email: user.email, actor_name: user.full_name, actor_role: user.role, action: 'APPLICATION_MODE_SWITCH', resource_type: 'system', resource_id: mode, details: 'Administrator switched application mode to ' + mode + '; data remains in its separate database.', ip_address: req.ip || '127.0.0.1', status: 'success' });
+  setApplicationMode(mode);
+  res.json({ success: true, mode, database_file: path.basename(DB.getActiveDbFile()) });
 });
 
 // POST /api/setup/bootstrap-admin - Secure one-time setup for clean deployment
