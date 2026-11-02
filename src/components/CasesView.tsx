@@ -246,7 +246,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2>Institutional Caseload Directory</h2>
+            <h2>{t('cases')}</h2>
             <p className="mute text-xs">
               Search and filter active cases. Select a record to inspect the multi-dimensional file.
             </p>
