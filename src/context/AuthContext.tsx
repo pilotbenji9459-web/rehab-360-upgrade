@@ -23,6 +23,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Load account-specific appearance when logging in or restoring a session.
+  // Institution colour preferences remain intentionally unused.
+  useEffect(() => {
+    const root = document.documentElement;
+    const defaultPrimary = '#0284c7';
+    const defaultTeal = '#5cc2bd';
+    let primary = defaultPrimary;
+    let teal = defaultTeal;
+    if (user?.id) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(`rehabpath360:personal-theme:${user.id}`) || '{}');
+        if (typeof saved.primary === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.primary)) primary = saved.primary;
+        if (typeof saved.teal === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.teal)) teal = saved.teal;
+      } catch {
+        // Invalid or blocked storage: use the default colours.
+      }
+    }
+    root.style.setProperty('--acc', primary);
+    root.style.setProperty('--teal', teal);
+  }, [user?.id]);
+
   const refreshSystemStatus = async () => {
     try {
       const status = await Api.getSystemStatus();
