@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Api } from '../services/api';
 import { StaffRole } from '../types';
+import { LanguageSelector } from './LanguageSelector';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Building2,
   ShieldCheck,
@@ -18,6 +20,7 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const { user, institution, systemStatus, refreshInstitution } = useAuth();
+  const { t } = useLanguage();
   const isAdmin = user?.role === 'Administrator';
 
   const [name, setName] = useState(institution?.name || 'RehabPath360');
@@ -101,14 +104,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold font-serif text-white flex items-center gap-2.5">
               <Building2 className="w-6 h-6 text-[#0284c7]" />
-              <span>Institution Settings &amp; Configuration</span>
+              <span>{t('settingsTitle')}</span>
             </h1>
             <p className="text-xs text-slate-400 mt-1">
               Configure facility branding, custom staff designations, and inspect database isolation boundaries.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <LanguageSelector />
             {institution?.is_demo ? (
               <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold">
                 Exhibition Demo Mode
