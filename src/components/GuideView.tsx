@@ -83,9 +83,7 @@ export const GuideView: React.FC = () => {
             <span className="text-xs font-semibold uppercase tracking-widest text-[#5cc2bd] block mb-1">
               Educational &amp; Operational Blueprint
             </span>
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-white m-0 tracking-tight">
-              How RehabPath360 Works
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-white m-0 tracking-tight">{t('guide')} </h1>
           </div>
         </div>
 
