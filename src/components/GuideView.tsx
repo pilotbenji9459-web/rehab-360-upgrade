@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
 import { GLOSSARY, PROCESS_STEPS, LEVEL_FRAMEWORK } from '../data/constants';
 import { ShieldCheck, Layers, BookOpen, Search, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -12,6 +13,7 @@ import communityImg from '../assets/images/community_reintegration_1792261209316
 import caseReviewImg from '../assets/images/milestone_gate_review_1792261681316.jpg';
 
 export const GuideView: React.FC = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredGlossary = GLOSSARY.filter(([term, def]) => {
