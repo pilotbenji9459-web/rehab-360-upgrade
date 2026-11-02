@@ -1,7 +1,9 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { LV } from '../data/constants';
 
 export const SystemInsightsView: React.FC = () => {
+  const { t } = useLanguage();
   const lvCounts = [38, 41, 27, 14];
   const tot = 120;
   const suppress = (n: number) => (n < 3 ? '<3' : n.toString());
