@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Api } from '../services/api';
-import { StaffRole, InstitutionConfig } from '../types';
+import { StaffRole } from '../types';
 import {
   Building2,
   ShieldCheck,
-  Palette,
   Sliders,
   Database,
   Lock,
@@ -27,8 +26,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const [name, setName] = useState(institution?.name || '');
   const [code, setCode] = useState(institution?.code || '');
   const [logoUrl, setLogoUrl] = useState(institution?.logo_url || '');
-  const [themePrimary, setThemePrimary] = useState(institution?.theme_primary || '#0284c7');
-  const [themeTeal, setThemeTeal] = useState(institution?.theme_teal || '#5cc2bd');
 
   const [designations, setDesignations] = useState<Record<StaffRole, string>>({
     Administrator: institution?.staff_designations?.Administrator || 'Executive Administrator',
@@ -43,87 +40,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [personalPrimary, setPersonalPrimary] = useState('#0284c7');
-  const [personalTeal, setPersonalTeal] = useState('#5cc2bd');
-  const personalThemeKey = user?.id ? `rehabpath360:personal-theme:${user.id}` : '';
-
-  useEffect(() => {
-    if (!personalThemeKey) return;
-    try {
-      const saved = JSON.parse(localStorage.getItem(personalThemeKey) || '{}');
-      setPersonalPrimary(isValidHex(saved.primary) ? saved.primary : '#0284c7');
-      setPersonalTeal(isValidHex(saved.teal) ? saved.teal : '#5cc2bd');
-    } catch {
-      setPersonalPrimary('#0284c7');
-      setPersonalTeal('#5cc2bd');
-    }
-  }, [personalThemeKey]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--acc', personalPrimary);
-    root.style.setProperty('--teal', personalTeal);
-  }, [personalPrimary, personalTeal]);
-
-  const savePersonalTheme = () => {
-    if (!personalThemeKey || !isValidHex(personalPrimary) || !isValidHex(personalTeal)) {
-      showAlert('Enter valid six-digit hex colours before saving.', 'Invalid Personal Colours');
-      return;
-    }
-    localStorage.setItem(personalThemeKey, JSON.stringify({ primary: personalPrimary, teal: personalTeal }));
-    showAlert('Your personal colours are saved for this account on this browser.', 'Personal Appearance Saved');
-  };
-
-  const resetInstitutionAppearance = async () => {
+  const switchMode = async () => {
     if (!isAdmin) return;
-    const confirmed = window.confirm('Reset shared institution branding and staff designations to the RehabPath360 defaults?');
+    const nextMode = systemStatus?.mode === 'deployment' ? 'demo' : 'deployment';
+    const label = nextMode === 'deployment' ? 'Clean Deployment Mode' : 'Exhibition Demo Mode';
+    const confirmed = window.confirm(`Switch to ${label}? The two modes use separate databases. Your current session will end and you will be returned to the appropriate start screen. No records are copied or deleted.`);
     if (!confirmed) return;
     setIsSaving(true);
     try {
-      await Api.updateInstitution({
-        name,
-        code,
-        logo_url: logoUrl,
-        theme_primary: '#0284c7',
-        theme_teal: '#5cc2bd',
-        staff_designations: {
-          Administrator: 'Executive Administrator',
-          Warden: 'Governing Governor / Warden',
-          Psychologist: 'Clinical Psychologist',
-          'Case Manager': 'Rehabilitation Case Manager',
-          Educator: 'Vocational Education Officer',
-          'Community Rehabilitation Officer': 'Community Rehabilitation Officer',
-        },
-      });
-      setThemePrimary('#0284c7');
-      setThemeTeal('#5cc2bd');
-      setDesignations({
-        Administrator: 'Executive Administrator',
-        Warden: 'Governing Governor / Warden',
-        Psychologist: 'Clinical Psychologist',
-        'Case Manager': 'Rehabilitation Case Manager',
-        Educator: 'Vocational Education Officer',
-        'Community Rehabilitation Officer': 'Community Rehabilitation Officer',
-      });
-      await refreshInstitution();
-      showAlert('Shared branding and role labels have been restored. Institution name, code, and logo were kept unchanged.', 'Defaults Restored');
+      await Api.switchSystemMode(nextMode);
+      window.sessionStorage.clear();
+      window.location.assign(window.location.pathname);
     } catch (err: any) {
-      showAlert(err.message || 'Could not reset institutional appearance.', 'Reset Failed');
-    } finally {
+      showAlert(err.message || 'Could not switch application mode.', 'Mode Switch Failed');
       setIsSaving(false);
     }
   };
-  const isValidHex = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
-  const primaryPreview = isValidHex(themePrimary) ? themePrimary : '#0284c7';
-  const tealPreview = isValidHex(themeTeal) ? themeTeal : '#5cc2bd';
 
   useEffect(() => {
     if (institution) {
       setName(institution.name);
       setCode(institution.code);
       setLogoUrl(institution.logo_url || '');
-      setThemePrimary(institution.theme_primary || '#0284c7');
-      setThemeTeal(institution.theme_teal || '#5cc2bd');
       if (institution.staff_designations) {
         setDesignations(institution.staff_designations);
       }
@@ -137,10 +75,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
       return;
     }
 
-    if (!isValidHex(themePrimary) || !isValidHex(themeTeal)) {
-      showAlert('Enter valid six-digit hex colours, e.g. #0284c7 or #5cc2bd.', 'Invalid Brand Colour');
-      return;
-    }
     setIsSaving(true);
     setSavedSuccess(false);
 
@@ -149,8 +83,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
         name,
         code,
         logo_url: logoUrl,
-        theme_primary: themePrimary,
-        theme_teal: themeTeal,
         staff_designations: designations,
       });
 
@@ -200,34 +132,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
         </div>
       )}
 
-      <div className="card bg-[#0b1a30]">
-        <h2 className="text-base font-bold font-serif text-white mb-1 flex items-center gap-2">
-          <Palette className="w-4 h-4 text-[#5cc2bd]" />
-          <span>Personal Appearance</span>
-        </h2>
-        <p className="text-xs text-slate-400 mb-4">
-          Personal accent colours are stored separately for your signed-in account on this browser. They do not change other staff accounts.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label className="text-xs text-slate-300">Primary accent
-            <div className="flex gap-2 mt-1">
-              <input type="color" value={isValidHex(personalPrimary) ? personalPrimary : '#0284c7'} onChange={e => setPersonalPrimary(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
-              <input value={personalPrimary} onChange={e => setPersonalPrimary(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
-            </div>
-          </label>
-          <label className="text-xs text-slate-300">Secondary accent
-            <div className="flex gap-2 mt-1">
-              <input type="color" value={isValidHex(personalTeal) ? personalTeal : '#5cc2bd'} onChange={e => setPersonalTeal(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
-              <input value={personalTeal} onChange={e => setPersonalTeal(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
-            </div>
-          </label>
-        </div>
-        <div className="flex flex-wrap gap-2 mt-4">
-          <button type="button" onClick={savePersonalTheme} className="px-4 py-2 rounded-lg bg-[#0369a1] text-white text-xs font-semibold">Save My Colours</button>
-          <button type="button" onClick={() => { setPersonalPrimary('#0284c7'); setPersonalTeal('#5cc2bd'); if (personalThemeKey) localStorage.removeItem(personalThemeKey); }} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 text-xs">Reset My Colours</button>
-        </div>
-      </div>
-
       {/* Configuration Form */}
       <form onSubmit={handleSave} className="space-y-6">
         {/* Section 1: Facility Identity */}
@@ -269,60 +173,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Primary Brand Accent Color
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  disabled={!isAdmin}
-                  value={primaryPreview}
-                  onChange={(e) => setThemePrimary(e.target.value)}
-                  aria-label="Pick primary accent colour"
-                  className="w-9 h-9 rounded-lg border border-slate-700 p-0.5 cursor-pointer bg-slate-900"
-                />
-                <input
-                  type="text"
-                  disabled={!isAdmin}
-                  value={themePrimary}
-                  onChange={(e) => setThemePrimary(e.target.value)}
-                  className="w-full text-xs py-2 px-3 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Secondary Teal Accent Color
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  disabled={!isAdmin}
-                  value={tealPreview}
-                  onChange={(e) => setThemeTeal(e.target.value)}
-                  aria-label="Pick secondary teal colour"
-                  className="w-9 h-9 rounded-lg border border-slate-700 p-0.5 cursor-pointer bg-slate-900"
-                />
-                <input
-                  type="text"
-                  disabled={!isAdmin}
-                  value={themeTeal}
-                  onChange={(e) => setThemeTeal(e.target.value)}
-                  className="w-full text-xs py-2 px-3 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="mt-5 rounded-xl border border-[#2b4660] bg-[#07172d] p-4">
-            <p className="text-xs font-semibold text-slate-300 mb-3">Brand Colour Preview</p>
-            <div className="flex flex-wrap gap-2 items-center">
-              <span style={{ background: primaryPreview }} className="rounded-lg px-4 py-2 text-white text-xs font-semibold">Primary accent</span>
-              <span style={{ background: tealPreview }} className="rounded-lg px-4 py-2 text-[#071325] text-xs font-semibold">Secondary accent</span>
-              <span className="text-xs text-slate-400">Save to apply to shared UI theme colours.</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-3">Some fixed navy/blue design elements retain their original colours.</p>
           </div>
         </div>
 
@@ -404,27 +254,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
           </div>
 
           <div className="mt-4 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300">
-            <span className="font-semibold text-white block mb-1">To run Clean Deployment Mode:</span>
-            <code className="text-[#38bdf8] font-mono text-[11px] block bg-slate-950 p-2 rounded border border-slate-800">
-              APP_MODE=deployment npm run start
-            </code>
-            <span className="text-[11px] text-slate-400 mt-1 block">
-              Starts with zero staff accounts and zero case records. Initial administrator must be claimed via secure bootstrap.
-            </span>
+            <span className="font-semibold text-white block mb-1">Switch application mode</span>
+            <p className="text-[11px] text-slate-400 mb-3">Demo and clean deployment records are kept in separate databases. Switching does not copy or delete records. Clean mode starts with no staff or case records and opens the first-administrator setup screen.</p>
+            {isAdmin && <button type="button" onClick={switchMode} disabled={isSaving} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50">{isSaving ? 'Switching…' : systemStatus?.mode === 'deployment' ? 'Switch to Exhibition Demo Mode' : 'Switch to Clean Deployment Mode'}</button>}
           </div>
         </div>
 
         {/* Save button (Admin only) */}
         {isAdmin && (
           <div className="flex flex-wrap justify-between gap-3 pt-2">
-            <button
-              type="button"
-              onClick={resetInstitutionAppearance}
-              disabled={isSaving}
-              className="px-4 py-2.5 rounded-xl border border-rose-500/50 text-rose-200 hover:bg-rose-950/40 text-xs font-semibold disabled:opacity-50"
-            >
-              Reset Institutional Defaults
-            </button>
             <button
               type="submit"
               disabled={isSaving}
