@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { TH } from '../data/constants';
 import { OffenderCase } from '../types';
@@ -13,6 +14,7 @@ interface DomainMatrixViewProps {
 }
 
 export const DomainMatrixView: React.FC<DomainMatrixViewProps> = ({ currentRecord }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const userRole = user?.role || 'Warden';
