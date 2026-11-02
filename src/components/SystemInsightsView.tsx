@@ -52,7 +52,7 @@ export const SystemInsightsView: React.FC = () => {
         </div>
 
         <div className="card">
-          <h2>Resource bottlenecks</h2>
+          <h2>{t('dashboard')} </h2>
           <p className="mute text-xs mb-3">Share of gate checks blocked by each domain</p>
           {bottlenecks.map(([domain, pct]) => (
             <div key={domain} className="my-2 text-sm">
@@ -69,7 +69,7 @@ export const SystemInsightsView: React.FC = () => {
       </div>
 
       <div className="card">
-        <h2>Programme efficacy</h2>
+        <h2>{t('reports')} </h2>
         <table className="app-table">
           <thead>
             <tr>
