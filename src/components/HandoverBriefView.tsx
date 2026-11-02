@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
 import { OffenderCase } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +20,7 @@ export const HandoverBriefView: React.FC<HandoverBriefViewProps> = ({
   encryptedPackage,
   onSetEncryptedPackage,
 }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const p = getOffenderPos(c);
