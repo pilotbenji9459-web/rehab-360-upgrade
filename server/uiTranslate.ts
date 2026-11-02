@@ -40,8 +40,7 @@ function add(raw:string) {
   if(/[{}$`]/.test(val) || /^https?:|^\/|^#[a-f\d]{3,8}$/i.test(val)) return;
   strings.add(val);
 }
-readSourceFiles(path.join(SRC,'components'));
-readSourceFiles(path.join(SRC,'data'));
+readSourceFiles(SRC);
 const indexed = [...strings].sort();
 const byId = new Map(indexed.map((s,i)=>[i,s]));
 const cache = new Map<string,string>();
