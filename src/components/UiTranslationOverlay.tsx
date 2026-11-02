@@ -10,7 +10,7 @@ const attrNames=['placeholder','title','aria-label','alt'] as const;
 let manifestPromise:Promise<{strings:string[];available:boolean}>|null=null;
 function manifest(){
   return manifestPromise ?? (manifestPromise=fetch('/api/i18n/ui-strings')
-    .then(r=>{if(!r.ok)throw new Error('UI manifest unavailable');return r.json();})
+    .then(r=>{if(!r.ok)throw new Error('UI manifest unavailable');return r.json() as Promise<{strings:string[];available:boolean}>;})
     .catch(e=>{manifestPromise=null;throw e;}));
 }
 const translationCache=new Map<string,string>();
@@ -45,7 +45,7 @@ export function UiTranslationOverlay(){
 
     void manifest().then(({strings,available})=>{
       if(cancelled||!available)return;
-      const ids=new Map(strings.map((s,id)=>[normalize(s),id]));
+      const ids=new Map<string,number>(strings.map((s:string,id:number):[string,number]=>[normalize(s),id]));
       const pending=new Set<number>();
       const matched=new Map<number,Set<Text>>();
       const attrsMatched=new Map<number,Array<{el:Element,name:string}>>();
