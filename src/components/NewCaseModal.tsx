@@ -96,7 +96,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
             <UserPlus className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold font-serif text-white">Register Case Record</h2>
+            <h2 className="text-xl font-bold font-serif text-white">{t('cases')} </h2>
             <p className="text-xs text-slate-400">Initialize official rehabilitation profile for this institution</p>
           </div>
         </div>
