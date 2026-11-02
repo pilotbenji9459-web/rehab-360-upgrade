@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { registerUiTranslationRoutes } from './server/uiTranslate';
 import express, { Response } from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -29,6 +30,7 @@ import {
 
 
 const app = express();
+registerUiTranslationRoutes(app);
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const HOST = '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
