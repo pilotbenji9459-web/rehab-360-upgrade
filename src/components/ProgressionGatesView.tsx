@@ -53,7 +53,7 @@ export const ProgressionGatesView: React.FC<ProgressionGatesViewProps> = ({
             src="/assets/images/pathway_progression_1792261207526.jpg"
             alt="Multi-level rehabilitation pathway progression gates architecture"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
+            className="block w-full h-full object-cover object-center rounded-[inherit]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b1a30] via-transparent to-transparent" />
           <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-900/80 border border-[#1e3a5f] text-xs font-mono text-[#5cc2bd] backdrop-blur-sm">
