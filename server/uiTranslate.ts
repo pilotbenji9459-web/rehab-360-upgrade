@@ -21,8 +21,15 @@ function readSourceFiles(dir: string): void {
     if (!/\.(tsx|ts)$/.test(entry.name) || entry.name.includes('.test.') || entry.name.includes('LanguageContext')) continue;
     const src = fs.readFileSync(file,'utf8');
     // JSX text and fixed accessible labels / placeholders / titles.
-    for (const match of src.matchAll(/>([^<>{}\n]+)</g)) add(match[1]);
+    for (const match of src.matchAll(/>([^<>{}]+)</g)) add(match[1]);
     for (const match of src.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,240})["']/g)) add(match[1]);
+    // Text-only literal labels in navigation definitions, forms and status messages.
+    // Reject code tokens, URLs, CSS classes and identifiers; only fixed source content qualifies.
+    for (const match of src.matchAll(/['"]([^'"\\\\\n]{2,160})['"]/g)) {
+      const val=match[1].trim();
+      if (/^[A-Z][a-zA-Z]+(?:[\\s&:,.!?'()\\-/]+[a-zA-Z0-9%]+)+[.!?]?$/.test(val) &&
+          !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(val)) add(val);
+    }
     // Literal UI feedback, section titles, button copy and toast messages.
     for (const match of src.matchAll(/(?:showAlert\(|window\.confirm\(|window\.alert\()\s*['"`]([^`'"\\]{2,240})['"`]/g)) add(match[1]);
   }
