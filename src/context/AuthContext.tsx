@@ -23,24 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Apply persisted institutional brand colours to shared theme tokens.
-  // Tailwind classes with literal hex colours remain intentionally unchanged.
-  useEffect(() => {
-    const validHex = (value: unknown, fallback: string) =>
-      typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
-    const primary = validHex(institution?.theme_primary, '#0284c7');
-    const teal = validHex(institution?.theme_teal, '#5cc2bd');
-    const root = document.documentElement;
-    const rgba = (hex: string) => {
-      const num = parseInt(hex.slice(1), 16);
-      return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, 0.18)`;
-    };
-    root.style.setProperty('--acc', primary);
-    root.style.setProperty('--teal', teal);
-    root.style.setProperty('--accbg', rgba(primary));
-    root.style.setProperty('--tealbg', rgba(teal));
-  }, [institution?.theme_primary, institution?.theme_teal]);
-
   const refreshSystemStatus = async () => {
     try {
       const status = await Api.getSystemStatus();
