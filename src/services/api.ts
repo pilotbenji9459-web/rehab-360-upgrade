@@ -14,12 +14,14 @@ const TOKEN_KEY = 'rehabpath360_auth_token';
 
 export const AuthService = {
   getToken: (): string | null => {
-    return localStorage.getItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   },
   setToken: (token: string) => {
-    localStorage.setItem(TOKEN_KEY, token);
+    sessionStorage.setItem(TOKEN_KEY, token);
   },
   removeToken: () => {
+    sessionStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_KEY);
   },
 };
@@ -59,6 +61,9 @@ export const Api = {
   // System & Institution
   getSystemStatus: () =>
     request<SystemStatus>('/api/system/status'),
+
+  switchSystemMode: (mode: 'demo' | 'deployment') =>
+    request<{ success: boolean; mode: 'demo' | 'deployment'; database_file: string }>('/api/system/mode', { method: 'POST', body: JSON.stringify({ mode }) }),
 
   bootstrapAdmin: (data: {
     institution_name: string;
