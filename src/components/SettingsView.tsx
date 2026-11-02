@@ -43,6 +43,76 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [personalPrimary, setPersonalPrimary] = useState('#0284c7');
+  const [personalTeal, setPersonalTeal] = useState('#5cc2bd');
+  const personalThemeKey = user?.id ? `rehabpath360:personal-theme:${user.id}` : '';
+
+  useEffect(() => {
+    if (!personalThemeKey) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(personalThemeKey) || '{}');
+      setPersonalPrimary(isValidHex(saved.primary) ? saved.primary : '#0284c7');
+      setPersonalTeal(isValidHex(saved.teal) ? saved.teal : '#5cc2bd');
+    } catch {
+      setPersonalPrimary('#0284c7');
+      setPersonalTeal('#5cc2bd');
+    }
+  }, [personalThemeKey]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--acc', personalPrimary);
+    root.style.setProperty('--teal', personalTeal);
+  }, [personalPrimary, personalTeal]);
+
+  const savePersonalTheme = () => {
+    if (!personalThemeKey || !isValidHex(personalPrimary) || !isValidHex(personalTeal)) {
+      showAlert('Enter valid six-digit hex colours before saving.', 'Invalid Personal Colours');
+      return;
+    }
+    localStorage.setItem(personalThemeKey, JSON.stringify({ primary: personalPrimary, teal: personalTeal }));
+    showAlert('Your personal colours are saved for this account on this browser.', 'Personal Appearance Saved');
+  };
+
+  const resetInstitutionAppearance = async () => {
+    if (!isAdmin) return;
+    const confirmed = window.confirm('Reset shared institution branding and staff designations to the RehabPath360 defaults?');
+    if (!confirmed) return;
+    setIsSaving(true);
+    try {
+      await Api.updateInstitution({
+        name,
+        code,
+        logo_url: logoUrl,
+        theme_primary: '#0284c7',
+        theme_teal: '#5cc2bd',
+        staff_designations: {
+          Administrator: 'Executive Administrator',
+          Warden: 'Governing Governor / Warden',
+          Psychologist: 'Clinical Psychologist',
+          'Case Manager': 'Rehabilitation Case Manager',
+          Educator: 'Vocational Education Officer',
+          'Community Rehabilitation Officer': 'Community Rehabilitation Officer',
+        },
+      });
+      setThemePrimary('#0284c7');
+      setThemeTeal('#5cc2bd');
+      setDesignations({
+        Administrator: 'Executive Administrator',
+        Warden: 'Governing Governor / Warden',
+        Psychologist: 'Clinical Psychologist',
+        'Case Manager': 'Rehabilitation Case Manager',
+        Educator: 'Vocational Education Officer',
+        'Community Rehabilitation Officer': 'Community Rehabilitation Officer',
+      });
+      await refreshInstitution();
+      showAlert('Shared branding and role labels have been restored. Institution name, code, and logo were kept unchanged.', 'Defaults Restored');
+    } catch (err: any) {
+      showAlert(err.message || 'Could not reset institutional appearance.', 'Reset Failed');
+    } finally {
+      setIsSaving(false);
+    }
+  };
   const isValidHex = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
   const primaryPreview = isValidHex(themePrimary) ? themePrimary : '#0284c7';
   const tealPreview = isValidHex(themeTeal) ? themeTeal : '#5cc2bd';
@@ -129,6 +199,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
           <span>Institution parameters have been saved to the persistent database.</span>
         </div>
       )}
+
+      <div className="card bg-[#0b1a30]">
+        <h2 className="text-base font-bold font-serif text-white mb-1 flex items-center gap-2">
+          <Palette className="w-4 h-4 text-[#5cc2bd]" />
+          <span>Personal Appearance</span>
+        </h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Personal accent colours are stored separately for your signed-in account on this browser. They do not change other staff accounts.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="text-xs text-slate-300">Primary accent
+            <div className="flex gap-2 mt-1">
+              <input type="color" value={isValidHex(personalPrimary) ? personalPrimary : '#0284c7'} onChange={e => setPersonalPrimary(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
+              <input value={personalPrimary} onChange={e => setPersonalPrimary(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
+            </div>
+          </label>
+          <label className="text-xs text-slate-300">Secondary accent
+            <div className="flex gap-2 mt-1">
+              <input type="color" value={isValidHex(personalTeal) ? personalTeal : '#5cc2bd'} onChange={e => setPersonalTeal(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
+              <input value={personalTeal} onChange={e => setPersonalTeal(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
+            </div>
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <button type="button" onClick={savePersonalTheme} className="px-4 py-2 rounded-lg bg-[#0369a1] text-white text-xs font-semibold">Save My Colours</button>
+          <button type="button" onClick={() => { setPersonalPrimary('#0284c7'); setPersonalTeal('#5cc2bd'); if (personalThemeKey) localStorage.removeItem(personalThemeKey); }} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 text-xs">Reset My Colours</button>
+        </div>
+      </div>
 
       {/* Configuration Form */}
       <form onSubmit={handleSave} className="space-y-6">
@@ -318,7 +416,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
         {/* Save button (Admin only) */}
         {isAdmin && (
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-wrap justify-between gap-3 pt-2">
+            <button
+              type="button"
+              onClick={resetInstitutionAppearance}
+              disabled={isSaving}
+              className="px-4 py-2.5 rounded-xl border border-rose-500/50 text-rose-200 hover:bg-rose-950/40 text-xs font-semibold disabled:opacity-50"
+            >
+              Reset Institutional Defaults
+            </button>
             <button
               type="submit"
               disabled={isSaving}
