@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle, CheckCircle2, X, Eye, EyeOff } from 'lucide-react';
 import { StaffRole } from '../types';
 
 interface LoginModalProps {
@@ -22,6 +22,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
   const { login } = useAuth();
   const [email, setEmail] = useState('warden@rehabpath.gov');
   const [password, setPassword] = useState('RehabPath360!');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
@@ -132,13 +133,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                   <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
                   <input
                     style={{ paddingLeft: '48px' }}
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
+                    className="w-full pl-9 pr-11 py-2 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(value => !value)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
