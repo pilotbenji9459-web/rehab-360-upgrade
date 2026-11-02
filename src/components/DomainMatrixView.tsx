@@ -25,7 +25,7 @@ export const DomainMatrixView: React.FC<DomainMatrixViewProps> = ({ currentRecor
 
   return (
     <div className="card">
-      <h2>{c.id}: Multi-Dimensional Progress Matrix</h2>
+      <h2>{c.id}: {t('progression')} </h2>
       <table className="app-table">
         <tbody>
           {matrixData.map(([domainName, val, isClinical], i) => {
