@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import {
   Building2,
   ShieldCheck,
+  Palette,
   Sliders,
   Database,
   Lock,
@@ -40,6 +41,54 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Personal appearance is browser/account-specific; it is not institution branding.
+  const DEFAULT_PRIMARY = '#0284c7';
+  const DEFAULT_TEAL = '#5cc2bd';
+  const isValidHex = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
+  const [personalPrimary, setPersonalPrimary] = useState(DEFAULT_PRIMARY);
+  const [personalTeal, setPersonalTeal] = useState(DEFAULT_TEAL);
+  const personalThemeKey = user?.id ? `rehabpath360:personal-theme:${user.id}` : '';
+
+  useEffect(() => {
+    if (!personalThemeKey) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(personalThemeKey) || '{}');
+      setPersonalPrimary(typeof saved.primary === 'string' && isValidHex(saved.primary) ? saved.primary : DEFAULT_PRIMARY);
+      setPersonalTeal(typeof saved.teal === 'string' && isValidHex(saved.teal) ? saved.teal : DEFAULT_TEAL);
+    } catch {
+      setPersonalPrimary(DEFAULT_PRIMARY);
+      setPersonalTeal(DEFAULT_TEAL);
+    }
+  }, [personalThemeKey]);
+
+  const savePersonalTheme = () => {
+    if (!personalThemeKey || !isValidHex(personalPrimary) || !isValidHex(personalTeal)) {
+      showAlert('Use six-digit hex colours such as #0284c7.', 'Invalid Personal Colours');
+      return;
+    }
+    try {
+      localStorage.setItem(personalThemeKey, JSON.stringify({ primary: personalPrimary, teal: personalTeal }));
+      document.documentElement.style.setProperty('--acc', personalPrimary);
+      document.documentElement.style.setProperty('--teal', personalTeal);
+      showAlert('Your colours were saved to this browser for your account.', 'Personal Appearance Saved');
+    } catch {
+      showAlert('Could not save your personal colours in this browser.', 'Save Failed');
+    }
+  };
+
+  const resetPersonalTheme = () => {
+    try {
+      if (personalThemeKey) localStorage.removeItem(personalThemeKey);
+      setPersonalPrimary(DEFAULT_PRIMARY);
+      setPersonalTeal(DEFAULT_TEAL);
+      document.documentElement.style.setProperty('--acc', DEFAULT_PRIMARY);
+      document.documentElement.style.setProperty('--teal', DEFAULT_TEAL);
+      showAlert('Your personal appearance has been reset.', 'Personal Appearance Reset');
+    } catch {
+      showAlert('Could not reset your saved appearance.', 'Reset Failed');
+    }
+  };
   const switchMode = async () => {
     if (!isAdmin) return;
     const nextMode = systemStatus?.mode === 'deployment' ? 'demo' : 'deployment';
@@ -132,6 +181,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
           <span>Institution parameters have been saved to the persistent database.</span>
         </div>
       )}
+
+      {/* Individual account appearance only; no institution-wide colour editor. */}
+      <section className="card bg-[#0b1a30]">
+        <h2 className="text-base font-bold font-serif text-white mb-1 flex items-center gap-2">
+          <Palette className="w-4 h-4 text-[var(--teal)]" />
+          Personal Appearance
+        </h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Choose your own interface accent colours. Saved for your account on this browser; does not change anyone else's settings.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="text-xs text-slate-300">
+            Primary accent
+            <span className="flex gap-2 mt-1">
+              <input type="color" aria-label="Choose personal primary colour" value={isValidHex(personalPrimary) ? personalPrimary : DEFAULT_PRIMARY} onChange={(e) => setPersonalPrimary(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
+              <input type="text" value={personalPrimary} onChange={(e) => setPersonalPrimary(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
+            </span>
+          </label>
+          <label className="text-xs text-slate-300">
+            Secondary accent
+            <span className="flex gap-2 mt-1">
+              <input type="color" aria-label="Choose personal secondary colour" value={isValidHex(personalTeal) ? personalTeal : DEFAULT_TEAL} onChange={(e) => setPersonalTeal(e.target.value)} className="h-9 w-12 rounded bg-slate-900" />
+              <input type="text" value={personalTeal} onChange={(e) => setPersonalTeal(e.target.value)} className="flex-1 min-w-0 px-3 rounded-lg bg-slate-900 border border-slate-700 font-mono" />
+            </span>
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <button type="button" onClick={savePersonalTheme} className="px-4 py-2 rounded-lg bg-[#0369a1] text-white text-xs font-semibold">Save My Colours</button>
+          <button type="button" onClick={resetPersonalTheme} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 text-xs">Reset My Colours</button>
+        </div>
+      </section>
 
       {/* Configuration Form */}
       <form onSubmit={handleSave} className="space-y-6">
