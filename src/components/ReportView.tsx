@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { DOM, PROFILES } from '../data/constants';
 import { OffenderCase } from '../types';
@@ -18,6 +19,7 @@ interface ReportViewProps {
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({ currentRecord, showAlert }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const userRole = user?.role || 'Warden';
