@@ -41,6 +41,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [cleanSetupToken, setCleanSetupToken] = useState('');
 
   // Personal appearance is browser/account-specific; it is not institution branding.
   const DEFAULT_PRIMARY = '#0284c7';
@@ -97,7 +98,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
     if (!confirmed) return;
     setIsSaving(true);
     try {
-      await Api.switchSystemMode(nextMode);
+      await Api.switchSystemMode(nextMode, nextMode === 'deployment' ? cleanSetupToken.trim() : undefined);
       window.sessionStorage.clear();
       window.location.assign(window.location.pathname);
     } catch (err: any) {
@@ -337,6 +338,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
           <div className="mt-4 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300">
             <span className="font-semibold text-white block mb-1">Switch application mode</span>
             <p className="text-[11px] text-slate-400 mb-3">Demo and clean deployment records are kept in separate databases. Switching does not copy or delete records. Clean mode starts with no staff or case records and opens the first-administrator setup screen.</p>
+            {isAdmin && systemStatus?.mode !== 'deployment' && (
+              <label className="block text-xs text-slate-300 mb-3">
+                First-administrator setup token (required when clean database has no staff)
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={cleanSetupToken}
+                  onChange={(event) => setCleanSetupToken(event.target.value)}
+                  placeholder="Enter the configured SETUP_TOKEN if initializing clean mode"
+                  className="mt-1 w-full min-w-0 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white"
+                />
+              </label>
+            )}
             {isAdmin && <button type="button" onClick={switchMode} disabled={isSaving} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50">{isSaving ? 'Switching…' : systemStatus?.mode === 'deployment' ? 'Switch to Exhibition Demo Mode' : 'Switch to Clean Deployment Mode'}</button>}
           </div>
         </div>
