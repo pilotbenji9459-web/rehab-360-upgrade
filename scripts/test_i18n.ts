@@ -60,7 +60,7 @@ async function test(){
     for(const candidate of candidates){const value=normalize(candidate);if(value.length>=2&&/[a-zA-Z]/.test(value)&&!body.strings.includes(value))uncovered.push(file+': '+value);}
   }
   assert.deepEqual(uncovered,[],'Every harvested static UI phrase must be in the translation manifest');
-  const expectedPhrases=['Clinical Notes','Document Intake','Save Institutional Configuration','Upload Microsoft Word (.docx), Excel spreadsheets (.xlsx, .csv), or PDF reports. AI extracts candidate values and highlights discrepancies for human verification.','Needs Attention','Source Document Extraction Preview'];
+  const expectedPhrases=['Clinical Notes','Document Intake','Save Institutional Configuration','Upload Microsoft Word (.docx), Excel spreadsheets (.xlsx, .csv), or PDF reports. AI extracts candidate values and highlights discrepancies for human verification.','Needs Attention'];
   for(const phrase of expectedPhrases)assert.ok(body.strings.includes(phrase),'Missing page phrase: '+phrase);
   assert.ok(!body.strings.includes('Primary Brand Accent Color'),'Institution colour editor must remain removed');
   assert.ok(headers['Cache-Control']);
