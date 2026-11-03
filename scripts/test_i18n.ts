@@ -71,7 +71,8 @@ async function test(){
   const hugeBatch=await request('POST','/api/i18n/translate',{language:'hi',ids:Array.from({length:33},()=>0)});
   assert.equal(hugeBatch.status,400,'Reject oversized batches');
   const css=fs.readFileSync(path.resolve('src/index.css'),'utf8');
-  assert.ok(css.includes('html[dir="rtl"] .lg\:pl-72 {'),'RTL CSS must use correct Tailwind class escaping');
+  assert.match(css,/html\[dir="rtl"\]\s+\.lg\\:pl-72\s*\{/,'RTL desktop content selector must target Tailwind lg:pl-72 with CSS escaping');
+  assert.match(css,/html\[dir="rtl"\][\s\S]*?padding-left:\s*0;[\s\S]*?padding-right:\s*18rem;/,'RTL desktop content must swap left padding to the right');
   const personal=fs.readFileSync(path.resolve('src/components/SettingsView.tsx'),'utf8');
   assert.ok(personal.includes('savePersonalTheme')&&personal.includes('resetPersonalTheme'));
   assert.ok(!personal.includes('themePrimary')&&!personal.includes('themeTeal'));
