@@ -52,7 +52,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const personalThemeKey = user?.id ? `rehabpath360:personal-theme:${user.id}` : '';
 
   useEffect(() => {
-    if (!personalThemeKey) return;
+    if (!personalThemeKey) {
+      document.documentElement.style.setProperty('--acc', DEFAULT_PRIMARY);
+      document.documentElement.style.setProperty('--teal', DEFAULT_TEAL);
+      return;
+    }
     try {
       const saved = JSON.parse(localStorage.getItem(personalThemeKey) || '{}');
       setPersonalPrimary(typeof saved.primary === 'string' && isValidHex(saved.primary) ? saved.primary : DEFAULT_PRIMARY);
@@ -62,6 +66,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
       setPersonalTeal(DEFAULT_TEAL);
     }
   }, [personalThemeKey]);
+
+  // Re-apply the account's saved theme after state hydration and on account changes.
+  useEffect(() => {
+    document.documentElement.style.setProperty('--acc', isValidHex(personalPrimary) ? personalPrimary : DEFAULT_PRIMARY);
+    document.documentElement.style.setProperty('--teal', isValidHex(personalTeal) ? personalTeal : DEFAULT_TEAL);
+  }, [personalPrimary, personalTeal]);
 
   const savePersonalTheme = () => {
     if (!personalThemeKey || !isValidHex(personalPrimary) || !isValidHex(personalTeal)) {
