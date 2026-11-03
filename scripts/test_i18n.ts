@@ -41,22 +41,22 @@ async function test(){
   // application source must be present in the translation manifest.
   const sourceRoots=[path.resolve('src'),path.resolve('server')];
   const sourceFiles:string[]=[];
-  const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
+  const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
   sourceRoots.forEach(walk);
   sourceFiles.push(path.resolve('server.ts'));
-  const normalize=(value:string)=>value.replace(/\\s+/g,' ').trim().replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
+  const normalize=(value:string)=>value.replace(/\s+/g,' ').trim().replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
   const uncovered:string[]=[];
   for(const file of sourceFiles){
     if(!fs.existsSync(file))continue;
     const source=fs.readFileSync(file,'utf8');
     const candidates:string[]=[];
     for(const match of source.matchAll(/>([^<>{}]+)</g))candidates.push(match[1]);
-    for(const match of source.matchAll(/\\b(?:placeholder|title|aria-label|alt|label)\\s*=\\s*["']([^"'<>]{2,240})["']/g))candidates.push(match[1]);
-    for(const match of source.matchAll(/['"]([^'"\\\\\\n]{2,240})['"]/g)){
+    for(const match of source.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,240})["']/g))candidates.push(match[1]);
+    for(const match of source.matchAll(/['"]([^'"\\\n]{2,240})['"]/g)){
       const value=match[1].trim();
       if(value.includes(' ')&&/[a-zA-Z]/.test(value)&&!/[{}$]/.test(value)&&
         !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(value)&&
-        !/^(?:flex|grid|block|inline|absolute|relative|fixed|hidden|visible|none|true|false)\\s/i.test(value))candidates.push(value);
+        !/^(?:flex|grid|block|inline|absolute|relative|fixed|hidden|visible|none|true|false)\s/i.test(value))candidates.push(value);
     }
     for(const candidate of candidates){const value=normalize(candidate);if(value.length>=2&&/[a-zA-Z]/.test(value)&&!body.strings.includes(value))uncovered.push(file+': '+value);}
   }
@@ -72,7 +72,7 @@ async function test(){
   const hugeBatch=await request('POST','/api/i18n/translate',{language:'hi',ids:Array.from({length:33},()=>0)});
   assert.equal(hugeBatch.status,400,'Reject oversized batches');
   const css=fs.readFileSync(path.resolve('src/index.css'),'utf8');
-  assert.ok(css.includes('html[dir="rtl"] .lg\\:pl-72 {'),'RTL CSS must use correct Tailwind class escaping');
+  assert.ok(css.includes('html[dir="rtl"] .lg\:pl-72 {'),'RTL CSS must use correct Tailwind class escaping');
   const personal=fs.readFileSync(path.resolve('src/components/SettingsView.tsx'),'utf8');
   assert.ok(personal.includes('savePersonalTheme')&&personal.includes('resetPersonalTheme'));
   assert.ok(!personal.includes('themePrimary')&&!personal.includes('themeTeal'));
