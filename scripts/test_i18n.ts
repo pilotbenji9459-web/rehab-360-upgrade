@@ -33,10 +33,36 @@ async function test(){
   const {status,body,headers}=await request('GET','/api/i18n/ui-strings');
   assert.equal(status,200);
   assert.ok(Array.isArray(body.strings),'UI phrase manifest should be an array');
-  assert.ok(body.strings.length>50,'Should discover substantive fixed UI copy');
+  assert.ok(body.strings.length>100,'Should discover fixed UI copy across the full application');
   assert.equal(new Set(body.strings).size,body.strings.length,'Duplicate UI strings');
   assert.ok(body.strings.includes('Save My Colours'),'Personal appearance controls must remain');
   assert.ok(body.strings.includes('Personal Appearance'),'Personal appearance heading must remain');
+  // Every static JSX text node and natural-language string literal harvested from
+  // application source must be present in the translation manifest.
+  const sourceRoots=[path.resolve('src'),path.resolve('server')];
+  const sourceFiles:string[]=[];
+  const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
+  sourceRoots.forEach(walk);
+  sourceFiles.push(path.resolve('server.ts'));
+  const normalize=(value:string)=>value.replace(/\\s+/g,' ').trim().replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
+  const uncovered:string[]=[];
+  for(const file of sourceFiles){
+    if(!fs.existsSync(file))continue;
+    const source=fs.readFileSync(file,'utf8');
+    const candidates:string[]=[];
+    for(const match of source.matchAll(/>([^<>{}]+)</g))candidates.push(match[1]);
+    for(const match of source.matchAll(/\\b(?:placeholder|title|aria-label|alt|label)\\s*=\\s*["']([^"'<>]{2,240})["']/g))candidates.push(match[1]);
+    for(const match of source.matchAll(/['"]([^'"\\\\\\n]{2,240})['"]/g)){
+      const value=match[1].trim();
+      if(value.includes(' ')&&/[a-zA-Z]/.test(value)&&!/[{}$]/.test(value)&&
+        !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(value)&&
+        !/^(?:flex|grid|block|inline|absolute|relative|fixed|hidden|visible|none|true|false)\\s/i.test(value))candidates.push(value);
+    }
+    for(const candidate of candidates){const value=normalize(candidate);if(value.length>=2&&/[a-zA-Z]/.test(value)&&!body.strings.includes(value))uncovered.push(file+': '+value);}
+  }
+  assert.deepEqual(uncovered,[],'Every harvested static UI phrase must be in the translation manifest');
+  const expectedPhrases=['Clinical Notes','Document Intake','Save Institutional Configuration','Upload','Needs Attention','Recent Case Activity'];
+  for(const phrase of expectedPhrases)assert.ok(body.strings.includes(phrase),'Missing page phrase: '+phrase);
   assert.ok(!body.strings.includes('Primary Brand Accent Color'),'Institution colour editor must remain removed');
   assert.ok(headers['Cache-Control']);
   const invalidLanguage=await request('POST','/api/i18n/translate',{language:'xx',ids:[0]});
