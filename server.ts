@@ -14,6 +14,7 @@ import {
   InstitutionConfig,
   isDeploymentMode,
   setApplicationMode,
+  DEPLOYMENT_DB_FILE,
   loadDatabase,
 } from './server/db';
 import {
@@ -85,6 +86,31 @@ app.post('/api/system/mode', authenticateToken, requireRoles(['Administrator']),
   const mode = req.body?.mode;
   if (mode !== 'demo' && mode !== 'deployment') { res.status(400).json({ error: 'Mode must be demo or deployment.' }); return; }
   if ((mode === 'deployment') === isDeploymentMode()) { res.json({ success: true, mode, database_file: path.basename(DB.getActiveDbFile()) }); return; }
+  // Switching to a new clean database must never strand administrators
+  // without the secret required to initialize its first account.
+  if (mode === 'deployment') {
+    let targetHasUsers = false;
+    try {
+      if (fs.existsSync(DEPLOYMENT_DB_FILE)) {
+        const target = JSON.parse(fs.readFileSync(DEPLOYMENT_DB_FILE, 'utf8'));
+        targetHasUsers = Array.isArray(target.users) && target.users.length > 0;
+      }
+    } catch {
+      res.status(409).json({ error: 'Cannot verify the clean deployment database. Mode switch was cancelled.' });
+      return;
+    }
+    if (!targetHasUsers) {
+      const required = process.env.SETUP_TOKEN;
+      if (!required || required.length < 32) {
+        res.status(409).json({ error: 'Cannot enter clean mode without a configured SETUP_TOKEN (32+ characters). Mode switch was cancelled.' });
+        return;
+      }
+      if (req.body?.setup_token !== required) {
+        res.status(403).json({ error: 'Enter the correct first-administrator SETUP_TOKEN before switching into an empty clean database.' });
+        return;
+      }
+    }
+  }
   const user = req.user!;
   DB.logAuditEvent({ institution_id: user.institution_id, actor_id: user.id, actor_email: user.email, actor_name: user.full_name, actor_role: user.role, action: 'APPLICATION_MODE_SWITCH', resource_type: 'system', resource_id: mode, details: 'Administrator switched application mode to ' + mode + '; data remains in its separate database.', ip_address: req.ip || '127.0.0.1', status: 'success' });
   setApplicationMode(mode);
