@@ -179,14 +179,19 @@ export interface DatabaseSchema {
 export const DEMO_DB_FILE = path.join(DATA_DIR, 'rehabpath360.demo.db.json');
 export const DEPLOYMENT_DB_FILE = path.join(DATA_DIR, 'rehabpath360.deployment.db.json');
 export const LEGACY_DB_FILE = path.join(DATA_DIR, 'rehabpath360.db.json');
+const MODE_FILE = path.join(DATA_DIR, 'rehabpath360.mode.json');
 
 // Check if currently running in deployment mode
 export function isDeploymentMode(): boolean {
-  return (
-    process.env.APP_MODE === 'deployment' ||
-    process.env.DEPLOYMENT_MODE === 'true' ||
-    process.env.NODE_ENV === 'deployment'
-  );
+  try {
+    if (fs.existsSync(MODE_FILE)) {
+      const saved = JSON.parse(fs.readFileSync(MODE_FILE, 'utf-8'));
+      if (saved.mode === 'deployment' || saved.mode === 'demo') return saved.mode === 'deployment';
+    }
+  } catch (error) {
+    console.warn('Could not read persisted application mode:', error);
+  }
+  return process.env.APP_MODE === 'deployment' || process.env.DEPLOYMENT_MODE === 'true' || process.env.NODE_ENV === 'deployment';
 }
 
 // Get appropriate active database file
@@ -200,7 +205,7 @@ export function getActiveDbFile(): string {
 // Default Institution Config for Demo Exhibition
 export const DEFAULT_DEMO_INSTITUTION: InstitutionConfig = {
   id: 'inst-demo',
-  name: "Her Majesty's Prison Frankland (Exhibition Demo)",
+  name: 'RehabPath360',
   code: 'HMP-FRK',
   logo_url: '',
   theme_primary: '#0284c7',
@@ -221,7 +226,7 @@ export const DEFAULT_DEMO_INSTITUTION: InstitutionConfig = {
 // Default Institution Config for Clean Deployment
 export const DEFAULT_CLEAN_INSTITUTION: InstitutionConfig = {
   id: 'inst-prod-01',
-  name: 'National Correctional Institution',
+  name: 'RehabPath360',
   code: 'NCI-MAIN',
   logo_url: '',
   theme_primary: '#0284c7',
@@ -738,6 +743,11 @@ export function saveDatabase(data: DatabaseSchema, targetFile?: string): void {
 export function resetDbCache(): void {
   dbCache = null;
   activeDbPathLoaded = null;
+}
+
+export function setApplicationMode(mode: 'demo' | 'deployment'): void {
+  fs.writeFileSync(MODE_FILE, JSON.stringify({ mode, updated_at: new Date().toISOString() }, null, 2), 'utf-8');
+  resetDbCache();
 }
 
 // Multi-tenant database operations

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle, CheckCircle2, X, Eye, EyeOff } from 'lucide-react';
 import { StaffRole } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const DEMO_ACCOUNTS: { role: StaffRole; email: string; name: string; dept: strin
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('warden@rehabpath.gov');
   const [password, setPassword] = useState('RehabPath360!');
   const [showPassword, setShowPassword] = useState(false);
@@ -83,7 +85,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold font-serif text-white">REHABPATH360 Staff Login</h2>
+            <h2 className="text-xl font-bold font-serif text-white">REHABPATH360 {t('staffLogin')}</h2>
             <p className="text-xs text-slate-400">Authorized Correctional &amp; Clinical Staff Portal</p>
           </div>
         </div>
@@ -100,7 +102,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Institutional Email
+                  {t('email')}
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
@@ -119,14 +121,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-xs font-medium text-slate-300">
-                    Password
+                    {t('password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowForgot(true)}
                     className="text-xs text-[#38bdf8] hover:underline cursor-pointer"
                   >
-                    Forgot password?
+                    {t('guide')}
                   </button>
                 </div>
                 <div className="relative">
@@ -162,7 +164,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Secure Sign In</span>
+                    <span>{t('accessPortal')}</span>
                   </>
                 )}
               </button>
@@ -200,7 +202,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
           </>
         ) : (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-white">Reset Institutional Access</h3>
+            <h3 className="text-sm font-semibold text-white">{t('login')}</h3>
             <p className="text-xs text-slate-400">
               Enter your registered institutional email to initiate password recovery. A secure single-use recovery token will be dispatched to your supervisor.
             </p>
@@ -217,7 +219,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               <form onSubmit={handleForgotSubmit} className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Institutional Email
+                    {t('email')}
                   </label>
                   <input
                     type="email"
@@ -232,7 +234,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                   type="submit"
                   className="w-full py-2.5 px-4 rounded-xl bg-[#0079d6] hover:bg-[#006bbd] text-white font-semibold text-xs transition-colors cursor-pointer"
                 >
-                  Request Password Reset
+                  {t('save')}
                 </button>
               </form>
             )}
@@ -245,7 +247,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               }}
               className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
             >
-              ← Back to login
+              ← {t('login')}
             </button>
           </div>
         )}

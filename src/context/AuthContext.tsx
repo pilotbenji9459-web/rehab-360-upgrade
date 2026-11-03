@@ -23,23 +23,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Apply persisted institutional brand colours to shared theme tokens.
-  // Tailwind classes with literal hex colours remain intentionally unchanged.
+  // Load account-specific appearance when logging in or restoring a session.
+  // Institution colour preferences remain intentionally unused.
   useEffect(() => {
-    const validHex = (value: unknown, fallback: string) =>
-      typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
-    const primary = validHex(institution?.theme_primary, '#0284c7');
-    const teal = validHex(institution?.theme_teal, '#5cc2bd');
     const root = document.documentElement;
-    const rgba = (hex: string) => {
-      const num = parseInt(hex.slice(1), 16);
-      return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, 0.18)`;
-    };
+    const defaultPrimary = '#0284c7';
+    const defaultTeal = '#5cc2bd';
+    let primary = defaultPrimary;
+    let teal = defaultTeal;
+    if (user?.id) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(`rehabpath360:personal-theme:${user.id}`) || '{}');
+        if (typeof saved.primary === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.primary)) primary = saved.primary;
+        if (typeof saved.teal === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.teal)) teal = saved.teal;
+      } catch {
+        // Invalid or blocked storage: use the default colours.
+      }
+    }
     root.style.setProperty('--acc', primary);
     root.style.setProperty('--teal', teal);
-    root.style.setProperty('--accbg', rgba(primary));
-    root.style.setProperty('--tealbg', rgba(teal));
-  }, [institution?.theme_primary, institution?.theme_teal]);
+  }, [user?.id]);
 
   const refreshSystemStatus = async () => {
     try {

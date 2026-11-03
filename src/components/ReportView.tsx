@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { DOM, PROFILES } from '../data/constants';
 import { OffenderCase } from '../types';
@@ -18,6 +19,7 @@ interface ReportViewProps {
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({ currentRecord, showAlert }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const userRole = user?.role || 'Warden';
@@ -95,7 +97,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ currentRecord, showAlert
     <div className="card space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2>Official Rehabilitation Report: {c.id}</h2>
+          <h2>{t('reports')}  {c.id}</h2>
           <p className="mute text-xs">
             Comprehensive 15-section institutional dossier for case reviews and parole hearings.
           </p>

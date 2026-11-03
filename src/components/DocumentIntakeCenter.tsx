@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Api } from '../services/api';
 import { OffenderCase, VerificationResult, ExtractedField, UploadedDocument } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -34,6 +35,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   showAlert,
 }) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [targetCaseId, setTargetCaseId] = useState<string>(selectedCaseId);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -158,7 +160,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
             <UploadCloud className="w-5 h-5" />
           </div>
           <div>
-            <h2>Data Entry &amp; Document Intake Centre</h2>
+            <h2>{t('intake')}</h2>
             <p className="mute text-xs">
               Upload Microsoft Word (.docx), Excel spreadsheets (.xlsx, .csv), or PDF reports. AI extracts candidate values and highlights discrepancies for human verification.
             </p>
@@ -169,7 +171,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
       {/* Target Case & File Selector */}
       <div className="grid-layout">
         <div className="card">
-          <h3>1. Select Target Case &amp; Upload Document</h3>
+          <h3>1. {t('intake')}</h3>
           <p className="mute text-xs mb-4">
             Candidate fields will be compared against this authorized record to spot discrepancies.
           </p>

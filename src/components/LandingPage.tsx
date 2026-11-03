@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 
 import { SecurityPermissionsPage } from './SecurityPermissionsPage';
+import { LanguageSelector } from './LanguageSelector';
+import { useLanguage } from '../context/LanguageContext';
 import progressRingLogo from '../assets/images/rehabpath360_progress_ring_icon.svg';
 
 import heroBannerImg from '../assets/images/rehab_hero_banner_1792261204190.jpg';
@@ -33,6 +35,7 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
+  const { t } = useLanguage();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSecurityPage, setShowSecurityPage] = useState(
@@ -71,16 +74,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
                 <a href="#home" className="flex-1 text-center whitespace-nowrap rounded-full px-5 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">← Back to Homepage</a>
               ) : (
                 <>
-                  <a href="#features" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Our 3 Pillars</a>
-                  <a href="#framework" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">4-Level Pathway</a>
-                  <a href="#security" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors">Roles &amp; Permissions</a>
+                  <a href="#features" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors" >{t('pillars')}</a>
+                  <a href="#framework" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors" >{t('pathway')}</a>
+                  <a href="#security" className="flex-1 text-center whitespace-nowrap rounded-full px-3 py-3 hover:bg-[#1c3b54] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors" >{t('roles')}</a>
                 </>
               )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
+              <LanguageSelector compact />
               <button type="button" onClick={onOpenLogin} className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#0284c7] px-2.5 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#0284c7]/20 hover:bg-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] transition-colors cursor-pointer">
                 <span className="sm:hidden">Login</span>
-                <span className="hidden sm:inline">Staff Portal Login</span>
+                <span className="hidden sm:inline" >{t('staffLogin')}</span>
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
               <button type="button" aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={isMobileMenuOpen} aria-controls="homepage-mobile-menu" onClick={() => setIsMobileMenuOpen((prev) => !prev)} className="xl:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#28425b] bg-[#10263e] text-slate-100 hover:bg-[#1c3b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd] cursor-pointer">
@@ -294,10 +298,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           {/* Pathway Progression Visual Banner */}
           <div className="mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
             <img
-              src="/assets/images/pathway_milestone_progression.svg"
+              src={pathwayMilestoneImg}
               alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
               referrerPolicy="no-referrer"
-              className="w-full h-auto object-cover max-h-[380px]"
+              className="block w-full h-auto object-contain max-h-[420px] bg-[#071325]"
             />
             <div className="p-4 bg-[#071325] border-t border-[#1e3a5f] flex flex-wrap items-center justify-between gap-4 text-xs">
               <span className="font-semibold text-white tracking-wide">

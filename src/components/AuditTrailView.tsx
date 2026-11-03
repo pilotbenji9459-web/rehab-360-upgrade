@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { Api } from '../services/api';
 import { AuditEvent } from '../types';
@@ -5,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Filter, RefreshCw, Lock } from 'lucide-react';
 
 export const AuditTrailView: React.FC = () => {
+  const { t } = useLanguage();
   const { user, hasRole } = useAuth();
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);

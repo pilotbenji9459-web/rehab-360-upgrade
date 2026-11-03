@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { OffenderCase } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +13,7 @@ export const WellBeingIndicatorsView: React.FC<WellBeingIndicatorsViewProps> = (
   cases,
   onLogReview,
 }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const userRole = user?.role || 'Warden';
 
@@ -48,7 +50,7 @@ export const WellBeingIndicatorsView: React.FC<WellBeingIndicatorsViewProps> = (
       </div>
 
       <div className="card">
-        <h2>Indicators for Clinical Review &amp; Mood Monitoring</h2>
+        <h2>{t('wellBeing')}</h2>
       <div className="note-box mb-4 text-xs">
         These are automated, rule-based screening flags generated from self-reports, psychometrics, and attendance patterns. They suggest individuals who may benefit from a psychologist's attention. They are not clinical diagnoses.
       </div>
