@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
 import { PROGRAMMES } from '../data/constants';
 import { OffenderCase } from '../types';
@@ -23,7 +22,6 @@ export const RehabPlanView: React.FC<RehabPlanViewProps> = ({
   onAddRemark,
   showAlert,
 }) => {
-  const { t } = useLanguage();
 
   const { user } = useAuth();
   const c = currentRecord;
