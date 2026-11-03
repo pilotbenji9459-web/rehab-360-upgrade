@@ -51,20 +51,31 @@ function model(){if(!process.env.GEMINI_API_KEY)return null;return ai??(ai=new G
 const wait=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 async function generateWithTransientRetry(client:GoogleGenAI,contents:string){
   const delays=[700,1600];
-  for(let attempt=0;;attempt++){
-    try{
-      return await client.models.generateContent({
-        model:'gemini-3.8-flash',
-        contents,
-        config:{responseMimeType:'application/json',temperature:0},
-      });
-    }catch(error:any){
-      const status=Number(error?.status??error?.code??error?.error?.code);
-      if(status!==503||attempt>=delays.length)throw error;
-      console.warn(`Gemini UI translation temporarily unavailable (503); retrying attempt ${attempt+2}/3.`);
-      await wait(delays[attempt]);
+  const models=['gemini-3.8-flash','gemini-3.5-flash-lite'];
+  let lastError:unknown;
+  for(const modelName of models){
+    for(let attempt=0;;attempt++){
+      try{
+        return await client.models.generateContent({
+          model:modelName,
+          contents,
+          config:{responseMimeType:'application/json',temperature:0},
+        });
+      }catch(error:any){
+        lastError=error;
+        const status=Number(error?.status??error?.code??error?.error?.code);
+        if(status!==503)throw error;
+        if(attempt<delays.length){
+          console.warn(`Gemini UI translation model ${modelName} returned 503; retrying attempt ${attempt+2}/3.`);
+          await wait(delays[attempt]);
+          continue;
+        }
+        console.warn(`Gemini UI translation model ${modelName} remained unavailable; trying fallback model if available.`);
+        break;
+      }
     }
   }
+  throw lastError;
 }
 function allow(ip:string,now:number){
   if(now-globalMinute.start>=60000)globalMinute={start:now,count:0};
