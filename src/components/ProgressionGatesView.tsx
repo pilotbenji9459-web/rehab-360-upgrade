@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { LV, SUB, DOM, TH, NOT_READY_ACTIONS } from '../data/constants';
 import { OffenderCase, StaffRole, GateKey } from '../types';
@@ -23,7 +22,6 @@ export const ProgressionGatesView: React.FC<ProgressionGatesViewProps> = ({
   onAdvance,
   onNotReadyAction,
 }) => {
-  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const p = getOffenderPos(c);
@@ -112,7 +110,7 @@ export const ProgressionGatesView: React.FC<ProgressionGatesViewProps> = ({
 
       {/* Visual Level & Sub-level Matrix */}
       <div className="card">
-        <h2>{t('progression')}</h2>
+        <h2>{"Progression"}</h2>
         <p className="text-sm text-slate-300 mb-4">
           Granular 12-stage milestone roadmap. Progression requires unanimous fulfillment across all 4 evaluated domains.
         </p>
