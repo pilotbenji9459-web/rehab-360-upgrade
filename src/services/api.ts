@@ -62,8 +62,8 @@ export const Api = {
   getSystemStatus: () =>
     request<SystemStatus>('/api/system/status'),
 
-  switchSystemMode: (mode: 'demo' | 'deployment') =>
-    request<{ success: boolean; mode: 'demo' | 'deployment'; database_file: string }>('/api/system/mode', { method: 'POST', body: JSON.stringify({ mode }) }),
+  switchSystemMode: (mode: 'demo' | 'deployment', setup_token?: string) =>
+    request<{ success: boolean; mode: 'demo' | 'deployment'; database_file: string }>('/api/system/mode', { method: 'POST', body: JSON.stringify({ mode, ...(setup_token ? {setup_token} : {}) }) }),
 
   bootstrapAdmin: (data: {
     institution_name: string;
