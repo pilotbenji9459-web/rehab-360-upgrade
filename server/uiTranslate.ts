@@ -44,6 +44,28 @@ let ai:GoogleGenAI|null=null,activeCalls=0;
 let globalMinute={start:Date.now(),count:0};
 const ipMinute=new Map<string,{start:number,count:number}>(),ipDay=new Map<string,{start:number,count:number}>();
 function model(){if(!process.env.GEMINI_API_KEY)return null;return ai??(ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY}));}
+
+// Gemini can temporarily return 503 UNAVAILABLE during demand spikes.
+// Retry only transient service failures; do not retry authentication, validation,
+// or quota errors. The bounded delays keep one UI batch from hanging indefinitely.
+const wait=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
+async function generateWithTransientRetry(client:GoogleGenAI,contents:string){
+  const delays=[700,1600];
+  for(let attempt=0;;attempt++){
+    try{
+      return await client.models.generateContent({
+        model:'gemini-3.8-flash',
+        contents,
+        config:{responseMimeType:'application/json',temperature:0},
+      });
+    }catch(error:any){
+      const status=Number(error?.status??error?.code??error?.error?.code);
+      if(status!==503||attempt>=delays.length)throw error;
+      console.warn(`Gemini UI translation temporarily unavailable (503); retrying attempt ${attempt+2}/3.`);
+      await wait(delays[attempt]);
+    }
+  }
+}
 function allow(ip:string,now:number){
   if(now-globalMinute.start>=60000)globalMinute={start:now,count:0};
   if(++globalMinute.count>1200)return false;
@@ -85,11 +107,8 @@ export function registerUiTranslationRoutes(app:any){
           activeCalls++;
           work=(async()=>{
             const items=Object.fromEntries(missing.map(id=>[String(id),byId.get(id)]));
-            const response=await client.models.generateContent({
-              model:'gemini-3.8-flash',
-              contents:'Translate every supplied fixed software interface phrase into '+names[language]+'. Return only a JSON object mapping every numeric ID to a complete, natural translation. Do not omit entries. Preserve meaning, digits, placeholders, product names and punctuation. Never translate user data. Do not explain.\n'+JSON.stringify(items),
-              config:{responseMimeType:'application/json',temperature:0},
-            });
+            const prompt='Translate every supplied fixed software interface phrase into '+names[language]+'. Return only a JSON object mapping every numeric ID to a complete, natural translation. Do not omit entries. Preserve meaning, digits, placeholders, product names and punctuation. Never translate user data. Do not explain.\n'+JSON.stringify(items);
+            const response=await generateWithTransientRetry(client,prompt);
             const result=JSON.parse(response.text||'{}');
             for(const id of missing){const value=result[String(id)];if(typeof value==='string'&&value.trim()&&value.length<1000)cacheSet(language+':'+id,value.trim());}
           })().finally(()=>{activeCalls--;inFlight.delete(key);});
