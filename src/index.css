@@ -347,14 +347,17 @@ html[dir="rtl"] aside.fixed {
 }
 @media (max-width: 1023px) {
   html[dir="rtl"] aside.fixed:not(.translate-x-0) {
-    transform: translateX(100%);
+    translate: 100% 0;
+  }
+  html[dir="rtl"] aside.fixed.translate-x-0 {
+    translate: 0 0;
   }
 }
 @media (min-width: 1024px) {
   html[dir="rtl"] aside.fixed {
     transform: translateX(0);
   }
-  html[dir="rtl"] .lg\\:pl-72 {
+  html[dir="rtl"] .lg\:pl-72 {
     padding-left: 0;
     padding-right: 18rem;
   }
