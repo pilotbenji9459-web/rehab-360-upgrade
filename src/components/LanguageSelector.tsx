@@ -9,16 +9,18 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = fa
   const current = LANGUAGES.find(item => item.code === language) || LANGUAGES[0];
   return (
     <div className="relative z-[60]">
-      <button type="button" onClick={() => setOpen(value => !value)} aria-haspopup="listbox" aria-expanded={open}
+      <button type="button" onClick={() => setOpen(value => !value)} aria-haspopup="listbox" aria-expanded={open} aria-label={`${t('chooseLanguage')}: ${current.nativeName}`}
         className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#31516e] bg-[#10263e] px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#173653] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5cc2bd]">
         <Languages className="h-4 w-4 shrink-0 text-[#5cc2bd]" />
         {!compact && <span className="hidden sm:inline">{t('language')}:</span>}
-        <span>{current.nativeName}</span>
+        <span className={compact ? "hidden min-[430px]:inline" : ""}>{current.nativeName}</span>
         <ChevronDown className="h-3.5 w-3.5 shrink-0" />
       </button>
       {open && <>
         <button aria-label="Close language menu" className="fixed inset-0 z-[-1] cursor-default" onClick={() => setOpen(false)} />
-        <div role="listbox" aria-label={t('chooseLanguage')} className="absolute right-0 top-full mt-2 max-h-[min(70vh,28rem)] w-64 overflow-y-auto rounded-xl border border-[#31516e] bg-[#0b1a30] p-2 shadow-2xl">
+        <div role="listbox" aria-label={t('chooseLanguage')} className={compact
+          ? "fixed left-3 right-3 top-[78px] z-50 mt-2 max-h-[min(70vh,28rem)] overflow-y-auto rounded-xl border border-[#31516e] bg-[#0b1a30] p-2 shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-full sm:w-64"
+          : "absolute right-0 top-full z-50 mt-2 max-h-[min(70vh,28rem)] w-64 max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-xl border border-[#31516e] bg-[#0b1a30] p-2 shadow-2xl"}>
           <p className="px-2 pb-2 pt-1 text-[11px] leading-relaxed text-slate-400">{t('selectLanguageHint')}</p>
           <div className="grid grid-cols-1 gap-1">
             {LANGUAGES.map(item => (
