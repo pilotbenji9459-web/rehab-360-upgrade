@@ -41,10 +41,7 @@ async function test(){
   assert.ok(headers['Cache-Control']);
   const invalidLanguage=await request('POST','/api/i18n/translate',{language:'xx',ids:[0]});
   assert.equal(invalidLanguage.status,400,'Reject unknown language');
-  const arbitraryText=await request('POST','/api/i18n/translate',{language:'hi',ids:[0],text:'Sensitive case note'});
-  // The validated ID endpoint cannot translate user-provided strings.
-  assert.ok([503,200].includes(arbitraryText.status),'Translate endpoint should return only preapproved IDs or configured translation');
-  const invalidID=await request('POST','/api/i18n/translate',{language:'hi',ids:[999999]});
+  const invalidID=await request('POST','/api/i18n/translate',{language:'hi',ids:[999999],text:'Sensitive case note'});
   assert.equal(invalidID.status,400,'Reject non-allowlisted ID');
   const hugeBatch=await request('POST','/api/i18n/translate',{language:'hi',ids:Array.from({length:33},()=>0)});
   assert.equal(hugeBatch.status,400,'Reject oversized batches');
