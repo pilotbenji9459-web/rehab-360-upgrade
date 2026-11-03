@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
 import {
@@ -38,7 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNewCaseModal,
   onSelectTab,
 }) => {
-  const { t } = useLanguage();
   const { user, institution, systemStatus, isAuthenticated, logout } = useAuth();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isDark, setIsDark] = useState<boolean>(() => {

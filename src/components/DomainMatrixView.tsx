@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { TH } from '../data/constants';
 import { OffenderCase } from '../types';
@@ -14,7 +13,6 @@ interface DomainMatrixViewProps {
 }
 
 export const DomainMatrixView: React.FC<DomainMatrixViewProps> = ({ currentRecord }) => {
-  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const userRole = user?.role || 'Warden';
@@ -25,7 +23,7 @@ export const DomainMatrixView: React.FC<DomainMatrixViewProps> = ({ currentRecor
 
   return (
     <div className="card">
-      <h2>{c.id}: {t('progression')} </h2>
+      <h2>{c.id}: {"Progression"} </h2>
       <table className="app-table">
         <tbody>
           {matrixData.map(([domainName, val, isClinical], i) => {

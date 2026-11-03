@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
 
 interface ModalAlertProps {
   isOpen: boolean;
@@ -14,7 +13,6 @@ export const ModalAlert: React.FC<ModalAlertProps> = ({
   message,
   onClose,
 }) => {
-  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (

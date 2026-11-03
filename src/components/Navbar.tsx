@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import { TabId, StaffRole } from '../types';
 
 interface NavbarProps {
@@ -80,8 +79,6 @@ const ROLE_TABS: Record<StaffRole, [TabId, string][]> = {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
   const { user } = useAuth();
-  const { t } = useLanguage();
-  const translatedTab: Record<string, string> = { dashboard: t('dashboard'), cases: t('cases'), intake: t('intake'), prog: t('progression'), plan: t('plan'), clinical: t('clinical'), flags: t('wellBeing'), hand: t('handover'), rep: t('reports'), staff: t('staff'), audit: t('audit'), guide: t('guide') };
   const tabs = (user && ROLE_TABS[user.role]) ? ROLE_TABS[user.role] : ROLE_TABS['Warden'];
 
   return (
@@ -95,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
             className={isActive ? 'on' : ''}
             onClick={() => onSelectTab(tabId)}
           >
-            {translatedTab[tabId] || label}
+            {label}
           </button>
         );
       })}

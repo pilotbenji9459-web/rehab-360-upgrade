@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { Api } from '../services/api';
 import { ClinicalCaseTelemetry } from './ClinicalCaseTelemetry';
@@ -25,7 +24,6 @@ export const ClinicalNotesView: React.FC<ClinicalNotesViewProps> = ({
   showAlert,
 }) => {
   const { user, hasRole } = useAuth();
-  const { t } = useLanguage();
   const [notes, setNotes] = useState<ClinicalNote[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);

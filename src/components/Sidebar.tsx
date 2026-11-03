@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage, TranslationKey } from '../context/LanguageContext';
 import { TabId, StaffRole } from '../types';
 import {
   LayoutDashboard,
@@ -45,8 +44,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
 }) => {
   const { user, institution, systemStatus, logout } = useAuth();
-  const { t } = useLanguage();
-  const navTranslationKeys: Partial<Record<TabId, TranslationKey>> = { dashboard: 'dashboard', cases: 'cases', intake: 'intake', plan: 'plan', clinical: 'clinical', prog: 'progression', flags: 'wellBeing', hand: 'handover', rep: 'reports', staff: 'staff', audit: 'audit', settings: 'settings', guide: 'guide' };
 
   const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
 
@@ -231,7 +228,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                     }`}
                   />
-                  <span className="truncate">{navTranslationKeys[item.id] ? t(navTranslationKeys[item.id]!) : item.label}</span>
+                  <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
                   <span

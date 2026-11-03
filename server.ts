@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { registerUiTranslationRoutes } from './server/uiTranslate';
 import express, { Response } from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -38,7 +37,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Body parsing
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
-registerUiTranslationRoutes(app);
 
 // Multer upload setup
 const upload = multer({

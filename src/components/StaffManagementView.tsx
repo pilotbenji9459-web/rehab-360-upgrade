@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { Api } from '../services/api';
 import { StaffRole } from '../types';
@@ -19,7 +18,6 @@ interface StaffManagementViewProps {
 }
 
 export const StaffManagementView: React.FC<StaffManagementViewProps> = ({ showAlert }) => {
-  const { t } = useLanguage();
   const { user, hasRole } = useAuth();
   const [staffList, setStaffList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

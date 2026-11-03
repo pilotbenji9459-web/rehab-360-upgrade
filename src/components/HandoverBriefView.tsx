@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
 import { OffenderCase } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +19,6 @@ export const HandoverBriefView: React.FC<HandoverBriefViewProps> = ({
   encryptedPackage,
   onSetEncryptedPackage,
 }) => {
-  const { t } = useLanguage();
   const { user } = useAuth();
   const c = currentRecord;
   const p = getOffenderPos(c);
@@ -64,7 +62,7 @@ export const HandoverBriefView: React.FC<HandoverBriefViewProps> = ({
             </span>
           </div>
           <h2 className="text-2xl font-bold font-serif text-white mb-2">
-            {t('handover')} 
+            {"Handover"} 
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed">
             Coordinating safe transition from institutional custody to community supervision. Package includes verifiable course milestones, psychometric summaries, and risk-need profiles cryptographically sealed for community probation officers.
