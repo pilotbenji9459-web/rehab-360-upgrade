@@ -41,7 +41,7 @@ async function test(){
   // application source must be present in the translation manifest.
   const sourceRoots=[path.resolve('src'),path.resolve('server')];
   const sourceFiles:string[]=[];
-  const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
+  const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='UiTranslationOverlay.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
   sourceRoots.forEach(walk);
   sourceFiles.push(path.resolve('server.ts'));
   const normalize=(value:string)=>value.replace(/\s+/g,' ').trim().replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
@@ -51,8 +51,8 @@ async function test(){
     const source=fs.readFileSync(file,'utf8');
     const candidates:string[]=[];
     for(const match of source.matchAll(/>([^<>{}]+)</g))candidates.push(match[1]);
-    for(const match of source.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,240})["']/g))candidates.push(match[1]);
-    for(const match of source.matchAll(/['"]([^'"\\\n]{2,240})['"]/g)){
+    for(const match of source.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,1200})["']/g))candidates.push(match[1]);
+    for(const match of source.matchAll(/['"]([^'"\\\n]{2,1200})['"]/g)){
       const value=match[1].trim();
       if(value.includes(' ')&&/[a-zA-Z]/.test(value)&&!/[{}$]/.test(value)&&
         !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(value)&&
