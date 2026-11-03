@@ -1,4 +1,3 @@
-import { useLanguage } from '../context/LanguageContext';
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
@@ -35,7 +34,6 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   onSelectCase,
   onOpenNewCaseModal,
 }) => {
-  const { t } = useLanguage();
   const { user, institution, systemStatus } = useAuth();
   if (!user) return null;
 
@@ -281,7 +279,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
       </div>
 
-      {/* Main Grid: Rehabilitation Progress Chart + {t('wellBeing')} Queue */}
+      {/* Main Grid: Rehabilitation Progress Chart + {"Well-being"} Queue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rehabilitation Progress Chart (2 Cols) */}
         <div className="lg:col-span-2 card min-w-0 bg-[#0b1a30]">
@@ -289,7 +287,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             <div>
               <h2 className="text-lg sm:text-xl font-bold font-serif text-white flex items-start gap-2 leading-snug">
                 <TrendingUp className="w-5 h-5 text-[#0284c7] shrink-0 mt-1" />
-                <span>{t('dashboard')}</span>
+                <span>{"Dashboard"}</span>
               </h2>
               <p className="text-sm text-slate-300 mt-0.5">
                 Population distribution across 4-level pathway and average domain gate fulfillment
@@ -546,7 +544,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-white mb-2">
-            {t('guide')} 
+            {"Guide"} 
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed mb-4">
             Every 28-day review cycle requires multidisciplinary sign-off. Wardens, Clinical Psychologists, Case Managers, and Educators collaborate to audit evidentiary milestones before any stage advancement is approved.
@@ -574,7 +572,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       <div className="card bg-[#0b1a30]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base sm:text-lg font-bold font-serif text-white">{t('audit')} </h2>
+            <h2 className="text-base sm:text-lg font-bold font-serif text-white">{"Audit Trail"} </h2>
             <p className="text-xs text-slate-400">
               Active individual records in {institution?.name || 'this facility'}
             </p>
@@ -594,7 +592,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         {totalCases === 0 ? (
           <div className="p-8 text-center bg-[#0f2744] rounded-xl border border-[#1e3a5f]">
             <Users className="w-10 h-10 mx-auto mb-2 text-slate-500" />
-            <h3 className="text-sm font-semibold text-white">{t('cases')} </h3>
+            <h3 className="text-sm font-semibold text-white">{"Cases"} </h3>
             <p className="text-xs text-slate-400 max-w-md mx-auto mt-1 mb-4">
               This institution currently has zero active case files. Upload document evaluations or manually create an initial case profile.
             </p>
