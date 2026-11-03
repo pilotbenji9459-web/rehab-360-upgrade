@@ -4,9 +4,9 @@ import { useLanguage } from '../context/LanguageContext';
 // Only fixed, developer-authored UI copy from the server allowlist is translated.
 // Case records, clinical notes, uploaded files and user-entered values are excluded.
 type Manifest = { strings: string[]; available: boolean };
-const normalize = (value: string) => value.replace(/\\s+/g, ' ').trim();
+const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
 const preserveWhitespace = (original: string, translated: string) =>
-  (original.match(/^\\s*/)?.[0] || '') + translated + (original.match(/\\s*$/)?.[0] || '');
+  (original.match(/^\s*/)?.[0] || '') + translated + (original.match(/\s*$/)?.[0] || '');
 const attributes = ['placeholder', 'title', 'aria-label', 'alt'] as const;
 let manifestPromise: Promise<Manifest> | null = null;
 function loadManifest(): Promise<Manifest> {
@@ -19,7 +19,7 @@ function loadManifest(): Promise<Manifest> {
 }
 const translationCache = new Map<string, string>();
 const excluded = 'SCRIPT,STYLE,NOSCRIPT,INPUT,TEXTAREA,CODE,PRE,[contenteditable="true"],[data-no-translate]';
-const numericOnly = /^(?:RP-\\d+|[\\d\\s.,:;/%+-]+)$/;
+const numericOnly = /^(?:RP-\d+|[\d\s.,:;/%+-]+)$/;
 
 export function UiTranslationOverlay() {
   const { language } = useLanguage();
