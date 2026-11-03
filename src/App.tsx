@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider } from './context/LanguageContext';
-import { UiTranslationOverlay } from './components/UiTranslationOverlay';
 import { Api } from './services/api';
 import { OffenderCase, TabId, GateKey } from './types';
 
@@ -373,11 +371,8 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <UiTranslationOverlay />
-        <AppContent />
-      </AuthProvider>
-    </LanguageProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
