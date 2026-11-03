@@ -27,7 +27,7 @@ function readSourceFiles(dir: string): void {
     // Reject code tokens, URLs, CSS classes and identifiers; only fixed source content qualifies.
     for (const match of src.matchAll(/['"]([^'"\\\\\n]{2,160})['"]/g)) {
       const val=match[1].trim();
-      if (/^[A-Z][a-zA-Z]+(?:[\\s&:,.!?'()\\-/]+[a-zA-Z0-9%]+)+[.!?]?$/.test(val) &&
+      if (/^[A-Z][A-Za-z]+(?:[ ][A-Za-z0-9%&:,.!?()'-]+)+[.!?]?$/.test(val) &&
           !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(val)) add(val);
     }
     // Literal UI feedback, section titles, button copy and toast messages.
