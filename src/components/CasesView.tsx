@@ -3,7 +3,6 @@ import { LV, SUB, PROFILES, PROGRAMMES } from '../data/constants';
 import { OffenderCase, StaffRole, ChangeHistoryEntry, AutosaveStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Api } from '../services/api';
-import { useLanguage } from '../context/LanguageContext';
 import {
   calculateAIRecommendation,
   formatPathwayName,
@@ -43,7 +42,6 @@ export const CasesView: React.FC<CasesViewProps> = ({
   showAlert,
 }) => {
   const { user, hasRole } = useAuth();
-  const { t } = useLanguage();
   const c = currentRecord;
   const a = calculateAIRecommendation(c);
 
@@ -246,7 +244,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2>{t('cases')}</h2>
+            <h2>{"Cases"}</h2>
             <p className="mute text-xs">
               Search and filter active cases. Select a record to inspect the multi-dimensional file.
             </p>
