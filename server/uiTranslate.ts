@@ -10,7 +10,7 @@ const norm=(s:string)=>s.replace(/\s+/g,' ').trim();
 const strings=new Set<string>();
 function add(raw:string){
   const value=norm(raw.replace(/&amp;/g,'&').replace(/&nbsp;/g,' '));
-  if(value.length<2||value.length>240||!/[a-zA-Z]/.test(value)||/[{}$]/.test(value)||/^https?:|^\/|^#[a-f\d]{3,8}$/i.test(value))return;
+  if(value.length<2||value.length>1200||!/[a-zA-Z]/.test(value)||/[{}$]/.test(value)||/^https?:|^\/|^#[a-f\d]{3,8}$/i.test(value))return;
   strings.add(value);
 }
 function scanSourceTree(dir:string){
@@ -18,30 +18,23 @@ function scanSourceTree(dir:string){
   for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
     const file=path.join(dir,entry.name);
     if(entry.isDirectory()){scanSourceTree(file);continue;}
-    if(!/\.(tsx|ts)$/.test(entry.name)||entry.name.includes('.test.')||entry.name==='LanguageContext.tsx'||entry.name==='uiTranslate.ts')continue;
+    if(!/\.(tsx|ts)$/.test(entry.name)||entry.name.includes('.test.')||entry.name==='LanguageContext.tsx'||entry.name==='UiTranslationOverlay.tsx'||entry.name==='uiTranslate.ts')continue;
     const source=fs.readFileSync(file,'utf8');
     // Literal JSX text, accessible names, placeholders, button labels and title attributes.
     for(const m of source.matchAll(/>([^<>{}]+)</g))add(m[1]);
-    for(const m of source.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,240})["']/g))add(m[1]);
+    for(const m of source.matchAll(/\b(?:placeholder|title|aria-label|alt|label)\s*=\s*["']([^"'<>]{2,1200})["']/g))add(m[1]);
     // Harvest natural-language string literals regardless of capitalization.
-    for(const m of source.matchAll(/['"]([^'"\\\n]{2,240})['"]/g)){
+    for(const m of source.matchAll(/['"]([^'"\\\n]{2,1200})['"]/g)){
       const value=m[1].trim();
       if(value.includes(' ')&&/[a-zA-Z]/.test(value)&&!/[{}$]/.test(value)&&
         !/^(?:https?|src|assets|rgba|linear|bg-|text-|hover:|border-|select|data-)/i.test(value)&&
         !/^(?:flex|grid|block|inline|absolute|relative|fixed|hidden|visible|none|true|false)\s/i.test(value))add(value);
     }
-    for(const m of source.matchAll(/(?:showAlert\(|window\.confirm\(|window\.alert\()\s*['"`]([^'"`\\]{2,240})['"`]/g))add(m[1]);
+    for(const m of source.matchAll(/(?:showAlert\(|window\.confirm\(|window\.alert\()\s*['"`]([^'"`\\]{2,1200})['"`]/g))add(m[1]);
   }
 }
 scanSourceTree(path.resolve(process.cwd(),'src'));
 scanSourceTree(path.resolve(process.cwd(),'server'));
-const serverEntry=path.resolve(process.cwd(),'server.ts');
-if(fs.existsSync(serverEntry)){
-  const source=fs.readFileSync(serverEntry,'utf8');
-  for(const m of source.matchAll(/['"]([^'"\\\n]{2,240})['"]/g)){
-    const value=m[1].trim();if(value.includes(' ')&&/[a-zA-Z]/.test(value)&&!/[{}$]/.test(value))add(value);
-  }
-}
 const indexed=[...strings].sort();
 const byId=new Map(indexed.map((value,id)=>[id,value]));
 const cache=new Map<string,string>();
@@ -53,7 +46,7 @@ const ipMinute=new Map<string,{start:number,count:number}>(),ipDay=new Map<strin
 function model(){if(!process.env.GEMINI_API_KEY)return null;return ai??(ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY}));}
 function allow(ip:string,now:number){
   if(now-globalMinute.start>=60000)globalMinute={start:now,count:0};
-  if(++globalMinute.count>240)return false;
+  if(++globalMinute.count>1200)return false;
   const oldMinute=ipMinute.get(ip),minute=oldMinute&&now-oldMinute.start<60000?oldMinute:{start:now,count:0};
   if(++minute.count>12)return false;ipMinute.set(ip,minute);
   const oldDay=ipDay.get(ip),day=oldDay&&now-oldDay.start<86400000?oldDay:{start:now,count:0};
