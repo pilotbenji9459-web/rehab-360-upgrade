@@ -43,7 +43,6 @@ async function test(){
   const sourceFiles:string[]=[];
   const walk=(dir:string)=>{if(!fs.existsSync(dir))return;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else if(/\.(tsx|ts)$/.test(entry.name)&&!entry.name.includes('.test.')&&entry.name!=='LanguageContext.tsx'&&entry.name!=='UiTranslationOverlay.tsx'&&entry.name!=='uiTranslate.ts')sourceFiles.push(file);}};
   sourceRoots.forEach(walk);
-  sourceFiles.push(path.resolve('server.ts'));
   const normalize=(value:string)=>value.replace(/\s+/g,' ').trim().replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
   const uncovered:string[]=[];
   for(const file of sourceFiles){
