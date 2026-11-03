@@ -14,8 +14,6 @@ function manifest(){
     .catch(e=>{manifestPromise=null;throw e;}));
 }
 const translationCache=new Map<string,string>();
-const originals=new WeakMap<Text,string>();
-const originalAttributes=new WeakMap<Element,Map<string,string>>();
 const hiddenNodes='SCRIPT,STYLE,NOSCRIPT,INPUT,TEXTAREA,CODE,PRE,[contenteditable="true"],[data-no-translate]';
 const blacklist=/^(?:RP-\d+|[\d\s.,:;/%+-]+)$/;
 
@@ -27,15 +25,26 @@ export function UiTranslationOverlay(){
     let timer:number|undefined;
     const touchedTexts=new Set<Text>();
     const touchedElements=new Set<Element>();
+    const originals=new WeakMap<Text,string>();
+    const originalAttributes=new WeakMap<Element,Map<string,string>>();
+    const translatedTexts=new WeakMap<Text,string>();
+    const translatedAttributes=new WeakMap<Element,Map<string,string>>();
+    const saveAttributeTranslation=(el:Element,name:string,value:string)=>{
+      let values=translatedAttributes.get(el);
+      if(!values){values=new Map();translatedAttributes.set(el,values);}
+      values.set(name,value);
+    };
     const restore=()=>{
       observer?.disconnect();
       for(const node of touchedTexts){
         const original=originals.get(node);
-        if(original!==undefined && node.isConnected) node.nodeValue=original;
+        if(original!==undefined && node.isConnected && node.nodeValue===translatedTexts.get(node)) node.nodeValue=original;
       }
       for(const el of touchedElements){
         const attrs=originalAttributes.get(el);
-        if(attrs&&el.isConnected)for(const [attr,value] of attrs)el.setAttribute(attr,value);
+        if(attrs&&el.isConnected)for(const [attr,value] of attrs) {
+          if(el.getAttribute(attr)===translatedAttributes.get(el)?.get(attr)) el.setAttribute(attr,value);
+        }
       }
     };
     if(language==='en'){
@@ -67,13 +76,14 @@ export function UiTranslationOverlay(){
           const text=node as Text,original=text.nodeValue||'';
           const id=ids.get(normalize(original));
           if(id===undefined)continue;
-          if(!originals.has(text))originals.set(text,original);
+          // React may reuse this Text node for a new screen or case. Never restore stale copy.
+          if(!originals.has(text) || originals.get(text)!==original)originals.set(text,original);
           touchedTexts.add(text);
           const cached=translationCache.get(language+':'+id);
           if(cached){
             // Retain whitespace added for layout around the UI phrase.
             const next=preserveWhitespace(original,cached);
-            if(text.nodeValue!==next)text.nodeValue=next;
+            if(text.nodeValue!==next){translatedTexts.set(text,next);text.nodeValue=next;}
           }else{
             const set=matched.get(id)||new Set<Text>();set.add(text);matched.set(id,set);pending.add(id);
           }
@@ -91,7 +101,7 @@ export function UiTranslationOverlay(){
             if(!prior.has(name))prior.set(name,original);
             touchedElements.add(el);
             const cached=translationCache.get(language+':'+id);
-            if(cached){if(el.getAttribute(name)!==cached)el.setAttribute(name,cached);}
+            if(cached){if(el.getAttribute(name)!==cached){saveAttributeTranslation(el,name,cached);el.setAttribute(name,cached);}}
             else {const group=attrsMatched.get(id)||[];group.push({el,name});attrsMatched.set(id,group);pending.add(id);}
           }
         });
@@ -118,11 +128,11 @@ export function UiTranslationOverlay(){
               if(node.isConnected) {
                 const original=originals.get(node)||'';
                 const next=preserveWhitespace(original,translated);
-                if(node.nodeValue!==next)node.nodeValue=next;
+                if(node.nodeValue!==next){translatedTexts.set(node,next);node.nodeValue=next;}
               }
             }
             for(const {el,name} of attrsMatched.get(id)||[]){
-              if(el.isConnected&&el.getAttribute(name)!==translated)el.setAttribute(name,translated);
+              if(el.isConnected&&el.getAttribute(name)!==translated){saveAttributeTranslation(el,name,translated);el.setAttribute(name,translated);}
             }
             matched.delete(id);attrsMatched.delete(id);
           }
