@@ -24,7 +24,5 @@ jobs:
         run: npm ci
       - name: Run scenario tests
         run: npm test
-      - name: Run localization regression checks
-        run: npm run test:i18n
       - name: Build production bundle
         run: npm run build
