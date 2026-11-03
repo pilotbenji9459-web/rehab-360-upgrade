@@ -82,7 +82,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ currentRecord, showAlert
     try {
       window.print();
     } catch {
-      showAler"Printing is not available in this environment.";
+      showAlert('Printing is not available in this environment.');
     }
   };
 
