@@ -28,5 +28,7 @@ jobs:
         run: npm run test:case-explorer
       - name: Test sidebar light mode and scroll reveals
         run: npm run test:visual
+      - name: Verify tour visuals and search alignment
+        run: npm run test:tour-visuals
       - name: Build production bundle
         run: npm run build

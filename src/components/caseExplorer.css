@@ -120,3 +120,52 @@ html[data-theme="light"] .cx-on-track {color:#116d50;background:#d9f6e9}
   .cx-shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .cx-case[data-cx-reveal]{opacity:1!important;transform:none!important}
 }
+
+
+/* Search field alignment: global label rules were stacking the icon above text.
+   Keep the magnifier and clear button centered inside the input on every screen. */
+.cx-shell label.cx-search {
+  display: block !important;
+  position: relative;
+  flex-direction: row !important;
+  height: 46px;
+  min-width: 0;
+}
+.cx-shell .cx-search input {
+  display: block;
+  width: 100%;
+  height: 46px;
+  padding-inline-start: 45px !important;
+  padding-inline-end: 96px !important;
+  line-height: normal;
+  box-sizing: border-box;
+}
+.cx-shell .cx-search .cx-search-icon {
+  position: absolute !important;
+  z-index: 2;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+.cx-shell .cx-search .cx-search-hint {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.cx-shell button.cx-search-clear {
+  top: 50%;
+  transform: translateY(-50%) !important;
+  z-index: 2;
+}
+html[dir="rtl"] .cx-shell .cx-search .cx-search-icon {left: auto;right: 15px;}
+html[dir="rtl"] .cx-shell .cx-search .cx-search-hint {right:auto;left:13px;}
+html[dir="rtl"] .cx-shell button.cx-search-clear {right:auto;left:72px;}
+@media (max-width: 440px) {
+  .cx-shell .cx-search .cx-search-hint {display:none}
+  .cx-shell .cx-search input {padding-inline-end:38px!important}
+  .cx-shell button.cx-search-clear {right:11px!important}
+}
