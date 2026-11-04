@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const settings=readFileSync('src/components/SettingsView.tsx','utf8');
+const server=readFileSync('server.ts','utf8');
+assert.ok(settings.includes('data-mode-switch-panel'),'Deployment panel must exist');
+assert.ok(settings.includes('refreshSystemStatus()'),'All roles can refresh current mode');
+assert.ok(settings.includes('{isAdmin ? ('),'Only administrators can see the mode-switch action');
+assert.ok(settings.includes('Administrator permission required'),'Other roles receive an explanation');
+assert.ok(settings.includes('onClick={switchMode}'),'Admin switch action remains wired');
+assert.ok(settings.includes('cleanSetupToken'),'Existing clean bootstrap setup-token safeguard preserved');
+assert.ok(server.includes("requireRoles(['Administrator'])"),'Backend must enforce Administrator-only switch');
+assert.ok(server.includes('req.body?.setup_token !== required'),'Backend must keep clean database token safeguard');
+console.log('Mode-switch interface and role authorization regression checks passed.');
