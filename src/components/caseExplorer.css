@@ -98,10 +98,8 @@ html[data-theme="light"] .cx-on-track {color:#116d50;background:#d9f6e9}
 .cx-shell button.cx-show-more {display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:12px;border:1px solid var(--cx-border);border-radius:11px;font-size:12px;font-weight:750;background:var(--cx-field);color:var(--cx-text);transition:border-color .2s,background .2s}
 .cx-shell button.cx-show-more:hover {border-color:var(--cx-accent);background:var(--cx-hover)}
 .cx-footnote {font-size:10px;color:var(--cx-soft);margin:17px 0 0;line-height:1.55}
-@media (min-width:769px) {
-  .cx-case[data-cx-reveal]:not(.cx-visible) {opacity:0;transform:translateY(18px)}
-  .cx-case[data-cx-reveal].cx-visible {animation:cx-reveal .44s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--cx-order,0)*45ms)}
-}
+.cx-case[data-cx-reveal]:not(.cx-visible) {opacity:0;transform:translateY(18px)}
+.cx-case[data-cx-reveal].cx-visible {animation:cx-reveal .44s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--cx-order,0)*45ms)}
 @keyframes cx-reveal {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @media (max-width:1080px) {.cx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:768px) {
