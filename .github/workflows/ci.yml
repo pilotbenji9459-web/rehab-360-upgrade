@@ -30,5 +30,7 @@ jobs:
         run: npm run test:visual
       - name: Verify tour visuals and search alignment
         run: npm run test:tour-visuals
+      - name: Verify role-aware mode controls
+        run: npm run test:mode-ui
       - name: Build production bundle
         run: npm run build

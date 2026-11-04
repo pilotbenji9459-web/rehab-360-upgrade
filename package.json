@@ -8,6 +8,7 @@
     "dev:deployment": "APP_MODE=deployment tsx server.ts",
     "dev:demo": "APP_MODE=demo tsx server.ts",
     "test": "tsx scripts/test_scenarios.ts",
+    "test:mode-ui": "tsx scripts/test_mode_ui.ts",
     "test:tour-visuals": "tsx scripts/test_tour_visuals.ts",
     "test:visual": "tsx scripts/test_visual_regressions.ts",
     "test:case-explorer": "tsx scripts/test_case_explorer.ts",

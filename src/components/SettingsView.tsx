@@ -11,6 +11,8 @@ import {
   Lock,
   Save,
   CheckCircle2,
+  RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -18,7 +20,7 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
-  const { user, institution, systemStatus, refreshInstitution } = useAuth();
+  const { user, institution, systemStatus, refreshInstitution, refreshSystemStatus } = useAuth();
   const isAdmin = user?.role === 'Administrator';
 
   const [name, setName] = useState(institution?.name || 'RehabPath360');
@@ -39,6 +41,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [cleanSetupToken, setCleanSetupToken] = useState('');
+  const [refreshingMode, setRefreshingMode] = useState(false);
 
   // Personal appearance is browser/account-specific; it is not institution branding.
   const DEFAULT_PRIMARY = '#0284c7';
@@ -341,23 +344,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
             </div>
           </div>
 
-          <div className="mt-4 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300">
-            <span className="font-semibold text-white block mb-1">Switch application mode</span>
-            <p className="text-[11px] text-slate-400 mb-3">Demo and clean deployment records are kept in separate databases. Switching does not copy or delete records. Clean mode starts with no staff or case records and opens the first-administrator setup screen.</p>
-            {isAdmin && systemStatus?.mode !== 'deployment' && (
-              <label className="block text-xs text-slate-300 mb-3">
-                First-administrator setup token (required when clean database has no staff)
-                <input
-                  type="password"
-                  autoComplete="off"
-                  value={cleanSetupToken}
-                  onChange={(event) => setCleanSetupToken(event.target.value)}
-                  placeholder="Enter the configured SETUP_TOKEN if initializing clean mode"
-                  className="mt-1 w-full min-w-0 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white"
-                />
-              </label>
+          <div data-mode-switch-panel className="mt-4 space-y-4 rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Application mode</h3>
+                <p className="mt-1 text-xs text-slate-300">Active server: <strong className="text-sky-300">{systemStatus?.mode === 'deployment' ? 'Clean Deployment' : systemStatus?.mode === 'demo' ? 'Exhibition Demo' : 'Loading...'}</strong></p>
+              </div>
+              <button type="button" disabled={refreshingMode} aria-label="Refresh application mode status"
+                onClick={async () => {
+                  setRefreshingMode(true);
+                  try { await refreshSystemStatus(); } catch (err: any) {
+                    showAlert(err.message || 'Unable to refresh the current mode.', 'Refresh Failed');
+                  } finally { setRefreshingMode(false); }
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-[#0f2744] px-3 py-2 text-xs font-semibold text-white hover:bg-[#173653] disabled:opacity-50">
+                <RefreshCw className={`h-4 w-4 ${refreshingMode ? 'animate-spin' : ''}`} aria-hidden="true"/>
+                {refreshingMode ? 'Refreshing...' : 'Refresh status'}
+              </button>
+            </div>
+            <p className="text-xs leading-relaxed text-slate-300">
+              Demo and clean deployment store records separately. Switching changes the database for <strong>every user on this server</strong>, not just your device. Current sessions may be interrupted. Records are not copied or deleted.
+            </p>
+            {isAdmin ? (
+              <div className="space-y-3 rounded-lg border border-amber-600/40 bg-amber-950/20 p-3">
+                <p className="flex items-start gap-2 text-xs text-amber-200"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true"/> Administrator action: only switch when other users have finished their work.</p>
+                {systemStatus?.mode === 'demo' && (
+                  <label className="flex flex-col gap-1.5 text-xs text-slate-200">
+                    First-administrator setup token (needed if clean mode is not initialized)
+                    <input type="password" autoComplete="off" value={cleanSetupToken}
+                      onChange={event => setCleanSetupToken(event.target.value)}
+                      placeholder="SETUP_TOKEN for new clean deployment"
+                      className="w-full min-w-0 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-white" />
+                  </label>
+                )}
+                <button type="button" onClick={switchMode} disabled={isSaving || !systemStatus?.mode}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50">
+                  {isSaving ? 'Switching...' : systemStatus?.mode === 'deployment' ? 'Switch to Exhibition Demo' : 'Switch to Clean Deployment'}
+                </button>
+              </div>
+            ) : (
+              <div role="note" className="flex items-start gap-2 rounded-lg border border-sky-700/40 bg-sky-950/20 p-3 text-xs text-slate-200">
+                <Lock className="h-4 w-4 shrink-0 text-sky-300" aria-hidden="true"/>
+                <span><strong>Administrator permission required.</strong> You're signed in as {user?.role || 'staff'}. You can check the current mode, but only an Administrator can switch the shared server database.</span>
+              </div>
             )}
-            {isAdmin && <button type="button" onClick={switchMode} disabled={isSaving} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50">{isSaving ? 'Switching…' : systemStatus?.mode === 'deployment' ? 'Switch to Exhibition Demo Mode' : 'Switch to Clean Deployment Mode'}</button>}
           </div>
         </div>
 
