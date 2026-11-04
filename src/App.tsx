@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollRevealManager } from './components/ScrollRevealManager';
 import './components/caseExplorer.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Api } from './services/api';
@@ -373,6 +374,7 @@ const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
+      <ScrollRevealManager />
       <AppContent />
     </AuthProvider>
   );
