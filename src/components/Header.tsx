@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
 import {
@@ -40,23 +40,23 @@ export const Header: React.FC<HeaderProps> = ({
   const { user, institution, systemStatus, isAuthenticated, logout } = useAuth();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return (
-        document.documentElement.getAttribute('data-theme') !== 'light'
-      );
+    try {
+      const stored = localStorage.getItem('rehabpath360:theme');
+      if (stored === 'light') return false;
+      if (stored === 'dark') return true;
+    } catch {
+      // Private browsing may block persistent storage.
     }
-    return true;
+    return document.documentElement.getAttribute('data-theme') !== 'light';
   });
 
-  const toggleTheme = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
-  };
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    try { localStorage.setItem('rehabpath360:theme', isDark ? 'dark' : 'light'); } catch { /* optional */ }
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(value => !value);
 
   const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
 
@@ -135,15 +135,17 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {/* Dark / Light Toggle */}
+        {/* Persistent, accessible light/dark appearance switch */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#0f2744] border border-[#1e3a5f] transition-colors cursor-pointer"
-          title="Toggle light/dark contrast"
-          aria-label="Toggle theme"
+          aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-pressed={!isDark}
+          className="app-theme-switch"
         >
-          {isDark ? <Sun className="w-5 h-5 text-amber-300" /> : <Moon className="w-5 h-5 text-slate-300" />}
+          {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden="true" /> : <Moon className="w-4.5 h-4.5" aria-hidden="true" />}
+          <span className="hidden min-[520px]:inline">{isDark ? 'Light mode' : 'Dark mode'}</span>
         </button>
 
         {/* User Profile / Menu */}
