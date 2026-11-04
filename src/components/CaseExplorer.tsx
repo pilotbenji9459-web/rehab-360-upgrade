@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpDown, CheckCircle2, CircleDashed, Clock3, Grid2X2, List, RotateCcw, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import type { OffenderCase, TabId } from '../types';
 import { getOffenderPos } from '../utils/aiLogic';
-import './caseExplorer.css';
 
 type FilterMode = 'all' | 'pending' | 'attention' | 'verified';
 type SortMode = 'recent' | 'name' | 'attendance';
