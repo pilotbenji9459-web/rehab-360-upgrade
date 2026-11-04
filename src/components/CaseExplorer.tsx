@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { Search, ArrowRight, ArrowUpDown, RotateCcw, Filter, LayoutGrid, List, Sparkles } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, ArrowUpDown, CheckCircle2, CircleDashed, Clock3, Grid2X2, List, RotateCcw, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import type { OffenderCase, TabId } from '../types';
 import { getOffenderPos } from '../utils/aiLogic';
+import { useAuth } from '../context/AuthContext';
 
 type FilterMode = 'all' | 'pending' | 'attention' | 'verified';
 type SortMode = 'recent' | 'name' | 'attendance';
@@ -44,151 +45,169 @@ export function getCaseExplorerResults(
   });
 }
 
+
 export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase, onSelectTab }) => {
+  const { user } = useAuth();
+  const canViewPathway = Boolean(user && ['Administrator','Warden','Educator','Case Manager','Psychologist'].includes(user.role));
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterMode>('all');
   const [sort, setSort] = useState<SortMode>('recent');
   const [view, setView] = useState<ViewMode>('cards');
   const [showAll, setShowAll] = useState(false);
+  const explorerRef = useRef<HTMLElement>(null);
 
   const results = useMemo(() => getCaseExplorerResults(cases, query, filter, sort), [cases, query, filter, sort]);
   const visible = showAll ? results : results.slice(0, 6);
   const hasControls = Boolean(query || filter !== 'all' || sort !== 'recent' || showAll);
 
+  // Reveal new cards as they enter the viewport, respecting reduced-motion settings.
+  useEffect(() => {
+    const root = explorerRef.current;
+    if (!root) return;
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-cx-reveal]'));
+    if (typeof IntersectionObserver === 'undefined' ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      items.forEach(item => item.classList.add('cx-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          (entry.target as HTMLElement).classList.add('cx-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px 36px 0px' });
+    items.forEach(item => observer.observe(item));
+    return () => observer.disconnect();
+  }, [filter, query, sort, view, showAll, results]);
+
   const openRecord = (id: string, tab: TabId = 'cases') => {
     onSelectCase(id);
     onSelectTab(tab);
   };
-
-  const tabs: { id: FilterMode; label: string; count: number }[] = [
-    { id: 'all', label: 'All cases', count: cases.length },
-    { id: 'pending', label: 'Pending decision', count: cases.filter(c => !c.decision).length },
-    { id: 'attention', label: 'Needs follow-up', count: cases.filter(c => !c.decision || c.session_attendance < 75).length },
-    { id: 'verified', label: 'Decision recorded', count: cases.filter(c => Boolean(c.decision)).length },
+  const reset = () => { setQuery(''); setFilter('all'); setSort('recent'); setShowAll(false); };
+  const setWorkflow = (next: FilterMode) => {
+    setFilter(next);
+    setShowAll(false);
+  };
+  const tabs: { id: FilterMode; label: string; detail: string; count: number; icon: React.ElementType }[] = [
+    { id: 'all', label: 'All cases', detail: 'Entire caseload', count: cases.length, icon: Grid2X2 },
+    { id: 'pending', label: 'Pending', detail: 'Awaiting decision', count: cases.filter(c => !c.decision).length, icon: Clock3 },
+    { id: 'attention', label: 'Follow-up', detail: 'Workflow follow-up', count: cases.filter(c => !c.decision || c.session_attendance < 75).length, icon: CircleDashed },
+    { id: 'verified', label: 'Decided', detail: 'Decision recorded', count: cases.filter(c => Boolean(c.decision)).length, icon: CheckCircle2 },
   ];
 
   return (
-    <section aria-labelledby="case-explorer-heading" className="card bg-[#0b1a30] border border-[#1e3a5f] space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[var(--teal,#5cc2bd)]" aria-hidden="true" />
-            <h2 id="case-explorer-heading" className="text-lg sm:text-xl font-bold text-white font-serif m-0">Interactive Case Explorer</h2>
+    <section ref={explorerRef} aria-labelledby="case-explorer-heading" className="cx-shell" data-cx>
+      <div className="cx-topline">
+        <div className="cx-heading-wrap">
+          <div className="cx-heading-icon" aria-hidden="true"><Sparkles size={20}/></div>
+          <div>
+            <div className="cx-eyebrow">CASE MANAGEMENT · LIVE WORKSPACE</div>
+            <h2 id="case-explorer-heading" className="cx-title">Case Explorer</h2>
+            <p className="cx-subtitle">Find a case, inspect its progress, and open its workflow in one click.</p>
           </div>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1">
-            Search, filter and open authorized cases instantly. Exploring never changes a record.
-          </p>
         </div>
-        <span className="text-xs font-medium text-[var(--teal,#5cc2bd)] bg-[#0f2744] border border-[#1e3a5f] rounded-full px-3 py-1.5" aria-live="polite">
-          {results.length} of {cases.length} cases
-        </span>
+        <div className="cx-total" role="status" aria-live="polite">
+          <span className="cx-pulse" aria-hidden="true" />
+          <strong>{results.length}</strong><span> / {cases.length} records</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-3 items-center">
-        <label className="relative flex items-center">
-          <Search className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
-          <span className="sr-only">Search cases by ID, name, or category</span>
-          <input
-            type="search"
-            value={query}
-            onChange={event => { setQuery(event.target.value); setShowAll(false); }}
-            placeholder="Search case ID, name or category"
-            className="w-full rounded-xl border border-[#31516e] bg-[#08192d] px-10 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-[#5cc2bd] focus:ring-2 focus:ring-[#5cc2bd]/30"
-          />
+      <div className="cx-toolbar">
+        <label className="cx-search">
+          <Search size={18} aria-hidden="true" className="cx-search-icon" />
+          <span className="sr-only">Search by case ID, name or category</span>
+          <input type="search" value={query} onChange={event => {setQuery(event.target.value);setShowAll(false);}}
+            placeholder="Search ID, name or case category…" autoComplete="off" />
+          {query && <button type="button" aria-label="Clear case search" onClick={() => setQuery('')} className="cx-search-clear"><X size={15}/></button>}
+          <kbd className="cx-search-hint">SEARCH</kbd>
         </label>
-        <div className="flex items-center gap-2 flex-wrap">
-          <ArrowUpDown className="w-4 h-4 text-slate-400" aria-hidden="true" />
-          <label htmlFor="case-explorer-sort" className="sr-only">Sort cases</label>
-          <select id="case-explorer-sort" value={sort} onChange={event => setSort(event.target.value as SortMode)}
-            className="rounded-xl border border-[#31516e] bg-[#08192d] px-3 py-2.5 text-xs sm:text-sm text-white">
-            <option value="recent">Recently updated</option>
-            <option value="name">Name A–Z</option>
-            <option value="attendance">Lowest attendance</option>
-          </select>
-          <div role="group" aria-label="Case display layout" className="flex overflow-hidden rounded-lg border border-[#31516e]">
-            <button type="button" aria-label="Card view" aria-pressed={view === 'cards'} onClick={() => setView('cards')}
-              className={`p-2.5 transition-colors ${view === 'cards' ? 'bg-[#0369a1] text-white' : 'text-slate-300 hover:bg-[#173653]'}`}>
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button type="button" aria-label="List view" aria-pressed={view === 'list'} onClick={() => setView('list')}
-              className={`p-2.5 transition-colors ${view === 'list' ? 'bg-[#0369a1] text-white' : 'text-slate-300 hover:bg-[#173653]'}`}>
-              <List className="w-4 h-4" />
-            </button>
+        <div className="cx-toolbar-actions">
+          <label className="cx-sort">
+            <ArrowUpDown size={16} aria-hidden="true"/>
+            <span className="sr-only">Sort cases</span>
+            <select value={sort} onChange={event => setSort(event.target.value as SortMode)} aria-label="Sort cases">
+              <option value="recent">Recently updated</option>
+              <option value="name">Name A–Z</option>
+              <option value="attendance">Lowest attendance</option>
+            </select>
+          </label>
+          <div className="cx-view-switch" role="group" aria-label="Display layout">
+            <button type="button" title="Card view" aria-label="Card view" aria-pressed={view === 'cards'} className={view === 'cards' ? 'cx-selected' : ''} onClick={() => setView('cards')}><Grid2X2 size={17}/></button>
+            <button type="button" title="List view" aria-label="List view" aria-pressed={view === 'list'} className={view === 'list' ? 'cx-selected' : ''} onClick={() => setView('list')}><List size={17}/></button>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter cases by workflow">
-        <Filter className="w-4 h-4 text-slate-400 shrink-0" aria-hidden="true" />
-        {tabs.map(tab => (
-          <button key={tab.id} type="button" aria-pressed={filter === tab.id}
-            onClick={() => { setFilter(tab.id); setShowAll(false); }}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5cc2bd] ${filter === tab.id ? 'bg-[#0369a1] border-[#38bdf8] text-white' : 'bg-[#10263e] border-[#31516e] text-slate-200 hover:bg-[#173653]'}`}>
-            {tab.label} <span className="opacity-75 ml-1">{tab.count}</span>
-          </button>
-        ))}
-        {hasControls && (
-          <button type="button" onClick={() => { setQuery(''); setFilter('all'); setSort('recent'); setShowAll(false); }}
-            className="text-xs font-semibold text-[#7dd3fc] px-2 py-1.5 inline-flex items-center gap-1 hover:underline">
-            <RotateCcw className="w-3.5 h-3.5" /> Reset
-          </button>
-        )}
+      <div className="cx-filter-section">
+        <div className="cx-filter-caption"><SlidersHorizontal size={14} aria-hidden="true"/> Filter by workflow</div>
+        <div className="cx-filters" role="group" aria-label="Workflow status filters">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button key={tab.id} type="button" title={tab.detail} aria-pressed={filter === tab.id}
+                onClick={() => setWorkflow(tab.id)}
+                className={`cx-filter ${filter === tab.id ? 'cx-active' : ''}`}>
+                <Icon size={15} aria-hidden="true" />
+                <span>{tab.label}</span><span className="cx-count">{tab.count}</span>
+              </button>
+            );
+          })}
+          {hasControls && <button type="button" className="cx-reset" onClick={reset}><RotateCcw size={14}/> Clear filters</button>}
+        </div>
+      </div>
+
+      <div className="cx-results-summary" role="status" aria-live="polite">
+        <span>{query ? `Search results for “${query}”` : tabs.find(t => t.id === filter)?.detail}</span>
+        <span>{results.length === 1 ? '1 matching record' : `${results.length} matching records`}</span>
       </div>
 
       {visible.length ? (
-        <div aria-live="polite" className={view === 'cards' ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3' : 'flex flex-col gap-2'}>
-          {visible.map(record => {
+        <div key={filter + '|' + sort + '|' + view + '|' + query + '|' + showAll} className={view === 'cards' ? 'cx-results cx-grid' : 'cx-results cx-list'}>
+          {visible.map((record, index) => {
             const needsFollowup = !record.decision || record.session_attendance < 75;
             const progress = percentage(record.assessment_completeness);
             const pos = getOffenderPos(record);
             return (
-              <article key={record.id} className={`group rounded-xl border border-[#28425b] bg-[#0d2239] hover:border-[#5cc2bd] transition-all p-4 ${view === 'list' ? 'sm:flex sm:items-center sm:justify-between sm:gap-5' : ''}`}>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-mono font-semibold text-[#7dd3fc]">{record.id}</span>
-                    <span className={`text-[10px] uppercase tracking-wide rounded-full px-2 py-1 border ${needsFollowup ? 'bg-amber-500/10 border-amber-600/40 text-amber-200' : 'bg-emerald-500/10 border-emerald-600/40 text-emerald-200'}`}>
-                      {needsFollowup ? 'Follow-up' : 'On track'}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-white text-sm sm:text-base mt-2 truncate">{record.first_name} {record.last_name}</h3>
-                  <p className="text-xs text-slate-400 truncate mt-0.5">{record.crime_type} · {pos == null ? 'Stage not assigned' : `Pathway stage ${pos + 1}/12`}</p>
-                  <div className="flex items-center justify-between text-xs text-slate-300 mt-3 mb-1">
-                    <span>Assessment progress</span>
-                    <span className="tabular-nums">{Math.round(progress)}%</span>
-                  </div>
-                  <div role="progressbar" aria-label={`Assessment completion for ${record.id}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}
-                    className="h-2 rounded-full bg-[#203c58] overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-[#0284c7] to-[#5cc2bd] transition-[width] duration-300" style={{ width: `${progress}%` }} />
+              <article key={record.id} className="cx-case" data-cx-reveal style={{ ['--cx-order' as string]: Math.min(index, 7) }}>
+                <div className="cx-case-top">
+                  <span className="cx-case-id">{record.id}</span>
+                  <span className={needsFollowup ? 'cx-status cx-attention' : 'cx-status cx-on-track'}>
+                    <span className="cx-status-dot" aria-hidden="true"/>{needsFollowup ? 'Follow-up' : 'On track'}
+                  </span>
+                </div>
+                <div className="cx-case-body">
+                  <h3 className="cx-case-name">{record.first_name} {record.last_name}</h3>
+                  <p className="cx-case-meta">{record.crime_type} <span aria-hidden="true">·</span> {pos == null ? 'Stage not assigned' : `Stage ${pos + 1} of 12`}</p>
+                  <div className="cx-progress-head"><span>Assessment complete</span><strong>{Math.round(progress)}%</strong></div>
+                  <div role="progressbar" aria-label={`Assessment completion for ${record.id}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} className="cx-progress">
+                    <div className="cx-progress-fill" style={{ width: `${progress}%` }}/>
                   </div>
                 </div>
-                <div className={`flex gap-2 mt-4 ${view === 'list' ? 'sm:mt-0 sm:shrink-0' : ''}`}>
-                  <button type="button" onClick={() => openRecord(record.id)}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0369a1] hover:bg-[#0284c7] px-3 py-2 text-xs font-semibold text-white transition-colors">
-                    Open case <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                  </button>
-                  <button type="button" onClick={() => openRecord(record.id, 'prog')}
-                    className="inline-flex items-center justify-center rounded-lg border border-[#31516e] bg-[#0f2744] hover:bg-[#163860] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors">
-                    Pathway
-                  </button>
+                <div className="cx-case-actions">
+                  <button type="button" className="cx-open" onClick={() => openRecord(record.id)}>Open case <ArrowRight size={16} aria-hidden="true"/></button>
+                  {canViewPathway && <button type="button" className="cx-pathway" onClick={() => openRecord(record.id, 'prog')}>Pathway</button>}
                 </div>
               </article>
             );
           })}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-[#31516e] bg-[#08192d] p-8 text-center">
-          <p className="text-white font-semibold">No matching cases</p>
-          <p className="text-xs text-slate-400 mt-1">Try another search term or filter. No records were changed.</p>
-          {hasControls && <button type="button" onClick={() => { setQuery(''); setFilter('all'); setSort('recent'); setShowAll(false); }} className="mt-3 rounded-lg bg-[#0369a1] px-4 py-2 text-xs font-semibold text-white">Show all cases</button>}
+        <div className="cx-empty" role="status">
+          <Search size={24} aria-hidden="true" />
+          <h3>No matching cases</h3>
+          <p>Try another search term or workflow status. Nothing was changed.</p>
+          <button type="button" onClick={reset}>Show all cases</button>
         </div>
       )}
-
       {results.length > 6 && (
-        <button type="button" onClick={() => setShowAll(value => !value)}
-          className="w-full rounded-lg border border-[#31516e] bg-[#10263e] py-2.5 text-sm font-semibold text-slate-200 hover:bg-[#173653] transition-colors">
-          {showAll ? 'Show fewer cases' : `Show all ${results.length} matching cases`}
+        <button type="button" className="cx-show-more" onClick={() => setShowAll(v => !v)}>
+          {showAll ? 'Show fewer records' : `Explore all ${results.length} matching records`} <ArrowRight size={16} aria-hidden="true"/>
         </button>
       )}
+      <p className="cx-footnote">Only records already authorized for your account appear here. Follow-up refers to workflow status, not a clinical risk rating.</p>
     </section>
   );
 };

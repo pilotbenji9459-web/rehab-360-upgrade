@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './components/caseExplorer.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Api } from './services/api';
 import { OffenderCase, TabId, GateKey } from './types';

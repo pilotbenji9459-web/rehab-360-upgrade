@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { getCaseExplorerResults } from '../src/components/CaseExplorer';
 import type { OffenderCase } from '../src/types';
 
@@ -30,4 +31,16 @@ assert.deepEqual(getCaseExplorerResults(list,'FRAUD','all','recent').map(c=>c.id
 assert.equal(getCaseExplorerResults(list,'no match','all','recent').length,0);
 assert.equal(list[0].decision,null,'Filter must not mutate case records');
 assert.equal(list[0].id,'RP-1001','Source ordering and values must be preserved');
-console.log('Case Explorer tests passed: filters, search, sorting, empty state and no mutations.');
+const explorerCss = fs.readFileSync('src/components/caseExplorer.css', 'utf8');
+const appCss = fs.readFileSync('src/index.css', 'utf8');
+const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+const appEntry = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(explorerCss.includes('.cx-shell button.cx-filter.cx-active'), 'Segmented filter must have a distinct selected state');
+assert.ok(explorerCss.includes('prefers-reduced-motion:reduce'), 'Animation must respect reduced motion');
+assert.ok(explorerCss.includes('cx-reveal'), 'Result card reveal transition should exist');
+assert.ok(explorerCss.includes('html[data-theme="light"] .cx-shell'), 'Explorer must have a light palette');
+assert.ok(header.includes("localStorage.setItem('rehabpath360:theme'"), 'Theme choice must persist across reloads');
+assert.ok(header.includes('aria-pressed={!isDark}'), 'Theme switch should expose accessible state');
+assert.ok(appCss.includes('html[data-theme="light"]'), 'Global light palette should be available');
+assert.ok(appEntry.includes("import './components/caseExplorer.css';"), 'Browser must load the component stylesheet');
+console.log('Case Explorer tests passed: filters, search, sorting, no mutations, theme persistence and motion accessibility.');
