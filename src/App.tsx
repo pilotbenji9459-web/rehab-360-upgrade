@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollRevealManager } from './components/ScrollRevealManager';
 import './components/caseExplorer.css';
+import './components/exhibitionTour.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Api } from './services/api';
 import { OffenderCase, TabId, GateKey } from './types';
