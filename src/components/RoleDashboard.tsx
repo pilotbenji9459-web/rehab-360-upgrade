@@ -1,4 +1,6 @@
 import React from 'react';
+import { CaseExplorer } from './CaseExplorer';
+import { ExhibitionTour } from './ExhibitionTour';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
 import {
@@ -219,6 +221,10 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
           </div>
         </div>
       </div>
+
+      <ExhibitionTour cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
+
+      <CaseExplorer cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
 
       {/* 4 Primary Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
