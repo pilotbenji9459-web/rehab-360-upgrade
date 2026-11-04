@@ -13,7 +13,7 @@
 html[data-theme="light"] .cx-shell {
   --cx-bg: #ffffff; --cx-surface: #f5f9fd; --cx-hover: #e9f2fa;
   --cx-field: #f8fbff; --cx-border: #dbe6f1; --cx-text: #142840;
-  --cx-muted: #546981; --cx-soft: #6b8098; --cx-accent: #0369a1;
+  --cx-muted: #546981; --cx-soft: #6b8098; --cx-accent: var(--acc, #0369a1);
   --cx-accent-soft: #e2f1fb; --cx-progress-bg: #e3edf6;
   --cx-glow: rgba(36,118,173,.07); --cx-shadow: 0 12px 38px rgba(26,62,97,.07);
 }
