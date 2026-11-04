@@ -54,7 +54,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
   }, [showSecurityPage]);
 
   return (
-    <div className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
+    <div data-motion-scope="landing" className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
       {/* Compact branded navigation */}
       <header className="sticky top-0 z-40 border-b border-[#20415b] bg-[#08192d]/95 backdrop-blur-xl">
         <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -149,7 +149,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           </div>
 
           {/* Hero Showcase Illustration */}
-          <div className="mt-12 relative max-w-4xl mx-auto rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl shadow-[#0284c7]/20 group">
+          <div className="reveal-feature mt-12 relative max-w-4xl mx-auto rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl shadow-[#0284c7]/20 group">
             <div className="flex items-center justify-between px-4 py-2.5 bg-[#0a1a33] border-b border-[#1e3a5f] text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
@@ -204,7 +204,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Pillar 1: Clinical Psychology */}
-            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#5cc2bd]/50 transition-all">
+            <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#5cc2bd]/50 transition-all">
               <div className="h-52 overflow-hidden bg-[#071325] flex items-center justify-center p-2">
                 <img
                   src="/assets/images/clinical_psychometric_telemetry.svg"
@@ -228,7 +228,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
 
             {/* Pillar 2: Vocational Skills */}
-            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#0284c7]/50 transition-all">
+            <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#0284c7]/50 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950">
                 <img
                   src="/assets/images/vocational_trade_mastery_1792261681702.jpg"
@@ -253,7 +253,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
 
             {/* Pillar 3: Community Reintegration */}
-            <div className="rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-emerald-500/50 transition-all">
+            <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-emerald-500/50 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950">
                 <img
                   src="/assets/images/parole_handover_secure.svg"
@@ -292,7 +292,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           </div>
 
           {/* Pathway Progression Visual Banner */}
-          <div className="mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
+          <div className="reveal-feature mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
             <img
               src={pathwayMilestoneImg}
               alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
@@ -309,7 +309,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
 
           <div className="grid sm:grid-cols-2 gap-7">
             {/* Level 1: Foundation */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-emerald-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-emerald-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950 relative">
                 <img
                   src="/assets/images/psych_assessment_1792261204307.jpg"
@@ -333,7 +333,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
 
             {/* Level 2: Development */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-[#0079d6] overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-[#0079d6] overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950 relative">
                 <img
                   src="/assets/images/education_classroom_1792261680983.jpg"
@@ -357,7 +357,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
 
             {/* Level 3: Capability */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-purple-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-purple-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950 relative">
                 <img
                   src="/assets/images/vocational_skills_1792261206507.jpg"
@@ -381,7 +381,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
 
             {/* Level 4: Reintegration */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-amber-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-amber-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950 relative">
                 <img
                   src="/assets/images/community_reintegration_1792261209316.jpg"
@@ -406,7 +406,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
           </div>
 
           {/* Multidisciplinary Case Review Showcase */}
-          <div className="mt-14 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0e2444] to-[#11305c] border border-[#1e3a5f] overflow-hidden shadow-2xl flex flex-col lg:flex-row items-center">
+          <div className="reveal-feature mt-14 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0e2444] to-[#11305c] border border-[#1e3a5f] overflow-hidden shadow-2xl flex flex-col lg:flex-row items-center">
             <div className="lg:w-1/2 h-72 lg:h-80 overflow-hidden bg-slate-950 w-full shrink-0">
               <img
                 src="/assets/images/milestone_gate_review_1792261681316.jpg"

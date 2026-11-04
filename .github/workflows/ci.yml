@@ -26,5 +26,7 @@ jobs:
         run: npm test
       - name: Test interactive case explorer
         run: npm run test:case-explorer
+      - name: Test sidebar light mode and scroll reveals
+        run: npm run test:visual
       - name: Build production bundle
         run: npm run build

@@ -155,7 +155,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in min-w-0">
+    <div data-motion-scope="dashboard" className="space-y-6 animate-fade-in min-w-0">
       {/* Top Welcome & Institutional Status Strip */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0f2744] to-[#123158] border border-[#1e3a5f] text-white shadow-xl relative overflow-hidden">
         {/* Subtle decorative glow */}
@@ -229,7 +229,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       {/* 4 Primary Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Active Cases */}
-        <div className="card border-t-3 border-[#0284c7] bg-[#0b1a30] hover:border-[#38bdf8] transition-all">
+        <div className="reveal-feature card border-t-3 border-[#0284c7] bg-[#0b1a30] hover:border-[#38bdf8] transition-all">
           <div className="flex items-center justify-between">
             <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
               Active Cases
@@ -243,7 +243,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
 
         {/* Card 2: Reviews Pending */}
-        <div className="card border-t-3 border-amber-500 bg-[#0b1a30] hover:border-amber-400 transition-all">
+        <div className="reveal-feature card border-t-3 border-amber-500 bg-[#0b1a30] hover:border-amber-400 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
               Reviews Pending
@@ -257,7 +257,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
 
         {/* Card 3: Rehabilitation Plans On Track */}
-        <div className="card border-t-3 border-emerald-500 bg-[#0b1a30] hover:border-emerald-400 transition-all">
+        <div className="reveal-feature card border-t-3 border-emerald-500 bg-[#0b1a30] hover:border-emerald-400 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
               Plans On Track
@@ -271,7 +271,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
 
         {/* Card 4: Scheduled Check-ins */}
-        <div className="card border-t-3 border-[#5cc2bd] bg-[#0b1a30] hover:border-teal-300 transition-all">
+        <div className="reveal-feature card border-t-3 border-[#5cc2bd] bg-[#0b1a30] hover:border-teal-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
               Scheduled Check-ins
@@ -288,7 +288,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       {/* Main Grid: Rehabilitation Progress Chart + {"Well-being"} Queue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rehabilitation Progress Chart (2 Cols) */}
-        <div className="lg:col-span-2 card min-w-0 bg-[#0b1a30]">
+        <div className="reveal-feature lg:col-span-2 card min-w-0 bg-[#0b1a30]">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
             <div>
               <h2 className="text-lg sm:text-xl font-bold font-serif text-white flex items-start gap-2 leading-snug">
@@ -466,7 +466,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
 
         {/* Needs Attention Panel (1 Col) */}
-        <div className="card bg-[#0b1a30] flex flex-col justify-between">
+        <div className="reveal-feature card bg-[#0b1a30] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-bold font-serif text-white flex items-center gap-2">
@@ -575,7 +575,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       </div>
 
       {/* Recent Case Activity Table */}
-      <div className="card bg-[#0b1a30]">
+      <div className="reveal-feature card bg-[#0b1a30]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-base sm:text-lg font-bold font-serif text-white">{"Audit Trail"} </h2>

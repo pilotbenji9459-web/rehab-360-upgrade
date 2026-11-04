@@ -163,6 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
+        data-app-sidebar
         className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#071325] border-r border-[#1e3a5f] flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full'
         }`}
@@ -214,6 +215,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return (
               <button
                 key={item.id}
+                data-nav-item
+                data-active={isActive ? 'true' : 'false'}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all cursor-pointer ${
