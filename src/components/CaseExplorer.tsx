@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpDown, CheckCircle2, CircleDashed, Clock3, Grid2X2, List, RotateCcw, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import type { OffenderCase, TabId } from '../types';
 import { getOffenderPos } from '../utils/aiLogic';
+import { useAuth } from '../context/AuthContext';
 
 type FilterMode = 'all' | 'pending' | 'attention' | 'verified';
 type SortMode = 'recent' | 'name' | 'attendance';
@@ -46,6 +47,8 @@ export function getCaseExplorerResults(
 
 
 export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase, onSelectTab }) => {
+  const { user } = useAuth();
+  const canViewPathway = Boolean(user && ['Administrator','Warden','Educator','Case Manager','Psychologist'].includes(user.role));
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterMode>('all');
   const [sort, setSort] = useState<SortMode>('recent');
@@ -185,7 +188,7 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
                 </div>
                 <div className="cx-case-actions">
                   <button type="button" className="cx-open" onClick={() => openRecord(record.id)}>Open case <ArrowRight size={16} aria-hidden="true"/></button>
-                  <button type="button" className="cx-pathway" onClick={() => openRecord(record.id, 'prog')}>Pathway</button>
+                  {canViewPathway && <button type="button" className="cx-pathway" onClick={() => openRecord(record.id, 'prog')}>Pathway</button>}
                 </div>
               </article>
             );
