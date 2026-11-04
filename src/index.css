@@ -338,3 +338,51 @@ svg text {
   }
 }
 
+
+
+/* Shared interface polish: theme switch, smooth motion and legible light surfaces. */
+html { scroll-behavior: smooth; }
+body, .card { transition: background-color .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease; }
+.app-theme-switch {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;
+  padding:9px 12px!important;border:1px solid var(--line)!important;border-radius:12px!important;
+  background:var(--surface)!important;color:var(--ink)!important;
+  font-size:12px!important;font-weight:700!important;white-space:nowrap;
+  transition:background .2s ease,box-shadow .2s ease,transform .2s ease!important;
+}
+.app-theme-switch:hover {background:var(--surface-hover)!important;box-shadow:0 0 0 3px var(--accbg)}
+.app-theme-switch:active {transform:scale(.97)!important}
+
+/* A number of legacy components use fixed dark Tailwind utilities.
+   Override the common dark surfaces, preserving coloured action buttons. */
+html[data-theme="light"] [class*="bg-[#071325]"] {background-color:#f0f6fc!important}
+html[data-theme="light"] [class*="bg-[#08192d]"] {background-color:#f5f9fe!important}
+html[data-theme="light"] [class*="bg-[#0b1a30]"],
+html[data-theme="light"] [class*="bg-[#0c1c36]"] {background-color:#ffffff!important}
+html[data-theme="light"] [class*="bg-[#0f2744]"],
+html[data-theme="light"] [class*="bg-[#0d2239]"],
+html[data-theme="light"] [class*="bg-[#10263e]"],
+html[data-theme="light"] [class*="bg-[#0f2744]/"] {background-color:#eef5fb!important}
+html[data-theme="light"] [class*="border-[#1e3a5f]"],
+html[data-theme="light"] [class*="border-[#28425b]"],
+html[data-theme="light"] [class*="border-[#31516e]"] {border-color:#dbe6f0!important}
+html[data-theme="light"] :is(h1,h2,h3,p,span,strong,label)[class~="text-white"]:not(button *),
+html[data-theme="light"] :is(h1,h2,h3,p,span,strong,label)[class~="text-slate-100"]:not(button *) {color:#162a43!important}
+html[data-theme="light"] :is(h1,h2,h3,p,span,strong,label)[class~="text-slate-200"]:not(button *),
+html[data-theme="light"] :is(h1,h2,h3,p,span,strong,label)[class~="text-slate-300"]:not(button *) {color:#455c78!important}
+html[data-theme="light"] :is(h1,h2,h3,p,span,strong,label)[class~="text-slate-400"]:not(button *) {color:#61758e!important}
+html[data-theme="light"] .card {box-shadow:0 9px 30px rgba(38,78,118,.07)}
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {color:#152c45;background-color:#ffffff}
+html[data-theme="light"] input::placeholder {color:#7389a0}
+/* Keep badge/action labels light on strong blue/green/gradient surfaces. */
+html[data-theme="light"] button[class*="bg-[#0369a1]"],
+html[data-theme="light"] button[class*="bg-[#0284c7]"] {color:#ffffff}
+html[data-theme="light"] [class*="bg-gradient-to-r"][class*="from-[#0b1a30]"] {
+  background-image:linear-gradient(120deg,#ffffff,#f1f7fd,#e4f3fa)!important;
+}
+@media (prefers-reduced-motion:reduce) {
+  html{scroll-behavior:auto}
+  body,.card,.app-theme-switch {transition:none!important}
+}
