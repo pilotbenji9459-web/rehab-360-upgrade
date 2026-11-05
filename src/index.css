@@ -477,3 +477,117 @@ html[data-theme="light"] [data-app-sidebar] button[title="Sign out of portal"] {
   [data-motion-scope="landing"] img {transition:none!important}
   [data-motion-scope="landing"] img:hover {transform:none!important}
 }
+
+/* Trading card animations */
+.trading-cards-stage {
+  perspective: 1400px;
+}
+
+.trading-card-wrapper {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Scroll-triggered staggered entrance */
+.trading-card-entry {
+  opacity: 0;
+  transform: translateY(64px) scale(0.92) rotateX(10deg);
+  filter: blur(8px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trading-cards-revealed .trading-card-entry {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotateX(0deg);
+  filter: blur(0);
+}
+
+/* Stagger delay per card index */
+.trading-cards-revealed .trading-card-entry[data-index="0"] {
+  transition-delay: 0.1s;
+}
+.trading-cards-revealed .trading-card-entry[data-index="1"] {
+  transition-delay: 0.25s;
+}
+.trading-cards-revealed .trading-card-entry[data-index="2"] {
+  transition-delay: 0.4s;
+}
+.trading-cards-revealed .trading-card-entry[data-index="3"] {
+  transition-delay: 0.55s;
+}
+
+/* Collectible Card Shell */
+.trading-card {
+  position: relative;
+  background: radial-gradient(130% 120% at 50% 0%, rgba(20, 42, 70, 0.85) 0%, rgba(8, 20, 36, 0.98) 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 255, 255, 0.08),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 0.4s ease;
+}
+
+/* Holographic dynamic sheen glare */
+.trading-card-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 320px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.13), transparent 75%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 20;
+  mix-blend-mode: overlay;
+}
+
+.trading-card:hover .trading-card-glare {
+  opacity: 1;
+}
+
+/* Holographic micro carbon-mesh texture overlay */
+.trading-card-carbon {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 14px 14px;
+}
+
+/* Level Specific Accent Highlights */
+.spec-card-level-1 {
+  --card-accent: #10b981;
+  --card-accent-rgb: 16, 185, 129;
+  --card-glow: rgba(16, 185, 129, 0.3);
+}
+
+.spec-card-level-2 {
+  --card-accent: #0284c7;
+  --card-accent-rgb: 2, 132, 199;
+  --card-glow: rgba(2, 132, 199, 0.32);
+}
+
+.spec-card-level-3 {
+  --card-accent: #a855f7;
+  --card-accent-rgb: 168, 85, 247;
+  --card-glow: rgba(168, 85, 247, 0.32);
+}
+
+.spec-card-level-4 {
+  --card-accent: #f59e0b;
+  --card-accent-rgb: 245, 158, 11;
+  --card-glow: rgba(245, 158, 11, 0.32);
+}
+
+/* Card hover glow & 3D lift */
+@media (hover: hover) and (pointer: fine) {
+  .trading-card:hover {
+    box-shadow: 0 26px 54px -14px rgba(0, 0, 0, 0.75),
+                0 0 28px -4px var(--card-glow),
+                0 0 0 1px rgba(var(--card-accent-rgb), 0.55),
+                inset 0 1px 2px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+
+
