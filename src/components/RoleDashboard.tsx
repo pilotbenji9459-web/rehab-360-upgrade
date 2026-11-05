@@ -1,6 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { CaseExplorer } from './CaseExplorer';
 import { ExhibitionTour } from './ExhibitionTour';
+import { InteractiveAnalyticsSuite } from './InteractiveAnalyticsSuite';
 import { useAuth } from '../context/AuthContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
 import {
@@ -140,7 +141,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
     attentionItems.push({
       id: 'advance-ready',
       title: `Pathway Advancement Milestone Ready (${advanceReadyCase.id})`,
-      description: `Candidate has met all 4 gate evidentiary benchmarks (≥70%). Ready for stage elevation.`,
+      description: `Candidate has met all 4 gate evidentiary benchmarks (â‰¥70%). Ready for stage elevation.`,
       severity: 'info',
       actionTab: 'prog',
       caseId: advanceReadyCase.id,
@@ -170,7 +171,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               <span className="text-xs text-slate-300 font-mono">Badge #{user.badge_number}</span>
               {isDemo ? (
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-semibold">
-                  Exhibition Demo · Fictional Caseload
+                  Exhibition Demo Â· Fictional Caseload
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-semibold">
@@ -222,251 +223,99 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
       </div>
 
-      <ExhibitionTour cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
+      <ExhibitionTour
+        cases={cases}
+        onSelectCase={onSelectCase}
+        onSelectTab={onSelectTab}
+        
+      />
 
-      <CaseExplorer cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
+      <div data-tour="case-explorer-section">
+        <CaseExplorer cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
+      </div>
 
-      {/* 4 Primary Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Primary Summary KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tour="kpi-summary-cards">
         {/* Card 1: Active Cases */}
-        <div className="reveal-feature card border-t-3 border-[#0284c7] bg-[#0b1a30] hover:border-[#38bdf8] transition-all">
+        <div className="reveal-feature card relative overflow-hidden border-t-3 border-[#0284c7] bg-gradient-to-b from-[#0e223d] to-[#0b1a30] hover:border-[#38bdf8] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-950/40 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
               Active Cases
             </span>
-            <Users className="w-5 h-5 text-[#0284c7]" />
+            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
+              <Users className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-bold text-white mt-2 font-serif">{totalCases}</div>
-          <span className="text-xs sm:text-sm text-[#38bdf8] font-medium block mt-1.5">
+          <div className="text-3xl sm:text-4xl font-bold text-white mt-2 font-serif tabular-nums">{totalCases}</div>
+          <span className="text-xs text-[#38bdf8] font-medium block mt-1.5">
             {isDemo ? 'Fictional demo records' : 'Verified institutional files'}
           </span>
         </div>
 
         {/* Card 2: Reviews Pending */}
-        <div className="reveal-feature card border-t-3 border-amber-500 bg-[#0b1a30] hover:border-amber-400 transition-all">
+        <div className="reveal-feature card relative overflow-hidden border-t-3 border-amber-500 bg-gradient-to-b from-[#182338] to-[#0b1a30] hover:border-amber-400 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-950/30 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
               Reviews Pending
             </span>
-            <Clock className="w-5 h-5 text-amber-500" />
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+              <Clock className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-bold text-amber-400 mt-2 font-serif">{pendingDecisions}</div>
-          <span className="text-xs sm:text-sm text-slate-300 font-medium block mt-1.5">
+          <div className="text-3xl sm:text-4xl font-bold text-amber-400 mt-2 font-serif tabular-nums">{pendingDecisions}</div>
+          <span className="text-xs text-slate-300 font-medium block mt-1.5">
             Requires human officer verification
           </span>
         </div>
 
         {/* Card 3: Rehabilitation Plans On Track */}
-        <div className="reveal-feature card border-t-3 border-emerald-500 bg-[#0b1a30] hover:border-emerald-400 transition-all">
+        <div className="reveal-feature card relative overflow-hidden border-t-3 border-emerald-500 bg-gradient-to-b from-[#0f2838] to-[#0b1a30] hover:border-emerald-400 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-950/30 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
               Plans On Track
             </span>
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <CheckCircle2 className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-bold text-emerald-400 mt-2 font-serif">{plansOnTrack}</div>
-          <span className="text-xs sm:text-sm text-emerald-400 font-medium block mt-1.5">
+          <div className="text-3xl sm:text-4xl font-bold text-emerald-400 mt-2 font-serif tabular-nums">{plansOnTrack}</div>
+          <span className="text-xs text-emerald-400 font-medium block mt-1.5">
             {totalCases > 0 ? Math.round((plansOnTrack / totalCases) * 100) : 0}% adhering to milestones
           </span>
         </div>
 
         {/* Card 4: Scheduled Check-ins */}
-        <div className="reveal-feature card border-t-3 border-[#5cc2bd] bg-[#0b1a30] hover:border-teal-300 transition-all">
+        <div className="reveal-feature card relative overflow-hidden border-t-3 border-[#5cc2bd] bg-gradient-to-b from-[#0d273d] to-[#0b1a30] hover:border-teal-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-950/30 transition-all duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-base font-semibold text-slate-200 uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
               Scheduled Check-ins
             </span>
-            <Calendar className="w-5 h-5 text-[#5cc2bd]" />
+            <div className="p-2 rounded-lg bg-teal-500/10 text-[#5cc2bd]">
+              <Calendar className="w-4.5 h-4.5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-bold text-[#5cc2bd] mt-2 font-serif">{scheduledCheckins}</div>
-          <span className="text-xs sm:text-sm text-slate-300 font-medium block mt-1.5">
+          <div className="text-3xl sm:text-4xl font-bold text-[#5cc2bd] mt-2 font-serif tabular-nums">{scheduledCheckins}</div>
+          <span className="text-xs text-slate-300 font-medium block mt-1.5">
             Upcoming 28-day review cycle
           </span>
         </div>
       </div>
 
-      {/* Main Grid: Rehabilitation Progress Chart + {"Well-being"} Queue */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Rehabilitation Progress Chart (2 Cols) */}
-        <div className="reveal-feature lg:col-span-2 card min-w-0 bg-[#0b1a30]">
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold font-serif text-white flex items-start gap-2 leading-snug">
-                <TrendingUp className="w-5 h-5 text-[#0284c7] shrink-0 mt-1" />
-                <span>{"Dashboard"}</span>
-              </h2>
-              <p className="text-sm text-slate-300 mt-0.5">
-                Population distribution across 4-level pathway and average domain gate fulfillment
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onSelectTab('prog')}
-              className="text-sm text-[#38bdf8] hover:underline font-semibold cursor-pointer shrink-0 self-start whitespace-nowrap"
-            >
-              Progression Matrix →
-            </button>
-          </div>
-
-          {totalCases === 0 ? (
-            <div className="py-12 text-center text-slate-400">
-              <TrendingUp className="w-10 h-10 mx-auto mb-2 text-slate-600" />
-              <p className="text-base font-medium">No progress records available</p>
-              <p className="text-sm text-slate-400 mt-1">Register cases or import documents to visualize rehabilitation trends.</p>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {/* 4 Pathway Cohorts Bar Chart */}
-              <div>
-                <span className="text-xs font-bold text-slate-300 block mb-2 uppercase tracking-wider">
-                  Pathway Level Distribution
-                </span>
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3 text-center text-xs">
-                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
-                      Level 1
-                    </span>
-                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Foundation</span>
-                    <span className="text-2xl font-bold text-emerald-400 mt-1 block">{foundationCohort}</span>
-                    <span className="text-xs text-slate-300">
-                      {Math.round((foundationCohort / totalCases) * 100)}% cohort
-                    </span>
-                  </div>
-
-                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                    <span className="text-xs font-bold text-[#38bdf8] uppercase tracking-wider block">
-                      Level 2
-                    </span>
-                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Development</span>
-                    <span className="text-2xl font-bold text-[#38bdf8] mt-1 block">{developmentCohort}</span>
-                    <span className="text-xs text-slate-300">
-                      {Math.round((developmentCohort / totalCases) * 100)}% cohort
-                    </span>
-                  </div>
-
-                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                    <span className="text-xs font-bold text-purple-400 uppercase tracking-wider block">
-                      Level 3
-                    </span>
-                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Capability</span>
-                    <span className="text-2xl font-bold text-purple-400 mt-1 block">{capabilityCohort}</span>
-                    <span className="text-xs text-slate-300">
-                      {Math.round((capabilityCohort / totalCases) * 100)}% cohort
-                    </span>
-                  </div>
-
-                  <div className="p-2 sm:p-3 min-w-0 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
-                      Level 4
-                    </span>
-                    <span className="font-bold text-sm sm:text-base text-white font-serif block break-words leading-tight">Reintegration</span>
-                    <span className="text-2xl font-bold text-amber-400 mt-1 block">{reintegrationCohort}</span>
-                    <span className="text-xs text-slate-300">
-                      {Math.round((reintegrationCohort / totalCases) * 100)}% cohort
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Average Gate Domain Achievements */}
-              <div className="p-4 rounded-xl bg-[#0f2744] border border-[#1e3a5f]">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                    Average Gate Domain Fulfilment (70% Threshold Line)
-                  </span>
-                  <span className="text-[10px] font-semibold text-[#5cc2bd] bg-[#5cc2bd]/10 px-2 py-0.5 rounded-full border border-[#5cc2bd]/20">
-                    Target: ≥ 70%
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1 font-medium">
-                      <span className="text-slate-300">Education &amp; Literacy (edu)</span>
-                      <span className={avgEdu >= 70 ? 'text-emerald-400 font-bold' : 'text-amber-400'}>
-                        {avgEdu}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden relative">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#0284c7] to-[#5cc2bd] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, avgEdu)}%` }}
-                      />
-                      <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-rose-400 z-10"
-                        style={{ left: '70%' }}
-                        title="70% Gate Target"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-1 font-medium">
-                      <span className="text-slate-300">Behaviour &amp; Conduct (beh)</span>
-                      <span className={avgBeh >= 70 ? 'text-emerald-400 font-bold' : 'text-amber-400'}>
-                        {avgBeh}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden relative">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#0284c7] to-[#5cc2bd] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, avgBeh)}%` }}
-                      />
-                      <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-rose-400 z-10"
-                        style={{ left: '70%' }}
-                        title="70% Gate Target"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-1 font-medium">
-                      <span className="text-slate-300">Psychological &amp; Well-being (wb)</span>
-                      <span className={avgWb >= 70 ? 'text-emerald-400 font-bold' : 'text-amber-400'}>
-                        {avgWb}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden relative">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#0284c7] to-[#5cc2bd] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, avgWb)}%` }}
-                      />
-                      <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-rose-400 z-10"
-                        style={{ left: '70%' }}
-                        title="70% Gate Target"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-1 font-medium">
-                      <span className="text-slate-300">Practical &amp; Vocational Skills (skl)</span>
-                      <span className={avgSkl >= 70 ? 'text-emerald-400 font-bold' : 'text-amber-400'}>
-                        {avgSkl}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden relative">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#0284c7] to-[#5cc2bd] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, avgSkl)}%` }}
-                      />
-                      <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-rose-400 z-10"
-                        style={{ left: '70%' }}
-                        title="70% Gate Target"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Main Grid: Interactive Analytics Suite + Needs Attention Queue */}
+      <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-3">
+        {/* Interactive Analytics Suite (2 Cols) */}
+        <div className="reveal-feature 2xl:col-span-2 card min-w-0 max-w-full overflow-hidden bg-[#0b1a30] border border-[#1e3a5f]" data-tour="dashboard-progression-chart">
+          <InteractiveAnalyticsSuite
+            cases={cases}
+            activeRole={user.role}
+            selectedCaseId={cases[0]?.id}
+            onSelectCase={onSelectCase}
+            onSelectTab={onSelectTab}
+          />
         </div>
 
         {/* Needs Attention Panel (1 Col) */}
-        <div className="reveal-feature card bg-[#0b1a30] flex flex-col justify-between">
+        <div className="reveal-feature card min-w-0 bg-[#0b1a30] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-bold font-serif text-white flex items-center gap-2">
@@ -526,14 +375,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('flags')}
               className="text-[#38bdf8] hover:underline cursor-pointer"
             >
-              All indicators →
+              All indicators â†’
             </button>
           </div>
         </div>
       </div>
 
       {/* Multidisciplinary Governance Banner */}
-      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl flex flex-col md:flex-row items-stretch">
+      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl flex flex-col md:flex-row items-stretch" data-tour="gate-matrix-section">
         <div className="md:w-5/12 h-48 md:h-auto overflow-hidden bg-slate-950 shrink-0">
           <img
             src="/assets/images/milestone_gate_review_1792261681316.jpg"
@@ -550,7 +399,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-white mb-2">
-            {"Guide"} 
+            Multidisciplinary Clinical Protocol &amp; Gate Reviews
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed mb-4">
             Every 28-day review cycle requires multidisciplinary sign-off. Wardens, Clinical Psychologists, Case Managers, and Educators collaborate to audit evidentiary milestones before any stage advancement is approved.
@@ -561,14 +410,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('guide')}
               className="px-4 py-2 rounded-xl bg-[#0f2744] hover:bg-[#163860] border border-[#1e3a5f] text-xs font-semibold text-slate-200 transition-all cursor-pointer"
             >
-              Inspect 15-Step Clinical Protocol →
+              Inspect 15-Step Clinical Protocol â†’
             </button>
             <button
               type="button"
               onClick={() => onSelectTab('prog')}
               className="px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-xs font-semibold text-white transition-all cursor-pointer"
             >
-              Verify Progression Gates →
+              Verify Progression Gates â†’
             </button>
           </div>
         </div>
@@ -578,7 +427,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       <div className="reveal-feature card bg-[#0b1a30]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base sm:text-lg font-bold font-serif text-white">{"Audit Trail"} </h2>
+            <h2 className="text-base sm:text-lg font-bold font-serif text-white">Recent Caseload Activity</h2>
             <p className="text-xs text-slate-400">
               Active individual records in {institution?.name || 'this facility'}
             </p>
@@ -590,7 +439,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('cases')}
               className="text-xs text-[#38bdf8] hover:underline font-medium cursor-pointer"
             >
-              View complete caseload directory ({totalCases}) →
+              View complete caseload directory ({totalCases}) â†’
             </button>
           </div>
         </div>
@@ -647,7 +496,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                       <td className="font-medium text-xs text-white">
                         {c.first_name} {c.last_name}
                         <span className="block text-[10px] text-slate-400 font-normal">
-                          {c.age_band} · {c.crime_type}
+                          {c.age_band} Â· {c.crime_type}
                         </span>
                       </td>
                       <td>
@@ -702,3 +551,6 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
     </div>
   );
 };
+
+
+

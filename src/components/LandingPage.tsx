@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   ShieldCheck,
   FileCheck,
@@ -12,6 +12,17 @@ import {
   ArrowRight,
   Menu,
   X,
+  Target,
+  CheckCircle2,
+  Sparkles,
+  Zap,
+  Brain,
+  GraduationCap,
+  Wrench,
+  Home,
+  Gauge,
+  Activity,
+  BarChart3,
 } from 'lucide-react';
 
 import { SecurityPermissionsPage } from './SecurityPermissionsPage';
@@ -30,28 +41,81 @@ import caseReviewImg from '../assets/images/milestone_gate_review_1792261681316.
 
 interface LandingPageProps {
   onOpenLogin: () => void;
+  onEnterPortal?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPortal }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSecurityPage, setShowSecurityPage] = useState(
     () => typeof window !== 'undefined' && window.location.hash === '#security'
   );
 
-  // Hash-based navigation gives the permission matrix its own view and
-  // supports browser Back/Forward and direct links without server changes.
+  // Trading card state & animation hooks
+  const [cardsRevealed, setCardsRevealed] = useState(false);
+  const frameworkSectionRef = useRef<HTMLElement | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Intersection Observer for scroll-triggered entrance
   useEffect(() => {
-    const syncSecurityView = () => setShowSecurityPage(window.location.hash === '#security');
-    window.addEventListener('hashchange', syncSecurityView);
-    return () => window.removeEventListener('hashchange', syncSecurityView);
+    const el = frameworkSectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setCardsRevealed(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setCardsRevealed(true);
+          observer.disconnect(); // Avoid replaying on minor scrolls
+        }
+      },
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (showSecurityPage || window.location.hash === '#home') {
-      window.scrollTo(0, 0);
-    }
-  }, [showSecurityPage]);
+  // Subtle interactive 3D perspective tilt on desktop hover
+  const handleCardMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, idx: number) => {
+    // Only perform 3D tilt on devices that support hover (not mobile touch screens)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.innerWidth < 768) return;
+
+    const wrapper = cardRefs.current[idx];
+    if (!wrapper) return;
+
+    const card = wrapper.querySelector('.trading-card') as HTMLElement;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -7;
+    const rotateY = ((x - centerX) / centerX) * 7;
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.02, 1.02, 1.02)`;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  }, []);
+
+  const handleCardMouseLeave = useCallback((idx: number) => {
+    const wrapper = cardRefs.current[idx];
+    if (!wrapper) return;
+    const card = wrapper.querySelector('.trading-card') as HTMLElement;
+    if (!card) return;
+    card.style.transform = '';
+  }, []);
 
   return (
     <div data-motion-scope="landing" className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
@@ -280,127 +344,483 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
         </div>
       </section>
 
-      {/* 4-Level Framework */}
-      <section id="framework" className="py-24 px-6 bg-[#0a1a33]/60 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto">
+      {/* 4-Level Framework — Animated Specification Trading Cards */}
+      <section
+        id="framework"
+        ref={frameworkSectionRef}
+        className="py-24 px-4 sm:px-6 bg-gradient-to-b from-[#071325] via-[#091b34] to-[#071325] border-t border-slate-800 relative overflow-hidden"
+      >
+        {/* Ambient atmospheric backdrop glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[500px] bg-gradient-to-tr from-[#0284c7]/15 via-[#5cc2bd]/10 to-[#818cf8]/15 blur-[160px] pointer-events-none rounded-full" />
+
+        <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-widest text-[#5cc2bd] font-semibold">Structured Rehabilitation</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4 font-serif">The 4-Level Pathway Model</h2>
-            <p className="text-slate-300 text-base max-w-2xl mx-auto leading-relaxed">
-              Every individual progresses through distinct evidence-based stages with Sub-levels A, B, and C ensuring granular milestones.
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 text-xs text-[#5cc2bd] font-medium mb-3 backdrop-blur-md shadow-inner">
+              <Sparkles className="w-3.5 h-3.5 text-[#5cc2bd] animate-pulse" />
+              <span className="tracking-wider uppercase font-semibold">4-Level Progression System</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mt-1 mb-4 font-serif tracking-tight">
+              Rehabilitation Pathway Specification
+            </h2>
+            <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-light">
+              Four verified milestone tiers engineered for measurable cognitive transformation, technical trade mastery, and sustainable community desistance.
             </p>
           </div>
 
           {/* Pathway Progression Visual Banner */}
-          <div className="reveal-feature mb-12 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
+          <div className="mb-14 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl transition-all duration-300 hover:border-[#5cc2bd]/50">
             <img
               src={pathwayMilestoneImg}
               alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
               referrerPolicy="no-referrer"
               className="block w-full h-auto object-contain max-h-[420px] bg-[#071325]"
             />
-            <div className="p-4 bg-[#071325] border-t border-[#1e3a5f] flex flex-wrap items-center justify-between gap-4 text-xs">
-              <span className="font-semibold text-white tracking-wide">
-                Progression Rule: All 4 gate domains (Education, Behavior, Well-being, Skills) must reach &ge; 70% verified evidence before stage advancement.
+            <div className="p-4 sm:p-5 bg-[#071325] border-t border-[#1e3a5f] flex flex-wrap items-center justify-between gap-4 text-xs">
+              <span className="font-semibold text-white tracking-wide flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#5cc2bd]" />
+                Progression Mandate: All 4 gate domains (Education, Behavior, Well-being, Skills) must reach &ge; 70% verified evidence before stage elevation.
               </span>
-              <span className="text-[#5cc2bd] font-medium font-mono">12 Sub-levels · Human Verified</span>
+              <span className="px-3 py-1 rounded-full bg-[#10263e] border border-[#28425b] text-[#5cc2bd] font-medium font-mono text-[11px]">
+                12 Sub-levels · Multidisciplinary Sign-off
+              </span>
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-7">
-            {/* Level 1: Foundation */}
-            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-emerald-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
-              <div className="h-52 overflow-hidden bg-slate-950 relative">
-                <img
-                  src="/assets/images/psych_assessment_1792261204307.jpg"
-                  alt="Level 1 Foundation: Psychological clinical evaluation and emotional stabilization"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                  Level 1 · Sub-levels 1A, 1B, 1C
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Foundation</h3>
-                <p className="text-base font-semibold text-emerald-400 mb-2">
-                  Objective: Behavioural and emotional foundation
-                </p>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Focuses on self-awareness, conflict de-escalation, motivation, values, family connections, basic literacy, and clinical mental stabilization.
-                </p>
+          {/* Collectible Trading Cards Grid */}
+          <div
+            className={`trading-cards-stage grid sm:grid-cols-2 gap-8 lg:gap-10 ${
+              cardsRevealed ? 'trading-cards-revealed' : ''
+            }`}
+          >
+            {/* LEVEL CARD 01: FOUNDATION */}
+            <div
+              className="trading-card-wrapper trading-card-entry"
+              data-index="0"
+              onMouseMove={(e) => handleCardMouseMove(e, 0)}
+              onMouseLeave={() => handleCardMouseLeave(0)}
+              ref={(el) => { cardRefs.current[0] = el; }}
+            >
+              <div className="trading-card spec-card-level-1 trading-card-carbon border border-emerald-500/30 flex flex-col h-full group">
+                <div className="trading-card-glare" />
+
+                {/* Card Top Foil / Spec Header */}
+                <div className="p-4 sm:p-5 pb-3 border-b border-emerald-500/20 bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-slate-900/40 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-emerald-400 font-bold">
+                      PATHWAY SPEC // LVL-01
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 font-mono text-xs font-bold tracking-widest">
+                      1A · 1B · 1C
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Visual Spec Window */}
+                <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-emerald-500/20">
+                  <img
+                    src="/assets/images/psych_assessment_1792261204307.jpg"
+                    alt="Level 1 Foundation: Psychological clinical evaluation and emotional stabilization"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#081424] via-transparent to-transparent opacity-90" />
+
+                  {/* Dramatic Level Number Stamp */}
+                  <div className="absolute top-3 right-4 select-none pointer-events-none">
+                    <span className="text-7xl font-extrabold font-serif text-white/10 tracking-tighter group-hover:text-emerald-400/20 transition-colors">
+                      01
+                    </span>
+                  </div>
+
+                  {/* Objective Ribbon */}
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-emerald-500/40 text-emerald-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                      <Brain className="w-3.5 h-3.5 text-emerald-400" />
+                      Behavioural &amp; Clinical Foundation
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700">
+                      GATE ≥ 70%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content & Spec Telemetry */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                  <div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-emerald-300 transition-colors">
+                        Foundation
+                      </h3>
+                      <span className="text-xs font-mono uppercase text-emerald-400 font-semibold tracking-wider">
+                        TIER // INTRODUCTORY
+                      </span>
+                    </div>
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+                      Focuses on self-awareness, conflict de-escalation, motivation, values, family connections, basic literacy, and clinical mental stabilization.
+                    </p>
+                  </div>
+
+                  {/* Technical Specification Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
+                      <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
+                        <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                        Clinical &amp; Mood Index
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Sub-Tier Bands</span>
+                      <span className="font-bold text-emerald-300 mt-0.5 text-sm">
+                        Stage 1A, 1B, 1C
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Key Benchmark</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">De-escalation &amp; Literacy</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Verification Authority</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Clinical Psych &amp; Case Mgr</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Spec Footer Pill */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      Standard Entry Milestone
+                    </span>
+                    <span className="text-emerald-400 font-semibold tracking-wide">CONFIDENCE VERIFIED</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Level 2: Development */}
-            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-[#0079d6] overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
-              <div className="h-52 overflow-hidden bg-slate-950 relative">
-                <img
-                  src="/assets/images/education_classroom_1792261680983.jpg"
-                  alt="Level 2 Development: Adult education classroom learning and pro-social capability"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-500/50 text-[#38bdf8] text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                  Level 2 · Sub-levels 2A, 2B, 2C
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Development</h3>
-                <p className="text-base font-semibold text-[#38bdf8] mb-2">
-                  Objective: Strengthen education &amp; social capability
-                </p>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Advanced behavioral programmes, communication workshops, collaborative problem-solving groups, family counseling, and vocational exposure.
-                </p>
+            {/* LEVEL CARD 02: DEVELOPMENT */}
+            <div
+              className="trading-card-wrapper trading-card-entry"
+              data-index="1"
+              onMouseMove={(e) => handleCardMouseMove(e, 1)}
+              onMouseLeave={() => handleCardMouseLeave(1)}
+              ref={(el) => { cardRefs.current[1] = el; }}
+            >
+              <div className="trading-card spec-card-level-2 trading-card-carbon border border-sky-500/30 flex flex-col h-full group">
+                <div className="trading-card-glare" />
+
+                {/* Card Top Foil / Spec Header */}
+                <div className="p-4 sm:p-5 pb-3 border-b border-sky-500/20 bg-gradient-to-r from-sky-950/40 via-slate-900/60 to-slate-900/40 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#38bdf8] font-bold">
+                      PATHWAY SPEC // LVL-02
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-sky-950/90 border border-sky-500/40 text-[#38bdf8] font-mono text-xs font-bold tracking-widest">
+                      2A · 2B · 2C
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Visual Spec Window */}
+                <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-sky-500/20">
+                  <img
+                    src="/assets/images/education_classroom_1792261680983.jpg"
+                    alt="Level 2 Development: Adult education classroom learning and pro-social capability"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#081424] via-transparent to-transparent opacity-90" />
+
+                  {/* Dramatic Level Number Stamp */}
+                  <div className="absolute top-3 right-4 select-none pointer-events-none">
+                    <span className="text-7xl font-extrabold font-serif text-white/10 tracking-tighter group-hover:text-sky-400/20 transition-colors">
+                      02
+                    </span>
+                  </div>
+
+                  {/* Objective Ribbon */}
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-sky-500/40 text-[#38bdf8] text-xs font-bold tracking-wide backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                      <GraduationCap className="w-3.5 h-3.5 text-sky-400" />
+                      Education &amp; Pro-Social Capability
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700">
+                      GATE ≥ 70%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content & Spec Telemetry */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                  <div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-sky-300 transition-colors">
+                        Development
+                      </h3>
+                      <span className="text-xs font-mono uppercase text-sky-400 font-semibold tracking-wider">
+                        TIER // INTERMEDIATE
+                      </span>
+                    </div>
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+                      Advanced behavioral programmes, communication workshops, collaborative problem-solving groups, family counseling, and vocational exposure.
+                    </p>
+                  </div>
+
+                  {/* Technical Specification Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
+                      <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-sky-400" />
+                        Education &amp; Attendance
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Sub-Tier Bands</span>
+                      <span className="font-bold text-sky-300 mt-0.5 text-sm">
+                        Stage 2A, 2B, 2C
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Key Benchmark</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Pro-Social Engagement</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Verification Authority</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Education Officer &amp; Warden</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Spec Footer Pill */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                      Collaborative Problem Solving
+                    </span>
+                    <span className="text-sky-400 font-semibold tracking-wide">STRUCTURED ADVANCE</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Level 3: Capability */}
-            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-purple-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
-              <div className="h-52 overflow-hidden bg-slate-950 relative">
-                <img
-                  src="/assets/images/vocational_skills_1792261206507.jpg"
-                  alt="Level 3 Capability: Vocational trade workshop and certified technical skills"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-purple-950/80 border border-purple-500/50 text-purple-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                  Level 3 · Sub-levels 3A, 3B, 3C
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Capability</h3>
-                <p className="text-base font-semibold text-purple-300 mb-2">
-                  Objective: Independent-life &amp; trade credentials
-                </p>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Vocational workshop training with accredited certification, digital skills, workplace health &amp; safety, and ongoing psychological resilience.
-                </p>
+            {/* LEVEL CARD 03: CAPABILITY */}
+            <div
+              className="trading-card-wrapper trading-card-entry"
+              data-index="2"
+              onMouseMove={(e) => handleCardMouseMove(e, 2)}
+              onMouseLeave={() => handleCardMouseLeave(2)}
+              ref={(el) => { cardRefs.current[2] = el; }}
+            >
+              <div className="trading-card spec-card-level-3 trading-card-carbon border border-purple-500/30 flex flex-col h-full group">
+                <div className="trading-card-glare" />
+
+                {/* Card Top Foil / Spec Header */}
+                <div className="p-4 sm:p-5 pb-3 border-b border-purple-500/20 bg-gradient-to-r from-purple-950/40 via-slate-900/60 to-slate-900/40 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-purple-400 font-bold">
+                      PATHWAY SPEC // LVL-03
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/40 text-purple-300 font-mono text-xs font-bold tracking-widest">
+                      3A · 3B · 3C
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Visual Spec Window */}
+                <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-purple-500/20">
+                  <img
+                    src="/assets/images/vocational_skills_1792261206507.jpg"
+                    alt="Level 3 Capability: Vocational trade workshop and certified technical skills"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#081424] via-transparent to-transparent opacity-90" />
+
+                  {/* Dramatic Level Number Stamp */}
+                  <div className="absolute top-3 right-4 select-none pointer-events-none">
+                    <span className="text-7xl font-extrabold font-serif text-white/10 tracking-tighter group-hover:text-purple-400/20 transition-colors">
+                      03
+                    </span>
+                  </div>
+
+                  {/* Objective Ribbon */}
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-purple-500/40 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                      <Wrench className="w-3.5 h-3.5 text-purple-400" />
+                      Independent Life &amp; Trade Credentials
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700">
+                      GATE ≥ 70%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content & Spec Telemetry */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                  <div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-purple-300 transition-colors">
+                        Capability
+                      </h3>
+                      <span className="text-xs font-mono uppercase text-purple-400 font-semibold tracking-wider">
+                        TIER // ADVANCED TRADE
+                      </span>
+                    </div>
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+                      Vocational workshop training with accredited certification, digital skills, workplace health &amp; safety, and ongoing psychological resilience.
+                    </p>
+                  </div>
+
+                  {/* Technical Specification Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
+                      <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
+                        <Wrench className="w-3.5 h-3.5 text-purple-400" />
+                        Accredited Trade Gate
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Sub-Tier Bands</span>
+                      <span className="font-bold text-purple-300 mt-0.5 text-sm">
+                        Stage 3A, 3B, 3C
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Key Benchmark</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Safety &amp; Industry Licences</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Verification Authority</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Vocational Lead &amp; Examiner</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Spec Footer Pill */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+                      Certified Workshop Hours
+                    </span>
+                    <span className="text-purple-400 font-semibold tracking-wide">TECHNICAL MASTERY</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Level 4: Reintegration */}
-            <div className="reveal-feature rounded-2xl bg-slate-900/90 border border-slate-800 border-l-4 border-l-amber-500 overflow-hidden shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
-              <div className="h-52 overflow-hidden bg-slate-950 relative">
-                <img
-                  src="/assets/images/community_reintegration_1792261209316.jpg"
-                  alt="Level 4 Reintegration: Community transition and probation officer handover support"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                  Level 4 · Sub-levels 4A, 4B, 4C
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-2 font-serif">Reintegration</h3>
-                <p className="text-base font-semibold text-amber-400 mb-2">
-                  Objective: Community transition &amp; employment readiness
-                </p>
-                <p className="text-base text-slate-300 leading-relaxed">
-                  Job interview simulations, CV preparation, community housing referrals, healthcare continuity, and encrypted handover dispatch to probation officers.
-                </p>
+            {/* LEVEL CARD 04: REINTEGRATION */}
+            <div
+              className="trading-card-wrapper trading-card-entry"
+              data-index="3"
+              onMouseMove={(e) => handleCardMouseMove(e, 3)}
+              onMouseLeave={() => handleCardMouseLeave(3)}
+              ref={(el) => { cardRefs.current[3] = el; }}
+            >
+              <div className="trading-card spec-card-level-4 trading-card-carbon border border-amber-500/30 flex flex-col h-full group">
+                <div className="trading-card-glare" />
+
+                {/* Card Top Foil / Spec Header */}
+                <div className="p-4 sm:p-5 pb-3 border-b border-amber-500/20 bg-gradient-to-r from-amber-950/40 via-slate-900/60 to-slate-900/40 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold">
+                      PATHWAY SPEC // LVL-04
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-amber-950/90 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold tracking-widest">
+                      4A · 4B · 4C
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Visual Spec Window */}
+                <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-amber-500/20">
+                  <img
+                    src="/assets/images/community_reintegration_1792261209316.jpg"
+                    alt="Level 4 Reintegration: Community transition and probation officer handover support"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#081424] via-transparent to-transparent opacity-90" />
+
+                  {/* Dramatic Level Number Stamp */}
+                  <div className="absolute top-3 right-4 select-none pointer-events-none">
+                    <span className="text-7xl font-extrabold font-serif text-white/10 tracking-tighter group-hover:text-amber-400/20 transition-colors">
+                      04
+                    </span>
+                  </div>
+
+                  {/* Objective Ribbon */}
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                      <Home className="w-3.5 h-3.5 text-amber-400" />
+                      Community Transition &amp; Employment
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-300 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-slate-700">
+                      GATE ≥ 70%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content & Spec Telemetry */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                  <div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-amber-300 transition-colors">
+                        Reintegration
+                      </h3>
+                      <span className="text-xs font-mono uppercase text-amber-400 font-semibold tracking-wider">
+                        TIER // PAROLE HANDOVER
+                      </span>
+                    </div>
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+                      Job interview simulations, CV preparation, community housing referrals, healthcare continuity, and encrypted handover dispatch to probation officers.
+                    </p>
+                  </div>
+
+                  {/* Technical Specification Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
+                      <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
+                        <Award className="w-3.5 h-3.5 text-amber-400" />
+                        Community Handover Gate
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Sub-Tier Bands</span>
+                      <span className="font-bold text-amber-300 mt-0.5 text-sm">
+                        Stage 4A, 4B, 4C
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Key Benchmark</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Encrypted AES-256 Dispatch</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider">Verification Authority</span>
+                      <span className="font-semibold text-slate-200 mt-0.5">Parole Board &amp; Governing Warden</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Spec Footer Pill */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                      Community Supervision Handover
+                    </span>
+                    <span className="text-amber-400 font-semibold tracking-wide">FINAL GATE CLEAR</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
