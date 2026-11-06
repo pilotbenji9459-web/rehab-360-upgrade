@@ -1,21 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Api } from '../services/api';
 import { OffenderCase, VerificationResult, ExtractedField, UploadedDocument } from '../types';
-import { useAuth } from '../context/AuthContext';
 import {
-  UploadCloud,
-  FileSpreadsheet,
-  FileText,
-  FileCheck,
-  CheckCircle2,
-  AlertTriangle,
-  HelpCircle,
-  Eye,
-  Check,
-  X,
-  Edit2,
-  Sparkles,
-  ArrowRight,
+  UploadCloud, FileSpreadsheet, FileText, FileCheck, CheckCircle2,
+  AlertTriangle, Check, X, Sparkles, ArrowRight, ShieldCheck,
+  RefreshCw, Trash2, File as FileIcon, Loader2, ClipboardCheck,
 } from 'lucide-react';
 
 interface DocumentIntakeCenterProps {
@@ -26,408 +15,299 @@ interface DocumentIntakeCenterProps {
   showAlert: (msg: string, title?: string) => void;
 }
 
+const MAX_FILE_SIZE = 15 * 1024 * 1024;
+const ACCEPTED_EXTENSIONS = ['.docx', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+
 export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
-  cases,
-  selectedCaseId,
-  onSelectCase,
-  onRefreshCase,
-  showAlert,
+  cases, selectedCaseId, onSelectCase, onRefreshCase, showAlert,
 }) => {
-  const { user } = useAuth();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [targetCaseId, setTargetCaseId] = useState(selectedCaseId || cases[0]?.id || '');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [targetCaseId, setTargetCaseId] = useState<string>(selectedCaseId);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadedDoc, setUploadedDoc] = useState<UploadedDocument | null>(null);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
+  const [reviewFields, setReviewFields] = useState<ExtractedField[]>([]);
   const [sheets, setSheets] = useState<string[]>([]);
   const [tablePreview, setTablePreview] = useState<any[]>([]);
-  const [isCommitting, setIsCommitting] = useState<boolean>(false);
-  const [commitSuccess, setCommitSuccess] = useState<boolean>(false);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [commitSuccess, setCommitSuccess] = useState(false);
 
-  // Editable candidate fields for human review
-  const [reviewFields, setReviewFields] = useState<ExtractedField[]>([]);
+  useEffect(() => {
+    if (selectedCaseId) setTargetCaseId(selectedCaseId);
+    else if (!targetCaseId && cases.length) setTargetCaseId(cases[0].id);
+  }, [selectedCaseId, cases, targetCaseId]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setVerificationResult(null);
-      setUploadedDoc(null);
-      setCommitSuccess(false);
+  const clearResults = () => {
+    setUploadedDoc(null);
+    setVerificationResult(null);
+    setReviewFields([]);
+    setSheets([]);
+    setTablePreview([]);
+    setCommitSuccess(false);
+  };
+
+  const chooseFile = (file?: File) => {
+    if (!file) return;
+    const extension = '.' + (file.name.split('.').pop() || '').toLowerCase();
+    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+      showAlert('Choose a DOCX, XLSX, XLS, CSV, PDF, or TXT file. Legacy .doc files are not supported.', 'Unsupported file');
+      return;
     }
+    if (file.size > MAX_FILE_SIZE) {
+      showAlert('The selected file is larger than 15 MB. Choose a smaller file.', 'File too large');
+      return;
+    }
+    setSelectedFile(file);
+    clearResults();
   };
 
   const handleUploadAndAnalyze = async () => {
     if (!selectedFile) {
-      showAlert('Please choose a file to upload.', 'Missing File');
+      showAlert('Choose a document first, then start the analysis.', 'No document selected');
       return;
     }
     if (!targetCaseId) {
-      showAlert('Please specify target case record.', 'Missing Case');
+      showAlert('Create or select a case record before uploading a document.', 'No case selected');
       return;
     }
 
     setIsUploading(true);
+    clearResults();
     try {
-      const res = await Api.uploadDocument(targetCaseId, selectedFile);
-      setUploadedDoc(res.document);
-      setVerificationResult(res.verification);
-      setReviewFields(res.verification.fields || []);
-      setSheets(res.sheets || []);
-      setTablePreview(res.tablePreview || []);
-      showAlert(
-        `File ${selectedFile.name} parsed successfully. ${res.verification.fields.length} candidate fields extracted for staff review.`,
-        'Document Processed'
-      );
-    } catch (err: any) {
-      showAlert(err.message || 'Failed to process document.', 'Upload Error');
+      const result = await Api.uploadDocument(targetCaseId, selectedFile);
+      setUploadedDoc(result.document);
+      setVerificationResult(result.verification);
+      setReviewFields(result.verification?.fields || []);
+      setSheets(result.sheets || []);
+      setTablePreview(result.tablePreview || []);
+      if (!result.verification?.rawTextPreview?.trim()) {
+        showAlert('The file was received, but no readable text was returned. Try a text-based document rather than a scanned PDF.', 'No readable text');
+      } else if (!(result.verification.fields || []).length) {
+        showAlert('The document was read successfully, but no supported case fields were confidently identified. Check the extracted text preview below.', 'Review needed');
+      }
+    } catch (error: any) {
+      showAlert(error?.message || 'The upload could not be processed. Check the server and try again.', 'Document intake failed');
     } finally {
       setIsUploading(false);
     }
   };
 
-  const toggleFieldStatus = (index: number, newStatus: 'accepted' | 'rejected') => {
-    setReviewFields((prev) =>
-      prev.map((f, i) => (i === index ? { ...f, humanStatus: newStatus } : f))
-    );
-  };
-
-  const handleCorrectValue = (index: number, val: string) => {
-    setReviewFields((prev) =>
-      prev.map((f, i) =>
-        i === index ? { ...f, humanStatus: 'accepted', extractedValue: val } : f
-      )
-    );
+  const updateField = (index: number, updates: Partial<ExtractedField>) => {
+    setReviewFields(previous => previous.map((field, i) => i === index ? { ...field, ...updates } : field));
   };
 
   const handleCommitVerified = async () => {
     if (!uploadedDoc) return;
-
     const accepted = reviewFields
-      .filter((f) => f.humanStatus === 'accepted')
-      .map((f) => ({
-        fieldName: f.fieldName,
-        finalValue: f.extractedValue,
-      }));
+      .filter(field => field.humanStatus === 'accepted')
+      .map(field => ({ fieldName: field.fieldName, finalValue: field.extractedValue }));
 
-    if (accepted.length === 0) {
-      showAlert(
-        'No fields were marked as "Accepted". Please accept or correct at least one field to commit.',
-        'Review Incomplete'
-      );
+    if (!accepted.length) {
+      showAlert('Accept or correct at least one field before applying changes.', 'Nothing to apply');
       return;
     }
 
     setIsCommitting(true);
     try {
-      const res = await Api.commitVerifiedFields(uploadedDoc.id, accepted);
+      await Api.commitVerifiedFields(uploadedDoc.id, accepted);
       setCommitSuccess(true);
       onRefreshCase();
-      showAlert(
-        `Successfully committed ${accepted.length} verified fields to case ${targetCaseId}. Database updated and logged to audit trail.`,
-        'Changes Applied'
-      );
-    } catch (err: any) {
-      showAlert(err.message || 'Failed to commit verified fields.', 'Commit Error');
+      showAlert(`Applied ${accepted.length} staff-approved field(s) to case ${targetCaseId}.`, 'Case record updated');
+    } catch (error: any) {
+      showAlert(error?.message || 'The approved fields could not be saved.', 'Save failed');
     } finally {
       setIsCommitting(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Intake & Document Verification Visual Banner */}
-      <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
-        <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-950">
-          <img
-            src="/assets/images/document_intake_telemetry.svg"
-            alt="Multi-format document ingestion, neural text extraction, and human verification pipeline"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1a30] via-transparent to-transparent" />
-          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-sky-950/80 border border-sky-500/50 text-xs font-mono text-[#38bdf8] backdrop-blur-sm">
-            MULTI-SOURCE PARSER · WORD, EXCEL &amp; PDF REPOSITORIES
-          </div>
-        </div>
-      </div>
+  const acceptedCount = reviewFields.filter(field => field.humanStatus === 'accepted').length;
+  const rejectedCount = reviewFields.filter(field => field.humanStatus === 'rejected').length;
+  const formatValue = (value: any) => Array.isArray(value) ? value.join(', ') : String(value ?? 'Not recorded');
+  const formatSize = (bytes: number) => bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(0)} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
-      {/* Header card */}
-      <div className="card">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 rounded-xl bg-[#0079d6]/10 text-[#0079d6] flex items-center justify-center">
-            <UploadCloud className="w-5 h-5" />
-          </div>
-          <div>
-            <h2>{"Document Intake"}</h2>
-            <p className="mute text-xs">
-              Upload Microsoft Word (.docx), Excel spreadsheets (.xlsx, .csv), or PDF reports. AI extracts candidate values and highlights discrepancies for human verification.
+  return (
+    <div className="space-y-6 min-w-0 pb-6">
+      <section className="relative overflow-hidden rounded-3xl border border-slate-700/70 bg-gradient-to-br from-[#07182d] via-[#0b2948] to-[#123b5b] p-6 sm:p-8 text-white shadow-xl">
+        <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              <ShieldCheck className="h-3.5 w-3.5" /> Secure document workflow
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Document Intake Centre</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+              Bring case documents into one review space. Extracted information stays pending until an authorised staff member checks and approves it.
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Target Case & File Selector */}
-      <div className="grid-layout">
-        <div className="card">
-          <h3>1. {"Document Intake"}</h3>
-          <p className="mute text-xs mb-4">
-            Candidate fields will be compared against this authorized record to spot discrepancies.
-          </p>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs font-medium mb-1">Target Case Record</label>
-              <select
-                value={targetCaseId}
-                onChange={(e) => {
-                  setTargetCaseId(e.target.value);
-                  onSelectCase(e.target.value);
-                }}
-                className="w-full text-sm rounded border border-[var(--line)] py-1.5 px-2 bg-[var(--panel)]"
-              >
-                {cases.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.id} — {c.first_name} {c.last_name} ({c.crime_type})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="border-2 border-dashed border-[var(--line)] rounded-xl p-6 text-center hover:border-[#0079d6] transition-colors bg-[var(--bg)]/50">
-              <input
-                type="file"
-                id="docUploadInput"
-                accept=".docx,.xlsx,.xls,.csv,.pdf"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <label htmlFor="docUploadInput" className="cursor-pointer block">
-                <FileSpreadsheet className="w-10 h-10 text-[var(--mute)] mx-auto mb-2" />
-                <span className="text-xs font-semibold text-[#0079d6] block mb-1">
-                  {selectedFile ? selectedFile.name : 'Click to select Word, Excel, or PDF document'}
-                </span>
-                <span className="text-[11px] text-[var(--mute)] block">
-                  {selectedFile
-                    ? `${(selectedFile.size / 1024).toFixed(1)} KB`
-                    : 'Supported: .docx, .xlsx, .csv, .pdf (Max 15MB)'}
-                </span>
-              </label>
-            </div>
-
-            <button
-              type="button"
-              disabled={!selectedFile || isUploading}
-              onClick={handleUploadAndAnalyze}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#0079d6] text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{isUploading ? 'Extracting & Verifying with AI...' : 'Parse & Run AI Verification'}</span>
-            </button>
+          <div className="flex flex-wrap gap-2 text-xs text-slate-200">
+            {['DOCX', 'XLSX / CSV', 'PDF', 'TXT'].map(type => (
+              <span key={type} className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 font-semibold tracking-wide">{type}</span>
+            ))}
+            <span className="rounded-lg border border-white/15 bg-white/5 px-3 py-2">15 MB max</span>
           </div>
         </div>
-
-        {/* Spreadsheet / Document Preview */}
-        <div className="card">
-          <h3>2. Source Document Extraction Preview</h3>
-          <p className="mute text-xs mb-3">
-            Preview of parsed text content and spreadsheet tables.
-          </p>
-
-          {sheets.length > 0 && (
-            <div className="mb-3">
-              <span className="text-xs font-semibold block mb-1">Detected Worksheets:</span>
-              <div className="flex gap-2 flex-wrap">
-                {sheets.map((sheet, i) => (
-                  <span key={i} className="tag">
-                    {sheet}
-                  </span>
-                ))}
+        <div className="relative z-10 mt-7 grid grid-cols-3 gap-2 sm:gap-3">
+          {[
+            { n: '01', title: 'Upload', desc: 'Select source file' },
+            { n: '02', title: 'Inspect', desc: 'Review extracted data' },
+            { n: '03', title: 'Approve', desc: 'Apply verified fields' },
+          ].map((step, index) => (
+            <div key={step.n} className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-200/30 bg-cyan-200/10 text-xs font-bold text-cyan-200">{step.n}</div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white sm:text-sm">{step.title}</p>
+                <p className="hidden text-[11px] text-slate-400 sm:block">{step.desc}</p>
               </div>
+              {index < 2 && <ArrowRight className="ml-auto hidden h-4 w-4 shrink-0 text-slate-500 sm:block" />}
             </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)]">
+        <section className="min-w-0 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500"><UploadCloud className="h-5 w-5" /></div>
+            <div>
+              <h2 className="text-base font-bold text-[var(--ink)]">Upload source document</h2>
+              <p className="mt-0.5 text-xs text-[var(--mute)]">Choose the case this document belongs to.</p>
+            </div>
+          </div>
+
+          <label htmlFor="intake-case-select" className="mb-2 block text-xs font-semibold text-[var(--ink)]">Target case record</label>
+          <select
+            id="intake-case-select"
+            value={targetCaseId}
+            onChange={event => { setTargetCaseId(event.target.value); onSelectCase(event.target.value); clearResults(); }}
+            disabled={!cases.length || isUploading}
+            className="mb-5 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-3 text-sm text-[var(--ink)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+          >
+            {cases.length ? cases.map(item => (
+              <option key={item.id} value={item.id}>{item.id} — {item.first_name} {item.last_name}</option>
+            )) : <option value="">No case records available</option>}
+          </select>
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".docx,.xlsx,.xls,.csv,.pdf,.txt"
+            className="hidden"
+            onChange={event => { chooseFile(event.target.files?.[0]); event.currentTarget.value = ''; }}
+          />
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); inputRef.current?.click(); } }}
+            onDragOver={event => { event.preventDefault(); setIsDragging(true); }}
+            onDragLeave={event => { event.preventDefault(); setIsDragging(false); }}
+            onDrop={event => { event.preventDefault(); setIsDragging(false); chooseFile(event.dataTransfer.files?.[0]); }}
+            className={`group cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition-all sm:p-8 ${isDragging ? 'border-sky-500 bg-sky-500/10' : 'border-[var(--line)] bg-[var(--bg)] hover:border-sky-500/60 hover:bg-sky-500/5'}`}
+          >
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-500 transition group-hover:scale-105">
+              {selectedFile ? <FileCheck className="h-7 w-7" /> : <UploadCloud className="h-7 w-7" />}
+            </div>
+            {selectedFile ? (
+              <>
+                <p className="break-all text-sm font-bold text-[var(--ink)]">{selectedFile.name}</p>
+                <p className="mt-1 text-xs text-[var(--mute)]">{formatSize(selectedFile.size)} · Ready to process</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-bold text-[var(--ink)]">Drop your document here</p>
+                <p className="mt-1 text-xs text-[var(--mute)]">or click to browse your device</p>
+                <p className="mt-4 text-[11px] text-[var(--mute)]">DOCX, XLSX, XLS, CSV, PDF or TXT · Up to 15 MB</p>
+              </>
+            )}
+          </div>
+
+          {selectedFile && (
+            <button type="button" onClick={() => { setSelectedFile(null); clearResults(); }} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--mute)] hover:text-rose-500">
+              <Trash2 className="h-3.5 w-3.5" /> Remove selected file
+            </button>
           )}
 
-          {tablePreview.length > 0 && (
-            <div className="mb-3 scroll-container border border-[var(--line)] rounded p-2 text-xs">
-              <span className="font-semibold block mb-1 text-[var(--mute)]">Tabular Preview (First 5 Rows):</span>
-              <table className="app-table">
-                <tbody>
-                  {tablePreview.slice(0, 5).map((row, rIdx) => (
-                    <tr key={rIdx}>
-                      {Object.values(row).map((val: any, cIdx) => (
-                        <td key={cIdx}>{String(val)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <button
+            type="button"
+            disabled={!selectedFile || !targetCaseId || isUploading || isCommitting}
+            onClick={handleUploadAndAnalyze}
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-sky-900/15 transition hover:from-sky-500 hover:to-cyan-500 disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {isUploading ? <><Loader2 className="h-4 w-4 animate-spin" /> Uploading and extracting…</> : <><Sparkles className="h-4 w-4" /> Start extraction &amp; verification</>}
+          </button>
+          <p className="mt-3 text-center text-[11px] leading-5 text-[var(--mute)]">Nothing is added to the case record until staff explicitly approve fields in the review step.</p>
+        </section>
+
+        <section className="min-w-0 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-bold text-[var(--ink)]">Extraction results</h2>
+              <p className="mt-0.5 text-xs text-[var(--mute)]">A readable preview of what the parser found.</p>
             </div>
-          )}
+            {verificationResult && <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-600">Processed</span>}
+          </div>
 
           {verificationResult ? (
-            <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-[var(--bg)] border border-[var(--line)]">
-                <span className="text-xs font-semibold text-[var(--ink)] block mb-1">AI Audit Summary:</span>
-                <p className="text-xs text-[var(--ink)] leading-relaxed">{verificationResult.summary}</p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-[var(--bg)] p-3"><p className="text-xl font-bold text-[var(--ink)]">{reviewFields.length}</p><p className="text-[10px] text-[var(--mute)]">Candidate fields</p></div>
+                <div className="rounded-xl bg-[var(--bg)] p-3"><p className="text-xl font-bold text-emerald-600">{acceptedCount}</p><p className="text-[10px] text-[var(--mute)]">Accepted</p></div>
+                <div className="rounded-xl bg-[var(--bg)] p-3"><p className="text-xl font-bold text-rose-500">{rejectedCount}</p><p className="text-[10px] text-[var(--mute)]">Rejected</p></div>
               </div>
-
-              {verificationResult.warnings.length > 0 && (
-                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs">
-                  <span className="font-semibold text-amber-700 dark:text-amber-400 block mb-1 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    Detected Inconsistencies &amp; Warnings:
-                  </span>
-                  <ul className="list-disc pl-4 space-y-1 text-amber-800 dark:text-amber-300">
-                    {verificationResult.warnings.map((w, i) => (
-                      <li key={i}>{w}</li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="rounded-xl border border-[var(--line)] bg-[var(--bg)] p-4">
+                <p className="mb-1 flex items-center gap-2 text-xs font-bold text-[var(--ink)]"><ClipboardCheck className="h-4 w-4 text-sky-500" /> Processing summary</p>
+                <p className="text-xs leading-5 text-[var(--mute)]">{verificationResult.summary}</p>
+              </div>
+              {sheets.length > 0 && <div><p className="mb-2 text-xs font-bold text-[var(--ink)]">Worksheets detected</p><div className="flex flex-wrap gap-2">{sheets.map(sheet => <span key={sheet} className="rounded-lg bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-600">{sheet}</span>)}</div></div>}
+              {tablePreview.length > 0 && (
+                <div><p className="mb-2 text-xs font-bold text-[var(--ink)]">Spreadsheet preview</p><div className="max-h-40 overflow-auto rounded-xl border border-[var(--line)]"><table className="w-full text-left text-xs"><tbody>{tablePreview.slice(0, 5).map((row, rowIndex) => <tr key={rowIndex} className="border-b border-[var(--line)] last:border-0">{Object.values(row).map((value: any, cellIndex) => <td key={cellIndex} className="whitespace-nowrap px-3 py-2 text-[var(--mute)]">{String(value ?? '')}</td>)}</tr>)}</tbody></table></div></div>
               )}
+              {verificationResult.warnings?.length > 0 && <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3"><p className="mb-2 flex items-center gap-2 text-xs font-bold text-amber-600"><AlertTriangle className="h-4 w-4" /> Items to check</p><ul className="list-disc space-y-1 pl-5 text-xs leading-5 text-[var(--mute)]">{verificationResult.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
+              {verificationResult.rawTextPreview && <details className="rounded-xl border border-[var(--line)] bg-[var(--bg)] p-3"><summary className="cursor-pointer text-xs font-bold text-[var(--ink)]">Show extracted text preview</summary><pre className="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words text-[11px] leading-5 text-[var(--mute)]">{verificationResult.rawTextPreview}</pre></details>}
+              {!reviewFields.length && <div className="rounded-xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4"><p className="text-sm font-semibold text-[var(--ink)]">The document was read, but no supported case fields were identified.</p><p className="mt-1 text-xs leading-5 text-[var(--mute)]">Check the extracted text above. The current automatic matcher recognises a limited set of case fields; this does not mean the file upload failed.</p></div>}
             </div>
           ) : (
-            <div className="h-44 flex flex-col items-center justify-center border border-dashed border-[var(--line)] rounded-xl text-center p-4">
-              <FileText className="w-8 h-8 text-[var(--mute)] mb-2" />
-              <p className="text-xs text-[var(--mute)]">
-                Upload a document to view parsed text, tabular schemas, and discrepancy detection.
-              </p>
+            <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--line)] bg-[var(--bg)]/60 p-6 text-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-500/10 text-[var(--mute)]"><FileText className="h-7 w-7" /></div>
+              <p className="text-sm font-semibold text-[var(--ink)]">Your document preview will appear here</p>
+              <p className="mt-1 max-w-xs text-xs leading-5 text-[var(--mute)]">Select a case and upload a supported file to see extracted text, worksheet details, and verification results.</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
-      {/* Human-in-the-Loop Review Screen */}
       {verificationResult && reviewFields.length > 0 && (
-        <div className="card">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel)] shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <h3>3. Human-in-the-Loop Field Verification</h3>
-              <p className="mute text-xs">
-                Review candidate data extracted by AI. Check citations and resolve discrepancies before committing to the official record.
-              </p>
+              <div className="flex items-center gap-2"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500"><ClipboardCheck className="h-5 w-5" /></div><h2 className="text-base font-bold text-[var(--ink)]">Staff verification queue</h2></div>
+              <p className="mt-2 text-xs leading-5 text-[var(--mute)]">Check each value and its source. Editing a value automatically marks it accepted; approval is still a staff decision.</p>
             </div>
-
-            <button
-              type="button"
-              disabled={isCommitting || commitSuccess}
-              onClick={handleCommitVerified}
-              className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>
-                {commitSuccess
-                  ? 'Changes Committed to Record'
-                  : isCommitting
-                  ? 'Saving to Database...'
-                  : 'Apply Accepted Fields to Record'}
-              </span>
+            <button type="button" disabled={isCommitting || commitSuccess || acceptedCount === 0} onClick={handleCommitVerified} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-bold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-45">
+              {isCommitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              {commitSuccess ? 'Applied to case' : isCommitting ? 'Saving approved fields…' : `Apply ${acceptedCount} approved field(s)`}
             </button>
           </div>
-
-          <div className="scroll-container">
-            <table className="app-table">
-              <thead>
-                <tr>
-                  <th>Target Field</th>
-                  <th>Extracted Value</th>
-                  <th>Current Value</th>
-                  <th>Discrepancy / Conflict</th>
-                  <th>Type &amp; Citation</th>
-                  <th>Confidence</th>
-                  <th className="text-center">Staff Decision</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviewFields.map((field, idx) => {
-                  const isAccepted = field.humanStatus === 'accepted';
-                  const isRejected = field.humanStatus === 'rejected';
-
-                  return (
-                    <tr key={idx} className={field.isConflict ? 'bg-amber-500/5' : ''}>
-                      <td className="font-semibold text-xs text-[var(--ink)]">
-                        {field.fieldLabel}
-                        <span className="block font-mono text-[10px] text-[var(--mute)]">
-                          {field.fieldName}
-                        </span>
-                      </td>
-
-                      <td>
-                        <input
-                          type="text"
-                          value={String(field.extractedValue)}
-                          onChange={(e) => handleCorrectValue(idx, e.target.value)}
-                          className="w-full text-xs font-semibold rounded border border-[var(--line)] py-1 px-2 bg-[var(--panel)] text-[var(--ink)]"
-                        />
-                      </td>
-
-                      <td className="text-xs text-[var(--mute)]">
-                        {Array.isArray(field.currentValue)
-                          ? field.currentValue.join(', ') || 'None'
-                          : String(field.currentValue ?? 'N/A')}
-                      </td>
-
-                      <td>
-                        {field.isConflict ? (
-                          <span className="tag w text-[11px] block max-w-xs">
-                            {field.conflictDescription || 'Conflict detected'}
-                          </span>
-                        ) : (
-                          <span className="tag o text-[11px]">Consistent</span>
-                        )}
-                      </td>
-
-                      <td className="text-xs max-w-xs">
-                        <span className="tag mb-1 block w-fit text-[10px]">
-                          {field.isFactOrInterpretation}
-                        </span>
-                        <span className="text-[11px] text-[var(--mute)] block leading-snug">
-                          {field.sourceCitation}
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-12 bar">
-                            <i style={{ width: `${field.confidenceScore}%` }} />
-                          </div>
-                          <span className="text-xs font-semibold">{field.confidenceScore}%</span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => toggleFieldStatus(idx, 'accepted')}
-                            className={`p-1.5 rounded text-xs font-semibold cursor-pointer ${
-                              isAccepted
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-[var(--line)] text-[var(--ink)] hover:bg-emerald-500 hover:text-white'
-                            }`}
-                            title="Accept candidate field"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleFieldStatus(idx, 'rejected')}
-                            className={`p-1.5 rounded text-xs font-semibold cursor-pointer ${
-                              isRejected
-                                ? 'bg-rose-600 text-white'
-                                : 'bg-[var(--line)] text-[var(--ink)] hover:bg-rose-500 hover:text-white'
-                            }`}
-                            title="Reject candidate field"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="divide-y divide-[var(--line)]">
+            {reviewFields.map((field, index) => {
+              const accepted = field.humanStatus === 'accepted';
+              const rejected = field.humanStatus === 'rejected';
+              return (
+                <article key={`${field.fieldName}-${index}`} className="grid min-w-0 gap-4 p-5 lg:grid-cols-[minmax(140px,0.7fr)_minmax(180px,1fr)_minmax(150px,0.8fr)_auto] lg:items-start">
+                  <div className="min-w-0"><p className="text-sm font-bold text-[var(--ink)]">{field.fieldLabel}</p><p className="mt-1 break-all font-mono text-[10px] text-[var(--mute)]">{field.fieldName}</p>{field.isConflict && <span className="mt-2 inline-flex rounded-full bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-600">Conflict found</span>}</div>
+                  <div className="min-w-0"><label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-[var(--mute)]">Extracted value</label><input type="text" value={formatValue(field.extractedValue)} onChange={event => updateField(index, { extractedValue: event.target.value, humanStatus: 'accepted' })} className="w-full min-w-0 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm text-[var(--ink)] outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/15" /><p className="mt-1.5 text-[10px] text-[var(--mute)]">Current record: {formatValue(field.currentValue)}</p></div>
+                  <div className="min-w-0"><p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--mute)]">Source &amp; confidence</p><p className="text-xs leading-5 text-[var(--mute)]">{field.sourceCitation || 'No source citation supplied'}</p><div className="mt-2 flex items-center gap-2"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--line)]"><div className="h-full rounded-full bg-sky-500" style={{ width: `${Math.max(0, Math.min(100, field.confidenceScore || 0))}%` }} /></div><span className="text-[10px] font-bold text-[var(--mute)]">{field.confidenceScore || 0}%</span></div></div>
+                  <div className="flex items-center gap-2 lg:pt-5"><button type="button" onClick={() => updateField(index, { humanStatus: 'accepted' })} aria-label={`Accept ${field.fieldLabel}`} className={`inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition ${accepted ? 'bg-emerald-600 text-white' : 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'}`}><Check className="h-4 w-4" />Accept</button><button type="button" onClick={() => updateField(index, { humanStatus: 'rejected' })} aria-label={`Reject ${field.fieldLabel}`} className={`inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition ${rejected ? 'bg-rose-600 text-white' : 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/20'}`}><X className="h-4 w-4" />Reject</button></div>
+                </article>
+              );
+            })}
           </div>
-        </div>
+          {commitSuccess && <div className="flex items-center gap-2 border-t border-emerald-500/20 bg-emerald-500/5 px-5 py-4 text-xs font-semibold text-emerald-600"><CheckCircle2 className="h-4 w-4" /> Approved values have been saved to the case record.</div>}
+        </section>
       )}
     </div>
   );
