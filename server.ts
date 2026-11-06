@@ -1117,11 +1117,17 @@ app.post(
 
       // Save file to disk
       const uniqueFilename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const storagePath = path.resolve(process.cwd(), 'uploads', uniqueFilename);
+      const uploadDirectory = path.resolve(process.cwd(), 'uploads');
+      fs.mkdirSync(uploadDirectory, { recursive: true });
+      const storagePath = path.join(uploadDirectory, uniqueFilename);
       fs.writeFileSync(storagePath, file.buffer);
 
       // Extract text and preview structure
       const parsedData = await extractTextFromBuffer(file.buffer, file.mimetype, file.originalname);
+      if (!parsedData.text.trim()) {
+        res.status(422).json({ error: 'The file was uploaded, but no readable text was found. If this is a scanned PDF, text extraction needs OCR; try a text-based PDF or DOCX.' });
+        return;
+      }
 
       // Run AI verification against the target case record
       const aiVerification = await verifyDocumentWithAI(
@@ -1143,9 +1149,9 @@ app.post(
         uploaded_by_id: user.id,
         uploaded_by_name: user.full_name,
         uploaded_by_role: user.role,
-        upload_source: file.originalname.endsWith('.docx')
+        upload_source: path.extname(file.originalname).toLowerCase() === '.docx'
           ? 'word'
-          : file.originalname.endsWith('.pdf')
+          : path.extname(file.originalname).toLowerCase() === '.pdf'
           ? 'pdf'
           : 'excel',
         status: 'pending_review',

@@ -84,16 +84,21 @@ export async function extractTextFromBuffer(
     return { text: result.value };
   }
 
-  // PDF
+  // PDF (pdf-parse v2 API). Do not decode a failed PDF as UTF-8 binary.
   if (mimeType.includes('pdf') || lowerName.endsWith('.pdf')) {
-    try {
-      const pdfModule: any = await import('pdf-parse');
-      const parseFunc = pdfModule.default || pdfModule;
-      const pdfData = await parseFunc(buffer);
-      return { text: pdfData.text };
-    } catch (err) {
-      return { text: buffer.toString('utf-8') };
+    const pdfModule: any = await import('pdf-parse');
+    if (pdfModule.PDFParse) {
+      const parser = new pdfModule.PDFParse({ data: buffer });
+      try {
+        const pdfData = await parser.getText();
+        return { text: String(pdfData.text || '').trim() };
+      } finally {
+        await parser.destroy();
+      }
     }
+    const parseFunc = pdfModule.default || pdfModule;
+    const pdfData = await parseFunc(buffer);
+    return { text: String(pdfData.text || '').trim() };
   }
 
   // Plain text fallback
