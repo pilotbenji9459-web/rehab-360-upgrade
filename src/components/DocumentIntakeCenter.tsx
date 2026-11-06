@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Api } from '../services/api';
 import { OffenderCase, VerificationResult, ExtractedField, UploadedDocument } from '../types';
 import {
-  UploadCloud, FileSpreadsheet, FileText, FileCheck, CheckCircle2,
+  UploadCloud, FileText, FileCheck, CheckCircle2,
   AlertTriangle, Check, X, Sparkles, ArrowRight, ShieldCheck,
-  RefreshCw, Trash2, File as FileIcon, Loader2, ClipboardCheck,
+  Trash2, Loader2, ClipboardCheck,
 } from 'lucide-react';
 
 interface DocumentIntakeCenterProps {
