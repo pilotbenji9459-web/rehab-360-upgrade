@@ -212,6 +212,33 @@ export const Api = {
       body: JSON.stringify({ accepted_fields }),
     }),
 
+  // Download a protected CSV without placing the session token in a URL.
+  exportCaseloadCsv: async (): Promise<void> => {
+    const token = AuthService.getToken();
+    if (!token) throw new Error('Please log in to export the caseload.');
+
+    const response = await fetch('/api/reports/export-csv', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || `Export failed (${response.status}).`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'rehabpath360_caseload_export.csv';
+    try {
+      document.body.appendChild(link);
+      link.click();
+    } finally {
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+  },
+
   // Audit Events
   getAuditEvents: () =>
     request<{ events: AuditEvent[] }>('/api/audit-events'),
