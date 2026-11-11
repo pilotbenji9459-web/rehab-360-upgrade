@@ -42,12 +42,24 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
   fileFilter: (_req, file, cb) => {
-    const allowedExtensions = ['.docx', '.doc', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+    const allowedExtensions = ['.docx', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+    const allowedMimeTypes = [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+      'text/csv',
+      'application/csv',
+      'application/pdf',
+      'text/plain',
+    ];
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedExtensions.includes(ext)) {
+    const allowed = ext
+      ? allowedExtensions.includes(ext)
+      : allowedMimeTypes.includes(file.mimetype.toLowerCase());
+    if (allowed) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type: ${ext}. Allowed: Word, Excel, CSV, PDF.`));
+      cb(new Error('Unsupported document type. Allowed: DOCX, XLSX, XLS, CSV, PDF, TXT. Legacy DOC is not supported.'));
     }
   },
 });
