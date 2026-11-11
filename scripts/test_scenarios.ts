@@ -102,6 +102,22 @@ async function runTests() {
   const parsed = await extractTextFromBuffer(testBuffer, 'text/plain', 'evaluation.txt');
   assert(parsed.text.includes('88%'), 'Document text extraction parses raw content successfully.');
 
+  // Regression: education and skills gate permissions.
+  assert(
+    validateCaseFieldPermissions('Educator', { gate_scores: { edu: 80 } }).allowed &&
+    validateCaseFieldPermissions('Case Manager', { gate_scores: { skl: 70 } }).allowed &&
+    !validateCaseFieldPermissions('Psychologist', { gate_scores: { edu: 80 } }).allowed,
+    'Education and skills gate editing restricted to authorized staff.'
+  );
+  // Regression: unknown files cannot be interpreted as plain text.
+  let unknownFileRejected = false;
+  try {
+    await extractTextFromBuffer(Buffer.from('not a supported file'), 'application/octet-stream', 'sample.bin');
+  } catch (error) {
+    unknownFileRejected = error instanceof Error && error.message.includes('No readable text');
+  }
+  assert(unknownFileRejected, 'Unknown file types are rejected.');
+
   // Scenario 9: AI cannot bypass permissions
   const eduCommitPsychField = validateCaseFieldPermissions('Educator', { mental_wellbeing: 5 });
   assert(!eduCommitPsychField.allowed, 'AI candidate changes cannot be committed by unauthorized staff.');
