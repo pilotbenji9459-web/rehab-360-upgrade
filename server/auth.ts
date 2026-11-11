@@ -164,7 +164,7 @@ if (gates.beh !== undefined && role !== 'Warden') {
     if (gates.wb !== undefined && role !== 'Psychologist') {
       return { allowed: false, disallowedField: 'gate_scores.wb (Clinical Well-being Gate)' };
     }
-     if ((gates.edu !== undefined || gates.skl !== undefined) && role !== 'Warden') {
+     if ((gates.edu !== undefined || gates.skl !== undefined) && !['Educator', 'Case Manager', 'Warden'].includes(role)) {
       return { allowed: false, disallowedField: 'gate_scores (Education/Skills Gate)' };
     }
   }
