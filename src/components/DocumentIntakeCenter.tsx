@@ -17,6 +17,15 @@ interface DocumentIntakeCenterProps {
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const ACCEPTED_EXTENSIONS = ['.docx', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+const ACCEPTED_MIME_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'text/csv',
+  'application/csv',
+  'application/pdf',
+  'text/plain',
+];
 
 export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   cases, selectedCaseId, onSelectCase, onRefreshCase, showAlert,
@@ -50,8 +59,13 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
 
   const chooseFile = (file?: File) => {
     if (!file) return;
-    const extension = '.' + (file.name.split('.').pop() || '').toLowerCase();
-    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+    const name = file.name.toLowerCase();
+    const extension = name.includes('.') ? name.slice(name.lastIndexOf('.')) : '';
+    // Only use MIME fallback when a phone/file provider supplies no extension.
+    const supported = extension
+      ? ACCEPTED_EXTENSIONS.includes(extension)
+      : ACCEPTED_MIME_TYPES.includes(file.type.toLowerCase());
+    if (!supported) {
       showAlert('Choose a DOCX, XLSX, XLS, CSV, PDF, or TXT file. Legacy .doc files are not supported.', 'Unsupported file');
       return;
     }
@@ -194,7 +208,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
           <input
             ref={inputRef}
             type="file"
-            accept=".docx,.xlsx,.xls,.csv,.pdf,.txt"
+            accept=".docx,.xlsx,.xls,.csv,.pdf,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/pdf,text/plain"
             className="hidden"
             onChange={event => { chooseFile(event.target.files?.[0]); event.currentTarget.value = ''; }}
           />
