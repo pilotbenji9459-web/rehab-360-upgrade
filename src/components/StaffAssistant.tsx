@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Bot, ChevronDown, Compass, Loader2, MessageCircle, Send, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { Api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../context/I18nContext';
 import type { OffenderCase, StaffRole, TabId } from '../types';
 import './staffAssistant.css';
 
@@ -21,6 +22,7 @@ interface Props {
 }
 export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavigate }) => {
   const { user, institution } = useAuth();
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [caseId, setCaseId] = useState(selectedCaseId || '');
   const [draft, setDraft] = useState('');
@@ -76,16 +78,16 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
             <div className="pathway-ai-brand-icon"><Sparkles size={22}/></div>
             <div className="pathway-ai-brand-copy">
               <div className="pathway-ai-title">Pathway <span>AI</span></div>
-              <p>Your workspace companion</p>
+              <p>{t('ai.companion')}</p>
             </div>
             <button type="button" className="pathway-ai-icon-button" onClick={() => setIsOpen(false)} aria-label="Close assistant"><X size={19}/></button>
           </div>
           <div className="pathway-ai-context">
-            <div className="pathway-ai-context-top"><ShieldCheck size={15}/><span>{user.role} access</span><span className="pathway-ai-context-dot"/> <span>{institution?.is_demo ? 'Demo workspace' : 'Protected workspace'}</span></div>
-            <label htmlFor="pathway-case-context">Working with</label>
+            <div className="pathway-ai-context-top"><ShieldCheck size={15}/><span>{user.role} access</span><span className="pathway-ai-context-dot"/> <span>{institution?.is_demo ? t('ai.demo') : t('ai.protected')}</span></div>
+            <label htmlFor="pathway-case-context">{t('ai.working')}</label>
             <div className="pathway-ai-select-wrap">
               <select id="pathway-case-context" disabled={busy} value={caseId} onChange={event => setCaseId(event.target.value)}>
-                <option value="">General workspace help</option>
+                <option value="">{t('ai.general')}</option>
                 {cases.map(item => <option value={item.id} key={item.id}>{item.id} · {item.first_name} {item.last_name}</option>)}
               </select>
               <ChevronDown size={16} aria-hidden="true"/>
@@ -95,10 +97,10 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
             {messages.length === 0 && (
               <div className="pathway-ai-welcome">
                 <div className="pathway-ai-welcome-mark"><Bot size={24}/></div>
-                <h3>Hi! What can I help you find?</h3>
+                <h3>{t('ai.welcome')}</h3>
                 <p>{current
-                  ? `I can help you understand saved information for ${current.id}, or take you straight to the right screen.`
-                  : 'Ask me to find a feature, explain a workflow, or choose a case to explore its recorded details.'}</p>
+                  ? `${t('ai.welcome_case')} (${current.id})`
+                  : t('ai.welcome_general')}</p>
                 <div className="pathway-ai-suggestions">
                   {questions.map(question => (
                     <button key={question} disabled={busy} type="button" onClick={() => void ask(question)}>
@@ -121,13 +123,13 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                   <div className="pathway-ai-bubble">{message.text}</div>
                   {message.navigate_to && (
                     <button type="button" className="pathway-ai-open-link" onClick={() => openDestination(message.navigate_to!)}>
-                      <Compass size={16}/> Open this section <ArrowRight size={15}/>
+                      <Compass size={16}/> {t('ai.open')} <ArrowRight size={15}/>
                     </button>
                   )}
                 </div>
               </div>
             ))}
-            {busy && <div className="pathway-ai-thinking"><Loader2 size={16} className="pathway-ai-spinner"/> Asking Gemini about your question...</div>}
+            {busy && <div className="pathway-ai-thinking"><Loader2 size={16} className="pathway-ai-spinner"/> {t('ai.thinking')}</div>}
             <div ref={endRef}/>
           </div>
           <form className="pathway-ai-composer" onSubmit={event => { event.preventDefault(); void ask(draft); }}>
@@ -136,16 +138,16 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
               <textarea id="pathway-ai-prompt" rows={2} maxLength={1000} value={draft}
                 onChange={event => setDraft(event.target.value)}
                 onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void ask(draft); } }}
-                placeholder={current ? 'Ask anything about this case…' : 'Ask me where to go or what to do…'}/>
+                placeholder={current ? t('ai.placeholder_case') : t('ai.placeholder_general')}/>
               <button type="submit" className="pathway-ai-send" disabled={busy || !draft.trim()} aria-label="Send message"><Send size={19}/></button>
             </div>
-            <p>Answers reflect your role and available records. Verify important decisions with staff.</p>
+            <p>{t('ai.disclaimer')}</p>
           </form>
         </section>
       )}
       <button type="button" className="pathway-ai-launcher" onClick={() => setIsOpen(open => !open)} aria-expanded={isOpen}>
         {isOpen ? <X size={20}/> : <MessageCircle size={21}/>}
-        <span>{isOpen ? 'Close assistant' : 'Ask Pathway AI'}</span>
+        <span>{isOpen ? t('ai.close') : t('ai.launch')}</span>
         {!isOpen && <Sparkles size={15} className="pathway-ai-launcher-sparkle"/>}
       </button>
     </div>
