@@ -19,6 +19,15 @@ interface DocumentIntakeCenterProps {
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const ACCEPTED_EXTENSIONS = ['.docx', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+const ACCEPTED_MIME_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'text/csv',
+  'application/csv',
+  'application/pdf',
+  'text/plain',
+];
 
 export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   cases,
@@ -90,8 +99,13 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
 
   const chooseFile = (file?: File) => {
     if (!file) return;
-    const extension = '.' + (file.name.split('.').pop() || '').toLowerCase();
-    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+    const name = file.name.toLowerCase();
+    const extension = name.includes('.') ? name.slice(name.lastIndexOf('.')) : '';
+    // The MIME fallback is only used for extensionless mobile-file providers.
+    const isAllowed = extension
+      ? ACCEPTED_EXTENSIONS.includes(extension)
+      : ACCEPTED_MIME_TYPES.includes(file.type.toLowerCase());
+    if (!isAllowed) {
       showAlert(
         'Supported formats: Word (.docx), Excel (.xlsx, .xls), CSV (.csv), PDF (.pdf), and Text (.txt). Legacy binary .doc is not supported.',
         'Unsupported File Format'
