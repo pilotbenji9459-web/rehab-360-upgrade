@@ -92,6 +92,57 @@ const AppContent: React.FC = () => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Devices signed into the same hosted institution share server-side cases.
+    // Refresh the list in the background so a case registered on another device
+    // appears here without requiring the user to reload the application.
+    let cancelled = false;
+    let inFlight = false;
+
+    const syncCases = async () => {
+      if (cancelled || inFlight || document.visibilityState === 'hidden') return;
+      inFlight = true;
+      try {
+        const { cases: serverCases = [] } = await Api.getCases();
+        if (cancelled) return;
+        setCases((previous) => {
+          // Avoid replacing case objects (and disrupting forms) when unchanged.
+          const previousById = new Map(previous.map((c) => [c.id, c]));
+          const hasChanges =
+            previous.length !== serverCases.length ||
+            serverCases.some((c) => {
+              const old = previousById.get(c.id);
+              return !old || old.version !== c.version || old.updated_at !== c.updated_at;
+            });
+          return hasChanges ? serverCases : previous;
+        });
+        setSelectedCaseId((previous) =>
+          previous && serverCases.some((c) => c.id === previous)
+            ? previous
+            : (serverCases[0]?.id ?? '')
+        );
+      } catch (err) {
+        // A temporary offline/network error should not discard local visible cases.
+        console.warn('Background case synchronization failed:', err);
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const interval = window.setInterval(() => { void syncCases(); }, 12000);
+    const syncOnReturn = () => {
+      if (document.visibilityState === 'visible') void syncCases();
+    };
+    document.addEventListener('visibilitychange', syncOnReturn);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', syncOnReturn);
+    };
+  }, [isAuthenticated, user?.id]);
+
   const currentRecord = cases.find((c) => c.id === selectedCaseId) || cases[0];
 
   const handleUpdateCase = async (updates: Partial<OffenderCase>) => {
