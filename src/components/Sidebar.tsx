@@ -1,4 +1,5 @@
 import React from 'react';
+import progressRingLogo from '../assets/images/rehabpath360_progress_ring_icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../context/I18nContext';
 import { TabId, StaffRole, WorkspaceMode, OffenderCase } from '../types';
@@ -33,6 +34,7 @@ interface SidebarProps {
   workspace: WorkspaceMode;
   onSelectWorkspace: (ws: WorkspaceMode) => void;
   selectedCase?: OffenderCase;
+  onGoFacilityOverview: () => void;
 }
 
 interface NavItem {
@@ -51,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   workspace,
   onSelectWorkspace,
   selectedCase,
+  onGoFacilityOverview,
 }) => {
   const { user, institution, systemStatus, logout } = useAuth();
   const { t } = useI18n();
@@ -231,21 +234,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Institution Brand Header */}
         <div className="p-4 sm:p-5 border-b border-[#1e3a5f]/80 bg-[#0b1a30]/60">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white shadow-lg shadow-[#0284c7]/20 shrink-0">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="font-serif font-bold text-base text-white tracking-tight">
-                  REHABPATH<span className="text-[var(--teal)]">360</span>
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 truncate font-medium">
+          <button
+            type="button"
+            onClick={onGoFacilityOverview}
+            aria-label="RehabPath360 — go to Facility Overview"
+            title="Go to Facility Overview"
+            className="group flex w-full min-w-0 items-center gap-3 rounded-xl bg-transparent p-1 text-left transition-colors hover:bg-[#173656] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+          >
+            <img src={progressRingLogo} alt="" aria-hidden="true" className="h-11 w-11 shrink-0 object-contain transition-transform group-hover:scale-105" />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-serif text-base font-bold tracking-tight text-white">
+                REHABPATH<span className="text-[var(--teal)]">360</span>
+              </span>
+              <span className="block truncate text-[11px] font-medium text-slate-400">
                 {institution?.name || 'Correctional Facility'}
-              </p>
-            </div>
-          </div>
+              </span>
+            </span>
+          </button>
 
           {/* Mode Pill: Exhibition Demo vs Clean Deployment */}
           <div className="mt-3 flex items-center justify-between px-2.5 py-1 rounded-lg bg-[#0f2744] border border-[#1e3a5f] text-[11px]">
