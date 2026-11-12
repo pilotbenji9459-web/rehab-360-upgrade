@@ -67,6 +67,18 @@ async function runTests() {
 
   // Scenario 2: Clinical notes storage exists in persistent database schema
   const caseId = 'RP-1041';
+  // Regression: when Gemini is unavailable, a selected-case follow-up must
+  // still answer the specific saved field instead of dumping random stats.
+  const { answerExactCaseField } = await import('../server/staffAssistant');
+  const julian = DB.findCaseById(caseId);
+  assert(
+    !!julian && (answerExactCaseField(julian, 'severity level?') || '').includes('out of 5'),
+    'Staff AI: follow-up on offence severity uses the actual saved case field.'
+  );
+  assert(
+    !!julian && (answerExactCaseField(julian, 'what charge is julian facing?') || '').includes(julian.crime_type),
+    'Staff AI: charges question returns recorded offence rather than unrelated statistics.'
+  );
   const notesBefore = DB.getClinicalNotes(caseId);
   assert(notesBefore.length >= 0, 'Clinical notes storage exists in persistent database schema.');
 
