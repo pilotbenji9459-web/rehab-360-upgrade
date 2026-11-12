@@ -27,9 +27,54 @@ import {
   extractTextFromBuffer,
   verifyDocumentWithAI,
 } from './server/documentAi';
+import { answerStaffQuestion } from './server/staffAssistant';
 
 
 const app = express();
+/**
+ * Role-aware staff guide. The browser supplies only a question; the role
+ * comes from the authenticated, institution-scoped account on the server.
+ * No case content or patient data is forwarded to the language model.
+ */
+const assistantRequests = new Map<string, { count: number; resetAt: number }>();
+app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const authUser = req.user!;
+  const staff = DB.findUserById(authUser.id, authUser.institution_id);
+  if (!staff || staff.status !== 'active') {
+    res.status(403).json({ error: 'Your account is inactive or unavailable.' });
+    return;
+  }
+  const question = req.body?.question;
+  if (typeof question !== 'string' || !question.trim() || question.length > 1000) {
+    res.status(400).json({ error: 'Enter a question of 1 to 1000 characters.' });
+    return;
+  }
+  const now = Date.now();
+  const key = staff.institution_id + ':' + staff.id;
+  const previous = assistantRequests.get(key);
+  const usage = !previous || now >= previous.resetAt
+    ? { count: 0, resetAt: now + 60_000 }
+    : previous;
+  if (usage.count >= 12) {
+    res.status(429).json({ error: 'Too many AI requests. Please try again shortly.' });
+    return;
+  }
+  usage.count += 1;
+  assistantRequests.set(key, usage);
+  // Limit memory usage for long-lived servers.
+  if (assistantRequests.size > 5000) {
+    for (const [id, item] of assistantRequests) {
+      if (now >= item.resetAt) assistantRequests.delete(id);
+    }
+  }
+  try {
+    const reply = await answerStaffQuestion(staff.role, question.trim());
+    res.json({ ...reply, role: staff.role });
+  } catch {
+    res.status(503).json({ error: 'The staff assistant is temporarily unavailable.' });
+  }
+});
+
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const HOST = '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
