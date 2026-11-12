@@ -73,3 +73,14 @@ html[data-theme="light"] .tour-shell {
   .tour-shell *{animation:none!important;transition:none!important}
   .tour-feature-art img,.tour-feature-art:hover img{transform:none!important;filter:none!important}
 }
+
+/* Clear subtitles and call-to-action text with no forced fixed-width columns. */
+.tour-shell, .tour-shell * { min-width:0; }
+.tour-brand { flex-wrap:wrap; }
+.tour-brand p, .tour-feature-copy p { font-size:16px; line-height:1.7; overflow-wrap:break-word; }
+.tour-overline, .tour-kicker { font-size:12px; }
+.tour-shell .tour-toggle, .tour-shell button.tour-action,
+.tour-shell .tour-controls button { font-size:14px; white-space:normal; }
+.tour-step-nav { flex-wrap:wrap; max-width:100%; }
+.tour-feature-copy h3 { overflow-wrap:break-word; }
+@media(max-width:900px) { .tour-feature { grid-template-columns:minmax(0,1fr); } .tour-feature-art { min-height:210px; } }
