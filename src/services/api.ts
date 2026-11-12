@@ -246,11 +246,12 @@ export const Api = {
 
   commitVerifiedFields: (
     documentId: string,
-    accepted_fields: { fieldName: string; finalValue: any }[]
+    accepted_fields: { fieldName: string; finalValue: any }[],
+    expectedVersion: number
   ) =>
     request<{ success: boolean; case: OffenderCase; message: string }>(`/api/documents/${documentId}/commit`, {
       method: 'POST',
-      body: JSON.stringify({ accepted_fields }),
+      body: JSON.stringify({ accepted_fields, expected_version: expectedVersion }),
     }),
 
   // Audit Events

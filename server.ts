@@ -1433,9 +1433,24 @@ app.post(
       return;
     }
 
+    if (doc.status !== 'pending_review') {
+      res.status(409).json({
+        error: 'This document is no longer awaiting review. Refresh the document history before trying again.',
+      });
+      return;
+    }
+
     const currentCase = DB.findCaseById(doc.case_id, user.institution_id);
     if (!currentCase) {
       res.status(404).json({ error: `Case ${doc.case_id} not found.` });
+      return;
+    }
+
+    const expectedVersion = req.body?.expected_version;
+    if (!Number.isInteger(expectedVersion) || expectedVersion !== currentCase.version) {
+      res.status(409).json({
+        error: 'This case changed after the document was loaded. Refresh the case and review the document again before committing.',
+      });
       return;
     }
 
@@ -1466,6 +1481,12 @@ app.post(
       res.status(400).json({
         error: 'Document import contains an unsupported or protected field.',
       });
+      return;
+    }
+
+    const submittedFieldNames = accepted_fields.map((item: any) => item.fieldName);
+    if (new Set(submittedFieldNames).size !== submittedFieldNames.length) {
+      res.status(400).json({ error: 'A field was submitted more than once. Keep one approved value per field.' });
       return;
     }
 
@@ -1501,7 +1522,15 @@ app.post(
         continue;
       }
 
-      const value = Number(item.finalValue);
+      const rawValue = item.finalValue;
+      const validNumericInput =
+        (typeof rawValue === 'number' && Number.isFinite(rawValue)) ||
+        (typeof rawValue === 'string' && /^\\d+$/.test(rawValue.trim()));
+      if (!validNumericInput) {
+        res.status(400).json({ error: `Invalid value for ${item.fieldName}. Enter a whole number.` });
+        return;
+      }
+      const value = Number(rawValue);
       const isRating = [
         'education_level',
         'mental_wellbeing',
@@ -1545,21 +1574,37 @@ app.post(
       return;
     }
 
-    // Apply updates and log change history
+    // Apply updates and log each imported field, including nested gate scores.
     for (const [key, val] of Object.entries(updates)) {
-      if (key !== 'gate_scores') {
-        DB.logChangeHistory({
-          institution_id: user.institution_id,
-          case_id: currentCase.id,
-          field_name: key,
-          previous_value: String((currentCase as any)[key] ?? ''),
-          new_value: String(val ?? ''),
-          changed_by_id: user.id,
-          changed_by_name: user.full_name,
-          changed_by_role: user.role,
-          change_source: 'ai_verified_import',
-        });
+      if (key === 'gate_scores') {
+        for (const gateKey of ['edu', 'skl'] as const) {
+          if (Object.prototype.hasOwnProperty.call(val, gateKey)) {
+            DB.logChangeHistory({
+              institution_id: user.institution_id,
+              case_id: currentCase.id,
+              field_name: `gate_scores.${gateKey}`,
+              previous_value: String(currentCase.gate_scores[gateKey] ?? ''),
+              new_value: String(val[gateKey] ?? ''),
+              changed_by_id: user.id,
+              changed_by_name: user.full_name,
+              changed_by_role: user.role,
+              change_source: 'ai_verified_import',
+            });
+          }
+        }
+        continue;
       }
+      DB.logChangeHistory({
+        institution_id: user.institution_id,
+        case_id: currentCase.id,
+        field_name: key,
+        previous_value: String((currentCase as any)[key] ?? ''),
+        new_value: String(val ?? ''),
+        changed_by_id: user.id,
+        changed_by_name: user.full_name,
+        changed_by_role: user.role,
+        change_source: 'ai_verified_import',
+      });
     }
 
     const updatedCase = {
