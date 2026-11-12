@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { CaseExplorer } from './CaseExplorer';
 import { ExhibitionTour } from './ExhibitionTour';
 import { InteractiveAnalyticsSuite } from './InteractiveAnalyticsSuite';
@@ -40,9 +40,15 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
 }) => {
   const { user, institution, systemStatus } = useAuth();
   const { language, t } = useI18n();
+  const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
+  useEffect(() => {
+    const updateLocalHour = () => setCurrentHour(new Date().getHours());
+    const intervalId = window.setInterval(updateLocalHour, 60_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
   if (!user) return null;
 
-  const currentHour = new Date().getHours();
+  
   const greetingKey = currentHour < 12 ? 'greeting.morning' : currentHour < 17 ? 'greeting.afternoon' : 'greeting.evening';
   const greeting = t(greetingKey);
   const todayLabel = new Intl.DateTimeFormat(LANGUAGE_LOCALES[language], { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
@@ -227,7 +233,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         <div className="dashboard-kpi dashboard-kpi--blue reveal-feature">
           <div className="flex items-center justify-between">
             <span className="dashboard-kpi__label text-xs sm:text-sm font-bold uppercase tracking-wider">
-              Active Cases
+              {t('metric.active_cases')}
             </span>
             <div className="dashboard-kpi__icon">
               <Users className="w-4.5 h-4.5" />
@@ -243,7 +249,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         <div className="dashboard-kpi dashboard-kpi--amber reveal-feature">
           <div className="flex items-center justify-between">
             <span className="dashboard-kpi__label text-xs sm:text-sm font-bold uppercase tracking-wider">
-              Reviews Pending
+              {t('metric.pending_reviews')}
             </span>
             <div className="dashboard-kpi__icon">
               <Clock className="w-4.5 h-4.5" />
@@ -259,7 +265,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         <div className="dashboard-kpi dashboard-kpi--green reveal-feature">
           <div className="flex items-center justify-between">
             <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Plans On Track
+              {t('metric.on_track')}
             </span>
             <div className="dashboard-kpi__icon">
               <CheckCircle2 className="w-4.5 h-4.5" />
@@ -275,7 +281,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         <div className="dashboard-kpi dashboard-kpi--teal reveal-feature">
           <div className="flex items-center justify-between">
             <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Scheduled Check-ins
+              {t('metric.reviews_due')}
             </span>
             <div className="dashboard-kpi__icon">
               <Calendar className="w-4.5 h-4.5" />
