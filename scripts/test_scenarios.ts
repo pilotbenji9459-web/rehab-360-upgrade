@@ -113,6 +113,34 @@ async function runTests() {
   const parsed = await extractTextFromBuffer(testBuffer, 'text/plain', 'evaluation.txt');
   assert(parsed.text.includes('88%'), 'Document text extraction parses raw content successfully.');
 
+  // Regression coverage: restricted gate edits and mobile document recognition.
+  assert(
+    validateCaseFieldPermissions('Educator', { gate_scores: { edu: 80 } }).allowed &&
+    validateCaseFieldPermissions('Case Manager', { gate_scores: { skl: 75 } }).allowed &&
+    !validateCaseFieldPermissions('Psychologist', { gate_scores: { edu: 80 } }).allowed &&
+    !validateCaseFieldPermissions('Educator', { gate_scores: { wb: 80 } }).allowed,
+    'Education/skills permissions preserve separate clinical authorization.'
+  );
+
+  const mobileText = await extractTextFromBuffer(testBuffer, 'text/plain', 'mobile-upload');
+  assert(mobileText.text.includes('88%'), 'Extensionless mobile text documents extract through MIME fallback.');
+
+  let unknownTypeRejected = false;
+  try {
+    await extractTextFromBuffer(Buffer.from([0, 1, 2, 255]), 'application/octet-stream', 'sample.bin');
+  } catch (error) {
+    unknownTypeRejected = error instanceof Error && error.message.includes('No readable text');
+  }
+  assert(unknownTypeRejected, 'Unsupported binary inputs return a readable error.');
+
+  let disguisedTypeRejected = false;
+  try {
+    await extractTextFromBuffer(Buffer.from([0, 1, 2, 255]), 'text/plain', 'sheet.xlsx.bin');
+  } catch (error) {
+    disguisedTypeRejected = error instanceof Error && error.message.includes('No readable text');
+  }
+  assert(disguisedTypeRejected, 'Unrecognized named extensions cannot use a text MIME fallback.');
+
   // Scenario 9: AI cannot bypass permissions
   const eduCommitPsychField = validateCaseFieldPermissions('Educator', { mental_wellbeing: 5 });
   assert(!eduCommitPsychField.allowed, 'AI candidate changes cannot be committed by unauthorized staff.');
