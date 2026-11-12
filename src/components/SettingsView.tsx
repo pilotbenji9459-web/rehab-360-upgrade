@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useI18n } from '../context/I18nContext';
+import { SUPPORTED_LANGUAGES, useI18n, type LanguageCode } from '../context/I18nContext';
 import { Api } from '../services/api';
 import { StaffRole } from '../types';
 import {
@@ -272,32 +272,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
         <p className="text-xs text-slate-400 mb-4">
           Select interface language. Translations are catalogue-based with strict English fallback and dynamic badge updates.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setLocale('en')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
-              locale === 'en'
-                ? 'bg-sky-600/20 border-sky-500 text-white shadow-sm'
-                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
-            }`}
+        <label className="settings-language-control">
+          <span className="text-xs font-semibold text-slate-300">{t('language.select')}</span>
+          <select
+            value={locale}
+            onChange={(event) => setLocale(event.target.value as LanguageCode)}
+            className="w-full sm:max-w-md"
+            aria-label={t('language.select')}
           >
-            <span className="w-2 h-2 rounded-full bg-sky-400" />
-            <span>English (Default / UK / Global)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setLocale('hi')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
-              locale === 'hi'
-                ? 'bg-emerald-600/20 border-emerald-500 text-white shadow-sm'
-                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
-            }`}
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span>हिन्दी (Hindi)</span>
-          </button>
-        </div>
+            {SUPPORTED_LANGUAGES.map((language) => (
+              <option key={language.code} value={language.code}>
+                {language.nativeName} — {language.label}
+              </option>
+            ))}
+          </select>
+          <span className="text-[11px] text-slate-400">
+            English fallback is used for any text not yet present in the selected translation catalogue.
+          </span>
+        </label>
       </section>
 
       {/* Configuration Form */}
