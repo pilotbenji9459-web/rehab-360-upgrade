@@ -3,6 +3,7 @@ import { CaseExplorer } from './CaseExplorer';
 import { ExhibitionTour } from './ExhibitionTour';
 import { InteractiveAnalyticsSuite } from './InteractiveAnalyticsSuite';
 import { useAuth } from '../context/AuthContext';
+import { LANGUAGE_LOCALES, useI18n } from '../context/I18nContext';
 import { OffenderCase, TabId, StaffRole } from '../types';
 import {
   Users,
@@ -38,7 +39,13 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   onOpenNewCaseModal,
 }) => {
   const { user, institution, systemStatus } = useAuth();
+  const { language, t } = useI18n();
   if (!user) return null;
+
+  const currentHour = new Date().getHours();
+  const greetingKey = currentHour < 12 ? 'greeting.morning' : currentHour < 17 ? 'greeting.afternoon' : 'greeting.evening';
+  const greeting = t(greetingKey);
+  const todayLabel = new Intl.DateTimeFormat(LANGUAGE_LOCALES[language], { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
   const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
 
@@ -95,7 +102,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   if (pendingCase) {
     attentionItems.push({
       id: 'pending-ai-decision',
-      title: `${pendingDecisions} AI Placement Verification(s) Pending`,
+      title: `${pendingDecisions} Placement Review(s) Pending`,
       description: `Warden review required for ${pendingCase.id} (${pendingCase.first_name} ${pendingCase.last_name}). Explainable AI recommendation requires human sign-off.`,
       severity: 'warning',
       actionTab: 'cases',
@@ -118,9 +125,10 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   }
 
   // 3. Clinical well-being notice (Safely summarized: DO NOT expose confidential psychotherapy details!)
-  const clinicalFlagCase = cases.find(
+  const canViewClinicalSignals = user.role === 'Psychologist' || user.role === 'Administrator';
+  const clinicalFlagCase = canViewClinicalSignals ? cases.find(
     (c) => c.low_mood_count >= 3 || (c.mental_wellbeing && c.mental_wellbeing <= 2)
-  );
+  ) : undefined;
   if (clinicalFlagCase) {
     attentionItems.push({
       id: 'clinical-flag',
@@ -156,11 +164,11 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   };
 
   return (
-    <div data-motion-scope="dashboard" className="space-y-6 animate-fade-in min-w-0">
+    <div data-motion-scope="dashboard" data-dashboard className="dashboard-shell space-y-6 animate-fade-in min-w-0">
       {/* Top Welcome & Institutional Status Strip */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0f2744] to-[#123158] border border-[#1e3a5f] text-white shadow-xl relative overflow-hidden">
+      <div className="dashboard-hero relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#0284c7]/20 to-[#5cc2bd]/10 blur-3xl pointer-events-none rounded-full" />
+        <div className="dashboard-hero__glow" aria-hidden="true" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div>
@@ -171,44 +179,34 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               <span className="text-xs text-slate-300 font-mono">Badge #{user.badge_number}</span>
               {isDemo ? (
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-semibold">
-                  Exhibition Demo Â· Fictional Caseload
+                  {t('dashboard.demo')}
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-semibold">
-                  Clean Institutional Deployment
+                  {t('dashboard.clean')}
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
-              {institution?.name || 'Rehabilitation Management'}
+            <div className="dashboard-hero__date">{todayLabel}</div>
+            <h1 className="dashboard-hero__title">
+              {greeting}, {user.full_name}
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base mt-1.5 max-w-2xl leading-relaxed">
-              Welcome back, <strong className="text-white font-semibold">{user.full_name}</strong>.
-              Signed into <span className="text-[#5cc2bd] font-semibold">{user.department}</span> with institutional row-level data isolation active.
+            <p className="dashboard-hero__subtitle">
+              {institution?.name || 'RehabPath360'} <span aria-hidden="true">·</span> {user.department}
+              <span className="dashboard-hero__context">{t('dashboard.context')}</span>
             </p>
           </div>
 
           {/* Quick Actions Header Strip */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {onOpenNewCaseModal && (
-              <button
-                type="button"
-                onClick={onOpenNewCaseModal}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#0369a1] hover:from-[#0274b0] hover:to-[#025a8b] text-white text-sm font-semibold shadow-md shadow-[#0284c7]/20 flex items-center gap-2 cursor-pointer transition-all"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>New Case</span>
-              </button>
-            )}
-
+          <div className="dashboard-hero__actions flex flex-wrap items-center gap-2.5">
             <button
               type="button"
               onClick={() => onSelectTab('intake')}
               className="px-4 py-2.5 rounded-xl bg-[#0f2744] hover:bg-[#163860] text-slate-200 border border-[#1e3a5f] text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all"
             >
               <FileSpreadsheet className="w-4 h-4 text-[#5cc2bd]" />
-              <span>Import Document</span>
+              <span>{t('dashboard.import_document')}</span>
             </button>
 
             <button
@@ -216,11 +214,82 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('cases')}
               className="px-4 py-2.5 rounded-xl bg-[#0f2744] hover:bg-[#163860] text-slate-200 border border-[#1e3a5f] text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all"
             >
-              <span>View Directory</span>
+              <span>{t('dashboard.view_directory')}</span>
               <ArrowRight className="w-4 h-4 text-[#38bdf8]" />
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 4 Primary Summary KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tour="kpi-summary-cards">
+        {/* Card 1: Active Cases */}
+        <div className="dashboard-kpi dashboard-kpi--blue reveal-feature">
+          <div className="flex items-center justify-between">
+            <span className="dashboard-kpi__label text-xs sm:text-sm font-bold uppercase tracking-wider">
+              Active Cases
+            </span>
+            <div className="dashboard-kpi__icon">
+              <Users className="w-4.5 h-4.5" />
+            </div>
+          </div>
+          <div className="dashboard-kpi__value text-3xl sm:text-4xl font-bold mt-2 font-serif tabular-nums">{totalCases}</div>
+          <span className="text-xs text-[#38bdf8] font-medium block mt-1.5">
+            {isDemo ? 'Fictional demo records' : 'Verified institutional files'}
+          </span>
+        </div>
+
+        {/* Card 2: Reviews Pending */}
+        <div className="dashboard-kpi dashboard-kpi--amber reveal-feature">
+          <div className="flex items-center justify-between">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
+              Reviews Pending
+            </span>
+            <div className="dashboard-kpi__icon">
+              <Clock className="w-4.5 h-4.5" />
+            </div>
+          </div>
+          <div className="dashboard-kpi__value text-3xl sm:text-4xl font-bold mt-2 font-serif tabular-nums">{pendingDecisions}</div>
+          <span className="text-xs text-slate-300 font-medium block mt-1.5">
+            Requires human officer verification
+          </span>
+        </div>
+
+        {/* Card 3: Rehabilitation Plans On Track */}
+        <div className="dashboard-kpi dashboard-kpi--green reveal-feature">
+          <div className="flex items-center justify-between">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
+              Plans On Track
+            </span>
+            <div className="dashboard-kpi__icon">
+              <CheckCircle2 className="w-4.5 h-4.5" />
+            </div>
+          </div>
+          <div className="dashboard-kpi__value text-3xl sm:text-4xl font-bold mt-2 font-serif tabular-nums">{plansOnTrack}</div>
+          <span className="text-xs text-emerald-400 font-medium block mt-1.5">
+            {totalCases > 0 ? Math.round((plansOnTrack / totalCases) * 100) : 0}% adhering to milestones
+          </span>
+        </div>
+
+        {/* Card 4: Scheduled Check-ins */}
+        <div className="dashboard-kpi dashboard-kpi--teal reveal-feature">
+          <div className="flex items-center justify-between">
+            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
+              Scheduled Check-ins
+            </span>
+            <div className="dashboard-kpi__icon">
+              <Calendar className="w-4.5 h-4.5" />
+            </div>
+          </div>
+          <div className="dashboard-kpi__value text-3xl sm:text-4xl font-bold mt-2 font-serif tabular-nums">{scheduledCheckins}</div>
+          <span className="text-xs text-slate-300 font-medium block mt-1.5">
+            Upcoming 28-day review cycle
+          </span>
+        </div>
+      </div>
+
+      <div data-tour="case-explorer-section">
+        <CaseExplorer cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
       </div>
 
       <ExhibitionTour
@@ -230,81 +299,10 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         
       />
 
-      <div data-tour="case-explorer-section">
-        <CaseExplorer cases={cases} onSelectCase={onSelectCase} onSelectTab={onSelectTab} />
-      </div>
-
-      {/* 4 Primary Summary KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tour="kpi-summary-cards">
-        {/* Card 1: Active Cases */}
-        <div className="reveal-feature card relative overflow-hidden border-t-3 border-[#0284c7] bg-gradient-to-b from-[#0e223d] to-[#0b1a30] hover:border-[#38bdf8] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-950/40 transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Active Cases
-            </span>
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
-              <Users className="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-bold text-white mt-2 font-serif tabular-nums">{totalCases}</div>
-          <span className="text-xs text-[#38bdf8] font-medium block mt-1.5">
-            {isDemo ? 'Fictional demo records' : 'Verified institutional files'}
-          </span>
-        </div>
-
-        {/* Card 2: Reviews Pending */}
-        <div className="reveal-feature card relative overflow-hidden border-t-3 border-amber-500 bg-gradient-to-b from-[#182338] to-[#0b1a30] hover:border-amber-400 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-950/30 transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Reviews Pending
-            </span>
-            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
-              <Clock className="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-bold text-amber-400 mt-2 font-serif tabular-nums">{pendingDecisions}</div>
-          <span className="text-xs text-slate-300 font-medium block mt-1.5">
-            Requires human officer verification
-          </span>
-        </div>
-
-        {/* Card 3: Rehabilitation Plans On Track */}
-        <div className="reveal-feature card relative overflow-hidden border-t-3 border-emerald-500 bg-gradient-to-b from-[#0f2838] to-[#0b1a30] hover:border-emerald-400 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-950/30 transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Plans On Track
-            </span>
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
-              <CheckCircle2 className="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-bold text-emerald-400 mt-2 font-serif tabular-nums">{plansOnTrack}</div>
-          <span className="text-xs text-emerald-400 font-medium block mt-1.5">
-            {totalCases > 0 ? Math.round((plansOnTrack / totalCases) * 100) : 0}% adhering to milestones
-          </span>
-        </div>
-
-        {/* Card 4: Scheduled Check-ins */}
-        <div className="reveal-feature card relative overflow-hidden border-t-3 border-[#5cc2bd] bg-gradient-to-b from-[#0d273d] to-[#0b1a30] hover:border-teal-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-950/30 transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Scheduled Check-ins
-            </span>
-            <div className="p-2 rounded-lg bg-teal-500/10 text-[#5cc2bd]">
-              <Calendar className="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-bold text-[#5cc2bd] mt-2 font-serif tabular-nums">{scheduledCheckins}</div>
-          <span className="text-xs text-slate-300 font-medium block mt-1.5">
-            Upcoming 28-day review cycle
-          </span>
-        </div>
-      </div>
-
       {/* Main Grid: Interactive Analytics Suite + Needs Attention Queue */}
       <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-3">
         {/* Interactive Analytics Suite (2 Cols) */}
-        <div className="reveal-feature 2xl:col-span-2 card min-w-0 max-w-full overflow-hidden bg-[#0b1a30] border border-[#1e3a5f]" data-tour="dashboard-progression-chart">
+        <div className="dashboard-panel reveal-feature 2xl:col-span-2 card min-w-0 max-w-full overflow-hidden" data-tour="dashboard-progression-chart">
           <InteractiveAnalyticsSuite
             cases={cases}
             activeRole={user.role}
@@ -315,12 +313,12 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         </div>
 
         {/* Needs Attention Panel (1 Col) */}
-        <div className="reveal-feature card min-w-0 bg-[#0b1a30] flex flex-col justify-between">
+        <div className="dashboard-panel reveal-feature card min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-bold font-serif text-white flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <span>Needs Attention</span>
+                <span>{t('section.needs_attention')}</span>
               </h2>
               <span className="text-[11px] font-semibold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                 {attentionItems.length} Actionable
@@ -331,9 +329,9 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               {attentionItems.length === 0 ? (
                 <div className="p-6 text-center text-slate-400 bg-[#0f2744] rounded-xl border border-[#1e3a5f]">
                   <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-400" />
-                  <p className="text-xs font-semibold text-white">All Workflows Up To Date</p>
+                  <p className="text-xs font-semibold text-white">{t('section.all_up_to_date')}</p>
                   <p className="text-[11px] text-slate-400 mt-1">
-                    No overdue placements, critical attendance barriers, or urgent reviews in this facility.
+                    {t('section.no_urgent')}
                   </p>
                 </div>
               ) : (
@@ -424,10 +422,10 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       </div>
 
       {/* Recent Case Activity Table */}
-      <div className="reveal-feature card bg-[#0b1a30]">
+      <div className="dashboard-panel reveal-feature card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base sm:text-lg font-bold font-serif text-white">Recent Caseload Activity</h2>
+            <h2 className="text-base sm:text-lg font-bold font-serif text-white">{t('section.recent_activity')}</h2>
             <p className="text-xs text-slate-400">
               Active individual records in {institution?.name || 'this facility'}
             </p>
