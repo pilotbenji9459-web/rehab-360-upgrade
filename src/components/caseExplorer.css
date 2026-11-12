@@ -169,3 +169,37 @@ html[dir="rtl"] .cx-shell button.cx-search-clear {right:auto;left:72px;}
   .cx-shell .cx-search input {padding-inline-end:38px!important}
   .cx-shell button.cx-search-clear {right:11px!important}
 }
+
+
+/* Cases view readability: enlarge supporting details without changing page headings. */
+.cases-view .text-xs {
+  font-size: 0.875rem !important;
+  line-height: 1.55;
+}
+.cases-view [class*="text-[10px]"],
+.cases-view [class*="text-[11px]"] {
+  font-size: 0.8125rem !important;
+  line-height: 1.5;
+}
+.cases-view label {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.cases-view input,
+.cases-view select,
+.cases-view textarea {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.cases-view .app-table td,
+.cases-view .app-table th {
+  line-height: 1.5;
+}
+.cases-view .mute {
+  line-height: 1.6;
+}
+@media (max-width: 640px) {
+  .cases-view .text-xs { font-size: 0.9rem !important; }
+  .cases-view [class*="text-[10px]"],
+  .cases-view [class*="text-[11px]"] { font-size: 0.84rem !important; }
+}
