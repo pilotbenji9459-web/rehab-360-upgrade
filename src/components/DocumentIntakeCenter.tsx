@@ -220,7 +220,12 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
 
     setIsCommitting(true);
     try {
-      await Api.commitVerifiedFields(uploadedDoc.id, accepted);
+      const latestKnownCase = cases.find(c => c.id === uploadedDoc.case_id);
+      if (!latestKnownCase) {
+        showAlert('Refresh the case list before committing this document.', 'Case Record Unavailable');
+        return;
+      }
+      await Api.commitVerifiedFields(uploadedDoc.id, accepted, latestKnownCase.version);
       setCommitSuccess(true);
       if (onRefreshCase) onRefreshCase();
       await fetchDocuments();
