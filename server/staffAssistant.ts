@@ -77,7 +77,7 @@ export function answerExactCaseField(
   const name = [record.first_name, record.last_name].filter(Boolean).join(' ');
   const intro = `According to ${name || record.id}'s saved case record`;
   if (/\b(charge|charges|charged|offen[cs]e|offen[cs]es|crime|convict(?:ed|ion)|accus(?:ed|ation))\b/i.test(q)) {
-    return `${intro}, the recorded offence category is **${record.crime_type || 'not specified'}**. This is the case's stored offence category, not an independently verified legal charge.`;
+    return `${intro}, the recorded offence category is ${record.crime_type || 'not specified'}. This is the case's stored offence category, not an independently verified legal charge.`;
   }
   if (/\b(sentence|sentenced|duration|how long|months in custody)\b/i.test(q)) {
     return `${intro}, the sentence length is ${record.sentence_length_months} months.`;
