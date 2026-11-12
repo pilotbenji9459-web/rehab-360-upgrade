@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import progressRingLogo from '../assets/images/rehabpath360_progress_ring_icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { useI18n, SUPPORTED_LANGUAGES, LanguageCode } from '../context/I18nContext';
 import { OffenderCase, TabId, StaffRole, WorkspaceMode } from '../types';
@@ -112,6 +113,17 @@ export const Header: React.FC<HeaderProps> = ({
           aria-label="Toggle navigation menu"
         >
           <Menu className="w-5 h-5" />
+        </button>
+
+        {/* The same home-screen brand is a one-tap Overview shortcut on mobile. */}
+        <button
+          type="button"
+          onClick={onGoHome}
+          aria-label="RehabPath360 — go to Facility Overview"
+          title="Facility Overview"
+          className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-transparent p-1.5 hover:bg-[#173656] focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+        >
+          <img src={progressRingLogo} alt="" aria-hidden="true" className="h-full w-full object-contain" />
         </button>
 
         {/* WORKSPACE & HIERARCHICAL BREADCRUMB */}
