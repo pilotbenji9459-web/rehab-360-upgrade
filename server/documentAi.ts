@@ -194,16 +194,96 @@ Tasks:
       });
 
       const parsed = JSON.parse(response.text || '{}');
-      return {
-        summary: parsed.summary || 'Document analyzed successfully via Gemini.',
-        missingRequiredFields: parsed.missingRequiredFields || [],
-        warnings: parsed.warnings || [],
-        rawTextPreview: sanitizedDocText.slice(0, 1000),
-        fields: (parsed.fields || []).map((f: any) => ({
-          ...f,
-          currentValue: (currentCase as any)[f.fieldName] ?? 'Not recorded',
+      const warnings: string[] = Array.isArray(parsed.warnings)
+        ? parsed.warnings.filter((item: unknown): item is string => typeof item === 'string')
+        : [];
+      const allowedDocumentFields = new Set([
+        'session_attendance',
+        'education_level',
+        'mental_wellbeing',
+        'certifications',
+        'gate_scores.skl',
+        'gate_scores.edu',
+      ]);
+
+      // Gemini output is untrusted input. Only expose fields the commit route
+      // explicitly supports, and validate values before they reach the review UI.
+      const fields: ExtractedField[] = [];
+      for (const candidate of Array.isArray(parsed.fields) ? parsed.fields : []) {
+        if (!candidate || typeof candidate !== 'object' || !allowedDocumentFields.has(candidate.fieldName)) {
+          warnings.push('An unsupported field suggested by automated analysis was excluded from review.');
+          continue;
+        }
+
+        const fieldName = candidate.fieldName as string;
+        let extractedValue = candidate.extractedValue;
+        if (fieldName === 'certifications') {
+          if (typeof extractedValue !== 'string' && !Array.isArray(extractedValue)) {
+            warnings.push('A certification value could not be safely interpreted and was excluded.');
+            continue;
+          }
+          const certifications = Array.isArray(extractedValue)
+            ? extractedValue
+            : extractedValue.split(',');
+          if (certifications.some((value: unknown) => typeof value !== 'string')) {
+            warnings.push('A certification value contained an invalid item and was excluded.');
+            continue;
+          }
+          extractedValue = certifications.map((value: string) => value.trim()).filter(Boolean).slice(0, 50);
+        } else {
+          if (
+            typeof extractedValue !== 'number' &&
+            !(typeof extractedValue === 'string' && /^\\d+$/.test(extractedValue.trim()))
+          ) {
+            warnings.push(`An invalid numeric value for ${fieldName} was excluded from review.`);
+            continue;
+          }
+          extractedValue = Number(extractedValue);
+          const ratingField = fieldName === 'education_level' || fieldName === 'mental_wellbeing';
+          const max = ratingField ? 5 : 100;
+          const min = ratingField ? 1 : 0;
+          if (!Number.isInteger(extractedValue) || extractedValue < min || extractedValue > max) {
+            warnings.push(`An out-of-range value for ${fieldName} was excluded from review.`);
+            continue;
+          }
+        }
+
+        const currentValue = fieldName === 'gate_scores.skl'
+          ? currentCase.gate_scores.skl
+          : fieldName === 'gate_scores.edu'
+            ? currentCase.gate_scores.edu
+            : (currentCase as any)[fieldName] ?? 'Not recorded';
+        const confidence = Number(candidate.confidenceScore);
+        fields.push({
+          fieldName,
+          fieldLabel: typeof candidate.fieldLabel === 'string' && candidate.fieldLabel.trim()
+            ? candidate.fieldLabel.trim()
+            : fieldName,
+          extractedValue,
+          currentValue,
+          isConflict: Boolean(candidate.isConflict),
+          ...(typeof candidate.conflictDescription === 'string'
+            ? { conflictDescription: candidate.conflictDescription }
+            : {}),
+          sourceCitation: typeof candidate.sourceCitation === 'string' ? candidate.sourceCitation : '',
+          isFactOrInterpretation: candidate.isFactOrInterpretation === 'AI Interpretation'
+            ? 'AI Interpretation'
+            : 'Extracted Fact',
+          confidenceScore: Number.isFinite(confidence) ? Math.max(0, Math.min(100, confidence)) : 0,
           humanStatus: 'pending',
-        })),
+        });
+      }
+
+      return {
+        summary: typeof parsed.summary === 'string' && parsed.summary.trim()
+          ? parsed.summary
+          : 'Document analyzed successfully via Gemini.',
+        missingRequiredFields: Array.isArray(parsed.missingRequiredFields)
+          ? parsed.missingRequiredFields.filter((item: unknown): item is string => typeof item === 'string')
+          : [],
+        warnings,
+        rawTextPreview: sanitizedDocText.slice(0, 1000),
+        fields,
       };
     } catch (err) {
       console.error('Gemini API call error, falling back to heuristic verification:', err);
