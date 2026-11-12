@@ -28,7 +28,6 @@ import {
   verifyDocumentWithAI,
 } from './server/documentAi';
 import { answerStaffQuestion } from './server/staffAssistant';
-import { answerCaseQuestion } from './server/caseAssistant';
 
 
 const app = express();
@@ -44,7 +43,7 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 /**
  * Role-aware staff guide. The browser supplies only a question; the role
  * comes from the authenticated, institution-scoped account on the server.
- * No case content or patient data is forwarded to the language model.
+ * Only allowlisted non-clinical case facts from fictional demo records may be sent\n * to Gemini, unless an institution explicitly enables external case AI.
  */
 const assistantRequests = new Map<string, { count: number; resetAt: number }>();
 app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -84,23 +83,34 @@ app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedReque
       return;
     }
 
-    if (requestedCaseId) {
-      // Validate the requested case against the authenticated staff member's tenant.
-      // Ignore any role, tenant ID or case data supplied by the browser.
-      const selectedCase = DB.findCaseById(requestedCaseId, staff.institution_id);
-      if (!selectedCase) {
-        res.status(404).json({ error: 'Case not found or not accessible in your institution.' });
-        return;
-      }
-
-      const linkedDocuments = DB.getDocuments(selectedCase.id, staff.institution_id);
-      const answer = answerCaseQuestion(staff.role, selectedCase, linkedDocuments, question.trim());
-      res.json({ answer, mode: 'case', role: staff.role, case_id: selectedCase.id });
+    // Never trust a role, institution, case payload, or navigation permission supplied by the client.
+    // Conversations are session-scoped in the browser; only a small, validated context window is accepted.
+    const history = Array.isArray(req.body?.history)
+      ? req.body.history.slice(-6).filter((message: any) =>
+          message && (message.role === 'user' || message.role === 'assistant')
+          && typeof message.text === 'string' && message.text.length <= 450)
+      : [];
+    const selectedCase = requestedCaseId
+      ? DB.findCaseById(requestedCaseId, staff.institution_id)
+      : undefined;
+    if (requestedCaseId && !selectedCase) {
+      res.status(404).json({ error: 'Case not found or not accessible in your institution.' });
       return;
     }
-
-    const reply = await answerStaffQuestion(staff.role, question.trim());
-    res.json({ ...reply, role: staff.role });
+    const linkedDocuments = selectedCase ? DB.getDocuments(selectedCase.id, staff.institution_id) : [];
+    // Demo records are fictional. Real institutions must explicitly opt in after
+    // privacy/legal review before any approved case facts leave the server.
+    const institution = DB.getInstitution();
+    const allowExternalCaseData = !!institution.is_demo || process.env.ENABLE_EXTERNAL_CASE_AI === 'true';
+    const reply = await answerStaffQuestion({
+      role: staff.role,
+      question: question.trim(),
+      history,
+      record: selectedCase,
+      documents: linkedDocuments,
+      allowExternalCaseData,
+    });
+    res.json({ ...reply, role: staff.role, ...(selectedCase ? { case_id: selectedCase.id } : {}) });
   } catch {
     res.status(503).json({ error: 'The staff assistant is temporarily unavailable.' });
   }
