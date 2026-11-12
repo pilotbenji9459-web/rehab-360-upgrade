@@ -19,11 +19,22 @@
  * 15. Demo/deployment separation: demo credentials and fictional records cannot leak into clean deployment storage.
  */
 
-import { DB, getCleanDeploymentDatabase, getInitialDemoDatabase } from '../server/db';
-import { generateToken, validateCaseFieldPermissions } from '../server/auth';
-import { calculateAIRecommendation, formatPathwayName } from '../src/utils/aiLogic';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 async function runTests() {
+  // Run against a disposable working directory so tests never alter the
+  // checked-in demo database or any developer's real application data.
+  const originalWorkingDirectory = process.cwd();
+  const isolatedTestDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'rehabpath360-tests-'));
+  process.chdir(isolatedTestDirectory);
+
+  try {
+    const { DB, getCleanDeploymentDatabase, getInitialDemoDatabase } = await import('../server/db');
+    const { generateToken, validateCaseFieldPermissions } = await import('../server/auth');
+    const { calculateAIRecommendation, formatPathwayName } = await import('../src/utils/aiLogic');
+
   console.log('================================================================');
   console.log('REHABPATH360 AUTOMATED VERIFICATION SUITE');
   console.log('================================================================\n');
@@ -286,7 +297,11 @@ async function runTests() {
   console.log('----------------------------------------------------------------\n');
 
   if (passed !== total) {
-    process.exit(1);
+    throw new Error(`${total - passed} of ${total} test scenarios failed.`);
+  }
+  } finally {
+    process.chdir(originalWorkingDirectory);
+    fs.rmSync(isolatedTestDirectory, { recursive: true, force: true });
   }
 }
 
