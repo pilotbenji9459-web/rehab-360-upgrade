@@ -130,12 +130,16 @@ export const Api = {
   getStaffList: () =>
     request<{ staff: any[] }>('/api/auth/staff'),
 
-  // The server resolves selected cases by staff identity and institution.
-  // Never send private case content in the request payload.
-  askStaffAssistant: (question: string, caseId?: string) =>
-    request<{ answer: string; mode: 'ai' | 'guide' | 'case'; role: string; case_id?: string }>('/api/assistant/ask', {
+  // Staff AI receives only conversation text and selected case ID;
+  // the backend resolves and filters authorized data itself.
+  askStaffAssistant: (
+    question: string,
+    caseId?: string,
+    history: { role: 'user' | 'assistant'; text: string }[] = [],
+  ) =>
+    request<{ answer: string; mode: 'ai' | 'guide' | 'case'; role: string; case_id?: string; navigate_to?: import('../types').TabId }>('/api/assistant/ask', {
       method: 'POST',
-      body: JSON.stringify({ question, ...(caseId ? { case_id: caseId } : {}) }),
+      body: JSON.stringify({ question, history, ...(caseId ? { case_id: caseId } : {}) }),
     }),
 
   // Cases

@@ -411,7 +411,23 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      <StaffAssistant cases={cases} selectedCaseId={workspace === 'person' ? currentRecord?.id : undefined} />
+      <StaffAssistant
+        cases={cases}
+        selectedCaseId={workspace === 'person' ? currentRecord?.id : undefined}
+        onNavigate={(destination, targetCaseId) => {
+          const personTabs: TabId[] = ['plan', 'prog', 'mx', 'trend', 'clinical', 'person_intake', 'hand', 'flags'];
+          if (personTabs.includes(destination) || (destination === 'cases' && targetCaseId)) {
+            const target = targetCaseId || currentRecord?.id;
+            if (target) {
+              handleOpenPersonCase(target, destination);
+              return;
+            }
+          }
+          setWorkspace('facility');
+          setTab(destination);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
 
       {/* New Case Registration Modal */}
       <NewCaseModal
