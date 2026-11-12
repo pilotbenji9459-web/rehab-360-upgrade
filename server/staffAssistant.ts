@@ -79,7 +79,7 @@ export function answerExactCaseField(
   if (/\b(charge|charges|charged|offen[cs]e|offen[cs]es|crime|convict(?:ed|ion)|accus(?:ed|ation))\b/i.test(q)) {
     return `${intro}, the recorded offence category is ${record.crime_type || 'not specified'}. This is the case's stored offence category, not an independently verified legal charge.`;
   }
-  if (/\\b(severity|seriousness|severity level|how severe|level of offence|level of offense)\\b/i.test(q)) {
+  if (/\b(severity|seriousness|severity level|how severe|level of offence|level of offense)\b/i.test(q)) {
     return `${intro}, the recorded offence severity is ${record.crime_severity} out of 5. This is the application's recorded scale, not a legal classification.`;
   }
   if (/\b(sentence|sentenced|duration|how long|months in custody)\b/i.test(q)) {
