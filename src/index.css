@@ -591,3 +591,258 @@ html[data-theme="light"] [data-app-sidebar] button[title="Sign out of portal"] {
 
 
 
+
+
+/* RehabPath360 premium interface layer: semantic surfaces that work in both themes. */
+.app-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-header {
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  border-color: var(--line) !important;
+  color: var(--ink);
+  box-shadow: 0 8px 28px rgba(0, 12, 28, .12);
+}
+.app-header select {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--line);
+}
+html[data-theme="light"] .app-header {
+  background: rgba(255,255,255,.94) !important;
+  border-color: #dce6ef !important;
+  box-shadow: 0 8px 28px rgba(25,55,85,.07);
+}
+html[data-theme="light"] .app-header [class*="bg-[#071325]"],
+html[data-theme="light"] .app-header [class*="bg-[#0b1a30]"],
+html[data-theme="light"] .app-header [class*="bg-[#0f2744]"] {
+  background: #f4f8fc !important;
+  border-color: #dce6ef !important;
+}
+html[data-theme="light"] .app-header :is(span,p,label)[class*="text-white"],
+html[data-theme="light"] .app-header :is(span,p,label)[class*="text-slate-100"],
+html[data-theme="light"] .app-header :is(span,p,label)[class*="text-slate-200"] {
+  color: #19344f !important;
+}
+html[data-theme="light"] .app-header :is(span,p,label)[class*="text-slate-300"],
+html[data-theme="light"] .app-header :is(span,p,label)[class*="text-slate-400"] {
+  color: #60758b !important;
+}
+html[data-theme="light"] .app-header button[class*="bg-[#0284c7]"],
+html[data-theme="light"] .app-header button[class*="from-sky-600"] {
+  color: #fff !important;
+}
+html[data-theme="light"] .app-header button[class*="bg-[#0284c7]"] :is(span,svg),
+html[data-theme="light"] .app-header button[class*="from-sky-600"] :is(span,svg) {
+  color: #fff !important;
+}
+
+.dashboard-shell {
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+  --dashboard-radius: 22px;
+}
+.dashboard-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 188px;
+  align-items: center;
+  padding: clamp(22px, 3vw, 36px);
+  border: 1px solid rgba(112, 164, 205, .22);
+  border-radius: 26px;
+  color: #f8fbff;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(45, 167, 190, .2), transparent 27%),
+    linear-gradient(118deg, #0a1b31 0%, #102b49 56%, #123b50 100%);
+  box-shadow: 0 18px 48px rgba(0, 12, 28, .2);
+}
+.dashboard-hero__glow {
+  position: absolute;
+  z-index: -1;
+  width: 330px;
+  height: 330px;
+  right: -110px;
+  top: -190px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(85, 202, 195, .2), transparent 68%);
+  pointer-events: none;
+}
+.dashboard-hero__date {
+  margin-bottom: 8px;
+  color: #a8c4d8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.dashboard-hero__title {
+  margin: 0 !important;
+  color: #fff !important;
+  font-family: "IBM Plex Serif", Georgia, serif;
+  font-size: clamp(26px, 3vw, 38px) !important;
+  line-height: 1.16 !important;
+  letter-spacing: -.035em;
+}
+.dashboard-hero__subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 9px;
+  align-items: center;
+  margin-top: 9px;
+  color: #d2e0ec !important;
+  font-size: 13px;
+}
+.dashboard-hero__context {
+  color: #9fc7d5;
+}
+.dashboard-hero__actions button {
+  min-height: 42px;
+  border: 1px solid rgba(168, 207, 226, .25);
+  background: rgba(255,255,255,.07);
+  color: #f6fbff;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+.dashboard-hero__actions button:hover {
+  background: rgba(255,255,255,.13);
+  border-color: rgba(168, 222, 232, .48);
+  transform: translateY(-1px);
+}
+
+.dashboard-kpi {
+  --dashboard-accent: #38bdf8;
+  min-width: 0;
+  padding: 19px 20px 18px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--dashboard-accent);
+  border-radius: 19px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 88%, var(--panel)), var(--panel) 75%);
+  box-shadow: 0 8px 25px rgba(0, 8, 20, .12);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.dashboard-kpi:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--dashboard-accent) 48%, var(--line));
+  box-shadow: 0 15px 32px rgba(0, 8, 20, .17);
+}
+.dashboard-kpi--blue { --dashboard-accent: #38bdf8; }
+.dashboard-kpi--amber { --dashboard-accent: #fbbf24; }
+.dashboard-kpi--green { --dashboard-accent: #34d399; }
+.dashboard-kpi--teal { --dashboard-accent: #5cc2bd; }
+.dashboard-kpi__label {
+  color: var(--mute) !important;
+  font-size: 10px !important;
+  letter-spacing: .105em;
+}
+.dashboard-kpi__value {
+  color: var(--ink) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em;
+}
+.dashboard-kpi__icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--dashboard-accent);
+  background: color-mix(in srgb, var(--dashboard-accent) 14%, transparent);
+}
+.dashboard-panel {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--dashboard-radius) !important;
+  background: var(--panel) !important;
+  box-shadow: 0 10px 30px rgba(0, 8, 20, .1);
+}
+.dashboard-panel .app-table th {
+  color: var(--mute);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.dashboard-panel .app-table td {
+  color: var(--ink);
+}
+.settings-language-control {
+  display: flex;
+  max-width: 560px;
+  flex-direction: column;
+  gap: 8px;
+}
+.settings-language-control select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+html[data-theme="light"] .dashboard-hero {
+  color: #17324d;
+  border-color: #d8e6ef;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(45, 167, 190, .1), transparent 27%),
+    linear-gradient(118deg, #fff 0%, #f3f8fc 58%, #e9f6f5 100%);
+  box-shadow: 0 16px 40px rgba(27, 68, 101, .08);
+}
+html[data-theme="light"] .dashboard-hero__date { color: #668198; }
+html[data-theme="light"] .dashboard-hero__title { color: #142f49 !important; }
+html[data-theme="light"] .dashboard-hero__subtitle { color: #506b82 !important; }
+html[data-theme="light"] .dashboard-hero__context { color: #267c7c; }
+html[data-theme="light"] .dashboard-hero__actions button {
+  color: #1c4c68 !important;
+  background: rgba(255,255,255,.78) !important;
+  border-color: #d4e3ed !important;
+  box-shadow: 0 4px 12px rgba(31,77,108,.05);
+}
+html[data-theme="light"] .dashboard-hero__actions button :is(span,svg) {
+  color: #176d89 !important;
+}
+html[data-theme="light"] .dashboard-kpi {
+  background: linear-gradient(155deg, #fff, #f8fbfe);
+  border-color: #dce7ef;
+  box-shadow: 0 8px 24px rgba(31, 72, 105, .06);
+}
+html[data-theme="light"] .dashboard-kpi:hover {
+  box-shadow: 0 13px 30px rgba(31, 72, 105, .1);
+}
+html[data-theme="light"] .dashboard-kpi__label { color: #647b90 !important; }
+html[data-theme="light"] .dashboard-kpi__value { color: #17334f !important; }
+html[data-theme="light"] .dashboard-panel {
+  background: #fff !important;
+  border-color: #dce7ef !important;
+  box-shadow: 0 8px 26px rgba(31, 72, 105, .06);
+}
+html[data-theme="light"] [data-dashboard] [class*="bg-[#0b1a30]"],
+html[data-theme="light"] [data-dashboard] [class*="bg-[#071325]"] {
+  background-color: #fff !important;
+}
+html[data-theme="light"] [data-dashboard] [class*="bg-[#0f2744]"],
+html[data-theme="light"] [data-dashboard] [class*="bg-[#0d273d]"],
+html[data-theme="light"] [data-dashboard] [class*="bg-[#10263e]"] {
+  background-color: #f3f7fb !important;
+}
+html[data-theme="light"] [data-dashboard] [class*="border-[#1e3a5f]"],
+html[data-theme="light"] [data-dashboard] [class*="border-[#28425b]"] {
+  border-color: #dce7ef !important;
+}
+html[data-theme="light"] [data-dashboard] :is(td,th)[class*="text-slate-"] {
+  color: #51677e !important;
+}
+
+@media (max-width: 640px) {
+  .dashboard-hero { padding: 20px; border-radius: 20px; }
+  .dashboard-hero__actions { width: 100%; }
+  .dashboard-hero__actions button { flex: 1 1 145px; justify-content: center; }
+  .dashboard-kpi { padding: 15px; border-radius: 16px; }
+  .dashboard-panel { border-radius: 17px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-kpi, .dashboard-hero__actions button { transition: none !important; }
+  .dashboard-kpi:hover, .dashboard-hero__actions button:hover { transform: none !important; }
+}

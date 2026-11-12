@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../context/I18nContext';
 import { TabId, StaffRole, WorkspaceMode, OffenderCase } from '../types';
 import {
   LayoutDashboard,
@@ -52,7 +53,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
   selectedCase,
 }) => {
   const { user, institution, systemStatus, logout } = useAuth();
+  const { t } = useI18n();
   const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
+
+  const getNavLabel = (item: NavItem): string => {
+    const keyByTab: Partial<Record<TabId, string>> = {
+      dashboard: 'nav.dashboard',
+      cases: workspace === 'person' ? 'nav.case_file' : 'nav.cases',
+      intake: 'nav.intake',
+      person_intake: 'nav.person_intake',
+      plan: 'nav.plan',
+      prog: 'nav.prog',
+      clinical: 'nav.clinical',
+      flags: 'nav.flags',
+      trend: 'nav.trend',
+      mx: 'nav.mx',
+      hand: 'nav.hand',
+      rep: 'nav.rep',
+      staff: 'nav.staff',
+      audit: 'nav.audit',
+      settings: 'nav.settings',
+      guide: 'nav.guide',
+    };
+    const key = keyByTab[item.id];
+    return key ? t(key, item.label) : item.label;
+  };
 
   // Facility Workspace navigation modules
   const facilityNavItems: NavItem[] = [
@@ -256,7 +281,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Facility</span>
+              <span>{t('workspace.facility.short')}</span>
             </button>
 
             <button
@@ -269,7 +294,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }`}
             >
               <User className="w-3.5 h-3.5" />
-              <span>Person</span>
+              <span>{t('workspace.person.short')}</span>
             </button>
           </div>
 
@@ -297,7 +322,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin" aria-label="Main Navigation">
           <div className="px-2 pb-1.5 text-xs font-bold uppercase tracking-wider text-slate-300">
-            {workspace === 'facility' ? 'Facility Modules' : 'Person Case Modules'}
+            {t(workspace === 'facility' ? 'workspace.facility.modules' : 'workspace.person.modules')}
           </div>
           {visibleItems.map((item) => {
             const Icon = item.icon;
@@ -321,7 +346,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                     }`}
                   />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{getNavLabel(item)}</span>
                 </div>
                 {item.badge && (
                   <span

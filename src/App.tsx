@@ -220,7 +220,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#071325] text-slate-100 flex flex-col">
+    <div className="app-root min-h-screen flex flex-col">
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={tab}
