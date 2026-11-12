@@ -31,6 +31,15 @@ import { answerStaffQuestion } from './server/staffAssistant';
 
 
 const app = express();
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const HOST = '0.0.0.0';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Body parsing
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+
 /**
  * Role-aware staff guide. The browser supplies only a question; the role
  * comes from the authenticated, institution-scoped account on the server.
@@ -75,13 +84,6 @@ app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedReque
   }
 });
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-const HOST = '0.0.0.0';
-const isProduction = process.env.NODE_ENV === 'production';
-
-// Body parsing
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Multer upload setup
 const upload = multer({
