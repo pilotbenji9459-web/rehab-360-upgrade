@@ -918,3 +918,35 @@ body {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Responsive legibility: keep descriptions readable without changing icon sizing. */
+.app-root main { min-width:0; width:100%; }
+.app-root main :is(.card,section,article) { min-width:0; }
+.app-root main :is(.text-xs) { font-size:0.875rem; line-height:1.55; }
+.app-root main :is(.text-sm) { font-size:1rem; line-height:1.6; }
+.app-root main :is(p,.note-box,.mute) { line-height:1.65; overflow-wrap:break-word; }
+.app-root main :is(.note-box,.mute) { font-size:0.975rem; }
+.app-root main :is(h1,h2,h3) { overflow-wrap:break-word; }
+.app-root main :is(.card,.dashboard-panel,.dashboard-kpi) { min-width:0; }
+.app-root main :is(.row,.flex) > * { min-width:0; }
+.app-root main img { max-width:100%; height:auto; }
+.app-root main .scroll-container,
+.app-root main .overflow-x-auto { max-width:100%; overflow-x:auto; }
+.app-root main table.app-table { min-width:540px; }
+.app-root main .matrix-grid { min-width:450px; font-size:0.95rem; }
+.app-root main .grid-layout { grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr)); }
+.app-root main button { white-space:normal; overflow-wrap:break-word; }
+.app-root main .tag { white-space:normal; }
+@media (max-width:640px) {
+  .app-root main { padding-inline:1rem; }
+  .app-root main .card { padding:1rem; }
+}
+/* Allow longer translated labels to wrap instead of colliding. */
+.app-header { min-width:0; }
+.app-header > div { min-width:0; }
+.app-header select { max-width:100%; }
+@media (max-width:767px) {
+  .app-header { flex-wrap:wrap; row-gap:0.5rem; }
+  .app-header > div:last-child { flex:1 1 auto; justify-content:flex-end; flex-wrap:wrap; }
+}
