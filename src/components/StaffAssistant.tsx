@@ -55,7 +55,7 @@ export const StaffAssistant: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 px-4 py-2 text-xs text-emerald-200 bg-emerald-900/20 border-b border-slate-700">
             <ShieldCheck className="w-4 h-4 shrink-0" aria-hidden="true"/>
-            <span>Role-aware guidance only · No case records sent to AI</span>
+            <span>Role-aware help only. Do not type names, case IDs or confidential details.</span>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3" aria-live="polite" aria-relevant="additions text">
             {messages.length === 0 && (
