@@ -37,10 +37,16 @@ export function getApprovedCaseFacts(c: OffenderCase, documents: UploadedDocumen
     items[document.status] = (items[document.status] ?? 0) + 1;
     return items;
   }, {});
-  // Intentionally exclude names, dates of birth, full case text, clinical records,
-  // medical information, document contents, and personally identifying filenames.
+  // Exclude names, dates of birth, clinical records, medical information,
+  // uploaded document contents and filenames; send only approved bounded case facts.
+  // Real institution records remain local unless explicitly authorized.
   return {
     education_level: c.education_level,
+    education_history: typeof c.education_history === 'string' ? c.education_history.slice(0, 450) : '',
+    employment_history: typeof c.employment_history === 'string' ? c.employment_history.slice(0, 450) : '',
+    certifications: (c.certifications || []).slice(0, 12).map(item => String(item).slice(0, 100)),
+    offence_category: c.crime_type,
+    offence_severity_out_of_five: c.crime_severity,
     attendance_percent: c.session_attendance,
     programme_engagement_out_of_five: c.programme_engagement,
     support_network_out_of_five: c.support_network,
