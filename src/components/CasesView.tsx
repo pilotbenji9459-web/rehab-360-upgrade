@@ -232,7 +232,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
   if (c.assessment_completeness < 96) missingAlerts.push('Latest creative-development assessment pending');
 
   return (
-    <div className="space-y-6">
+    <div className="cases-view space-y-6">
       {/* Multi-Agency Civic Directory Banner */}
       <div className="rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-xl">
         <div className="relative h-44 sm:h-52 w-full overflow-hidden bg-slate-950">
