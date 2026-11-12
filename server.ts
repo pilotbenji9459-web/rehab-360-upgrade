@@ -98,32 +98,27 @@ app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedReque
       return;
     }
 
-    // If staff refer to a person by name, resolve only among cases visible
-    // in their own institution. Do not rely on an LLM to choose a record.
-    const possibleCases = DB.getCases(staff.institution_id);
-    const normalizedQuestion = question.toLowerCase().replace(/[^a-z0-9 -]/g, ' ');
-    const matchingCases = possibleCases.filter(record => {
-      const first = record.first_name.toLowerCase().trim();
-      const full = (record.first_name + ' ' + record.last_name).toLowerCase().trim();
-      const id = record.id.toLowerCase();
-      const includesTerm = (term: string) =>
-        term.length > 1 && new RegExp('(?:^|[^a-z0-9])' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\    const selectedCase = requestedCaseId
-      ? DB.findCaseById(requestedCaseId, staff.institution_id)
-      : undefined;
-    if (requestedCaseId && !selectedCase) {
-      res.status(404).json({ error: 'Case not found or not accessible in your institution.' });
-      return;
-    }') + '(?:$|[^a-z0-9])').test(normalizedQuestion);
-      return includesTerm(full) || includesTerm(id) || (first.length >= 3 && includesTerm(first));
-    });
+    // Resolve explicit case names only within this staff member's institution.
+    // The server, not the language model, chooses the authorized record.
+    const allCases = DB.getCases(staff.institution_id);
+    const normalizedQuestion = ' ' + question.toLowerCase().replace(/[^a-z0-9 -]/g, ' ').replace(/\\s+/g, ' ').trim() + ' ';
+    const mentions = (name: string) => {
+      const value = name.toLowerCase().replace(/[^a-z0-9 -]/g, ' ').trim();
+      return value.length >= 3 && normalizedQuestion.includes(' ' + value + ' ');
+    };
+    const matchingCases = allCases.filter(entry =>
+      mentions(entry.id) ||
+      mentions(entry.first_name + ' ' + entry.last_name) ||
+      mentions(entry.first_name)
+    );
     if (matchingCases.length === 1) {
       selectedCase = matchingCases[0];
     } else if (matchingCases.length > 1 && !selectedCase) {
-      res.json({ answer: 'Multiple case records match that name. Select the correct person from the case dropdown before asking.', mode: 'guide', role: staff.role });
+      res.json({ answer: 'More than one case matches that name. Please select the right person from the case list.', mode: 'guide', role: staff.role });
       return;
     }
     if (!selectedCase && /\\b(charge|charged|offen[cs]e|crime|sentence|attendance)\\b/i.test(question)) {
-      res.json({ answer: 'Which case should I check? Select a person in the case dropdown or include their name in your question.', mode: 'guide', role: staff.role });
+      res.json({ answer: 'Which case should I check? Select a person or include their name in your question.', mode: 'guide', role: staff.role });
       return;
     }
     const linkedDocuments = selectedCase ? DB.getDocuments(selectedCase.id, staff.institution_id) : [];
