@@ -130,6 +130,13 @@ export const Api = {
   getStaffList: () =>
     request<{ staff: any[] }>('/api/auth/staff'),
 
+  // Staff AI: guidance only, without transmitting case data
+  askStaffAssistant: (question: string) =>
+    request<{ answer: string; mode: 'ai' | 'guide'; role: string }>('/api/assistant/ask', {
+      method: 'POST',
+      body: JSON.stringify({ question }),
+    }),
+
   // Cases
   getCases: (params?: { search?: string; severity?: number; decision?: string }) => {
     const query = new URLSearchParams();
