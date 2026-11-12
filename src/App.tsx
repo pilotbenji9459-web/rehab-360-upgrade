@@ -411,7 +411,7 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      <StaffAssistant />
+      <StaffAssistant cases={cases} selectedCaseId={workspace === 'person' ? currentRecord?.id : undefined} />
 
       {/* New Case Registration Modal */}
       <NewCaseModal
