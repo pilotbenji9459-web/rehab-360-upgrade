@@ -31,7 +31,6 @@ export function canNavigateTo(role: StaffRole, destination: string | undefined):
 }
 export function destinationWorkspace(destination: AssistantDestination) { return NAVIGATION[destination].workspace; }
 
-const FIELD_EXPLANATION = 'These values come from the saved record and are not a treatment, release, or placement recommendation.';
 export function getApprovedCaseFacts(c: OffenderCase, documents: UploadedDocument[]) {
   const documentStatuses = documents.reduce<Record<string, number>>((items, document) => {
     items[document.status] = (items[document.status] ?? 0) + 1;
@@ -65,8 +64,71 @@ export function getApprovedCaseFacts(c: OffenderCase, documents: UploadedDocumen
     case_document_status_counts: documentStatuses,
   };
 }
+/**
+ * Answer requested fields directly from the saved, authorized case. This is
+ * deliberately independent of Gemini so exact facts work without an API key.
+ */
+export function answerExactCaseField(
+  record: OffenderCase,
+  question: string,
+  documents: UploadedDocument[] = [],
+): string | undefined {
+  const q = question.toLowerCase();
+  const name = [record.first_name, record.last_name].filter(Boolean).join(' ');
+  const intro = `According to ${name || record.id}'s saved case record`;
+  if (/\b(charge|charges|charged|offen[cs]e|offen[cs]es|crime|convict(?:ed|ion)|accus(?:ed|ation))\b/i.test(q)) {
+    return `${intro}, the recorded offence category is **${record.crime_type || 'not specified'}**. This is the case's stored offence category, not an independently verified legal charge.`;
+  }
+  if (/\b(sentence|sentenced|duration|how long|months in custody)\b/i.test(q)) {
+    return `${intro}, the sentence length is ${record.sentence_length_months} months.`;
+  }
+  if (/\b(attendance|attend|sessions?)\b/i.test(q)) {
+    return `${intro}, session attendance is ${record.session_attendance}%.`;
+  }
+  if (/\b(employ(?:ment|ed)|job|work history)\b/i.test(q)) {
+    return `${intro}, the employment history states: ${record.employment_history || 'Not recorded'}.`;
+  }
+  if (/\b(certificates?|certifications?|qualifications?)\b/i.test(q)) {
+    return `${intro}, the recorded certifications are: ${record.certifications?.length ? record.certifications.join(', ') : 'none'}.`;
+  }
+  if (/\b(education|school|studies)\b/i.test(q)) {
+    return `${intro}, the education history states: ${record.education_history || 'Not recorded'}. The education gate score is ${record.gate_scores.edu}%.`;
+  }
+  if (/\b(behavio[u]?r)\b/i.test(q) && /\b(score|gate|percent|progress)\b/i.test(q)) {
+    return `${intro}, the behaviour gate score is ${record.gate_scores.beh}%.`;
+  }
+  if (/\b(skills?)\b/i.test(q) && /\b(score|gate|percent|progress)\b/i.test(q)) {
+    return `${intro}, the skills gate score is ${record.gate_scores.skl}%.`;
+  }
+  if (/\b(well.?being)\b/i.test(q) && /\b(score|gate|percent|progress)\b/i.test(q)) {
+    return `${intro}, the well-being progression gate score is ${record.gate_scores.wb}%. This is not a clinical assessment.`;
+  }
+  if (/\b(lowest|weakest|smallest)\b/i.test(q) && /\b(gate|score|progress|domain)\b/i.test(q)) {
+    const gates = [
+      ['education', record.gate_scores.edu],
+      ['behaviour', record.gate_scores.beh],
+      ['well-being', record.gate_scores.wb],
+      ['skills', record.gate_scores.skl],
+    ] as const;
+    const lowest = [...gates].sort((a,b)=>a[1]-b[1])[0];
+    return `${intro}, the lowest progression gate is ${lowest[0]} at ${lowest[1]}%.`;
+  }
+  if (/\b(placement|decision|approved|approval|pathway stage)\b/i.test(q)) {
+    return `${intro}, placement is ${record.decision || 'pending verification'}${record.pathway_position == null ? '' : ` at pathway stage ${record.pathway_position + 1}`}. A human reviewer makes placement decisions.`;
+  }
+  if (/\b(documents?|files?|attachments?|evidence)\b/i.test(q) && !/\b(where|find|navigate|open|go to)\b/i.test(q)) {
+    const items = documents.slice(0, 12).map(d=>`• ${d.original_name || d.filename}: ${d.status}`);
+    return `${intro}, there are ${documents.length} linked documents.${items.length ? '\n' + items.join('\n') : ''}`;
+  }
+  return undefined;
+}
+
 function localGuide(role: StaffRole, question: string, caseRecord?: OffenderCase, docs: UploadedDocument[] = []) {
   const q = question.toLowerCase();
+  if (caseRecord) {
+    const exact = answerExactCaseField(caseRecord, question, docs);
+    if (exact) return { answer: exact, mode: 'case' as const };
+  }
   const destination = Object.entries(NAVIGATION)
     .filter(([key, item]) => canNavigateTo(role, key) && (!caseRecord || item.workspace === 'facility' || !!caseRecord))
     .find(([key, item]) => {
@@ -75,8 +137,8 @@ function localGuide(role: StaffRole, question: string, caseRecord?: OffenderCase
     });
   if (destination) return { answer: `You can find that under ${destination[1].label}. Use the button below to open it.`, navigate_to: destination[0] as AssistantDestination, mode: 'guide' as const };
   if (caseRecord) return {
-    answer: `The selected record has ${caseRecord.session_attendance}% attendance, ${caseRecord.gate_scores.edu}% education progress, ${caseRecord.gate_scores.beh}% behaviour progress, ${caseRecord.gate_scores.wb}% well-being gate progress and ${caseRecord.gate_scores.skl}% skills progress. There are ${docs.length} linked files. ${FIELD_EXPLANATION}`,
-    mode: 'case' as const,
+    answer: 'I could not answer that exact question from the available case fields. Try asking about the recorded offence, sentence, attendance, education history, certifications, placement or gate scores. I will not invent details.',
+    mode: 'guide' as const,
   };
   return { answer: 'I can help you find features and explain the workflow. Try asking “Where are progression gates?” or choose a case to ask about its recorded information.', mode: 'guide' as const };
 }
@@ -91,6 +153,12 @@ export async function answerStaffQuestion(options: {
 }): Promise<{ answer: string; mode: 'ai' | 'guide' | 'case'; navigate_to?: AssistantDestination }> {
   const { role, question, record, history = [], documents = [], allowExternalCaseData } = options;
   const fallback = localGuide(role, question, record, documents);
+  // Exact field queries must never depend on Gemini or degrade into generic stats.
+  // Only use fields selected from an institution-scoped record on the server.
+  if (record) {
+    const exact = answerExactCaseField(record, question, documents);
+    if (exact) return { answer: exact, mode: 'case' };
+  }
   const key = process.env.GEMINI_API_KEY;
   // Do not send case-related questions or context for real facility records to
   // external providers without explicit institutional authorization.
