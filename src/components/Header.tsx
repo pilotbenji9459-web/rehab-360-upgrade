@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
           {workspace === 'facility' ? (
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="px-2 py-0.5 rounded-md bg-[#0284c7]/20 border border-[#0284c7]/40 text-[#38bdf8] text-xs font-semibold">
-                Facility Workspace
+                {t('workspace.facility')}
               </span>
               <span className="text-slate-500">/</span>
               <span className="text-slate-200 font-medium text-xs">
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-sky-600/30 to-indigo-600/30 border border-sky-500/40 text-sky-200 text-xs font-semibold">
-                Person: {selectedCase ? `${selectedCase.id} (${selectedCase.first_name} ${selectedCase.last_name})` : selectedCaseId}
+                {t('workspace.person')}: {selectedCase ? `${selectedCase.id} (${selectedCase.first_name} ${selectedCase.last_name})` : selectedCaseId}
               </span>
               <span className="text-slate-500">&rarr;</span>
               <span className="text-slate-200 font-medium text-xs">
