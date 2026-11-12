@@ -80,46 +80,29 @@ export const Header: React.FC<HeaderProps> = ({
   const selectedCase = cases.find((c) => c.id === selectedCaseId) || cases[0];
 
   const getTabLabel = (tId: TabId): string => {
-    switch (tId) {
-      case 'dashboard':
-        return 'Executive Overview';
-      case 'cases':
-        return workspace === 'person' ? 'Case File Profile' : 'Caseload Directory';
-      case 'intake':
-        return 'Document Intake Centre';
-      case 'person_intake':
-        return 'Case Evidence Documents';
-      case 'plan':
-        return 'Rehabilitation Trajectory';
-      case 'prog':
-        return 'Progression Gates';
-      case 'clinical':
-        return 'Protected Clinical Notes';
-      case 'flags':
-        return 'Clinical Wellbeing Indicators';
-      case 'trend':
-        return 'Progress Trends';
-      case 'mx':
-        return 'Domain Assessment Matrix';
-      case 'hand':
-        return 'Parole Handover Brief';
-      case 'rep':
-        return 'Reports & Data Exports';
-      case 'staff':
-        return 'Staff Management';
-      case 'audit':
-        return 'Audit Trail';
-      case 'settings':
-        return 'System Settings';
-      case 'guide':
-        return 'Operational Blueprint';
-      default:
-        return tId;
-    }
+    const keyByTab: Partial<Record<TabId, string>> = {
+      dashboard: 'nav.dashboard',
+      cases: workspace === 'person' ? 'nav.case_file' : 'nav.cases',
+      intake: 'nav.intake',
+      person_intake: 'nav.person_intake',
+      plan: 'nav.plan',
+      prog: 'nav.prog',
+      clinical: 'nav.clinical',
+      flags: 'nav.flags',
+      trend: 'nav.trend',
+      mx: 'nav.mx',
+      hand: 'nav.hand',
+      rep: 'nav.rep',
+      staff: 'nav.staff',
+      audit: 'nav.audit',
+      settings: 'nav.settings',
+      guide: 'nav.guide',
+    };
+    return keyByTab[tId] ? t(keyByTab[tId]!) : tId;
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-2.5 min-w-0 w-full bg-[#0b1a30]/95 backdrop-blur-md border-b border-[#1e3a5f] shadow-sm">
+    <header data-app-header className="app-header sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-2.5 min-w-0 w-full backdrop-blur-md border-b shadow-sm">
       <div className="flex items-center gap-2 min-w-0 shrink-0">
         {/* Mobile menu toggle */}
         <button
@@ -179,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
-            <span>Facility</span>
+            <span>{t('workspace.facility.short')}</span>
           </button>
           <button
             type="button"
@@ -191,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Person File</span>
+            <span>{t('workspace.person.short')}</span>
           </button>
         </div>
 
@@ -234,12 +217,12 @@ export const Header: React.FC<HeaderProps> = ({
             value={language}
             onChange={(e) => setLanguage(e.target.value as LanguageCode)}
             className="text-xs py-1.5 px-2 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-slate-200 cursor-pointer font-medium"
-            title="Interface Language"
-            aria-label="Interface Language"
+            title={t('language.select')}
+            aria-label={t('language.select')}
           >
             {SUPPORTED_LANGUAGES.map((lang) => (
               <option key={lang.code} value={lang.code} className="bg-[#0b1a30]">
-                {lang.label} ({lang.code.toUpperCase()})
+                {lang.nativeName}
               </option>
             ))}
           </select>
@@ -255,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({
           className="app-theme-switch"
         >
           {isDark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
-          <span className="hidden min-[520px]:inline text-xs">{isDark ? 'Light' : 'Dark'}</span>
+          <span className="hidden min-[520px]:inline text-xs">{isDark ? t('theme.light') : t('theme.dark')}</span>
         </button>
 
         {/* User Profile / Menu */}
