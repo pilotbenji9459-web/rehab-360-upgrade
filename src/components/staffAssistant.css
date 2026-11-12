@@ -53,3 +53,23 @@
 .pathway-ai-composer p {font-size:11px;line-height:1.5;text-align:center;color:#90aac4;margin:9px 0 0}
 @media(max-width:520px) {.pathway-ai-window {height:min(690px,calc(100dvh - 85px));border-radius:18px}.pathway-ai-layer {right:12px;bottom:12px}.pathway-ai-header {padding:15px}.pathway-ai-context {padding:11px 15px}.pathway-ai-conversation {padding:16px 14px}}
 @media(prefers-reduced-motion:reduce) {.pathway-ai-window,.pathway-ai-spinner {animation:none}.pathway-ai-launcher {transition:none}}
+
+/* Explain when a reply came from the real model versus the local guide. */
+.pathway-ai-response-mode {
+  margin:0 0 7px 1px;
+  color:#99c9f0;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.025em;
+}
+.pathway-ai-service-notice {
+  margin:0 0 9px;
+  border:1px solid rgba(251,191,36,.38);
+  border-radius:11px;
+  background:rgba(146,64,14,.18);
+  color:#fce8ad;
+  padding:10px 12px;
+  font-size:12px;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
