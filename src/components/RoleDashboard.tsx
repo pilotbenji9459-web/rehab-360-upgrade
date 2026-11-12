@@ -242,7 +242,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
         {/* Card 2: Reviews Pending */}
         <div className="dashboard-kpi dashboard-kpi--amber reveal-feature">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
+            <span className="dashboard-kpi__label text-xs sm:text-sm font-bold uppercase tracking-wider">
               Reviews Pending
             </span>
             <div className="dashboard-kpi__icon">
