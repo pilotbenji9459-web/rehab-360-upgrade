@@ -137,7 +137,7 @@ export const Api = {
     caseId?: string,
     history: { role: 'user' | 'assistant'; text: string }[] = [],
   ) =>
-    request<{ answer: string; mode: 'ai' | 'guide' | 'case'; role: string; case_id?: string; navigate_to?: import('../types').TabId }>('/api/assistant/ask', {
+    request<{ answer: string; mode: 'ai' | 'guide' | 'case' | 'offline'; notice?: string; role: string; case_id?: string; navigate_to?: import('../types').TabId }>('/api/assistant/ask', {
       method: 'POST',
       body: JSON.stringify({ question, history, ...(caseId ? { case_id: caseId } : {}) }),
     }),

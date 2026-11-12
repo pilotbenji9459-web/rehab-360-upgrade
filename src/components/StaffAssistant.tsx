@@ -13,7 +13,7 @@ const suggested: Record<StaffRole, string[]> = {
   Educator: ['Where are education scores?', 'Open progression gates', 'How do I find case evidence?'],
   'Community Rehabilitation Officer': ['Open parole handover', 'Where are rehabilitation plans?', 'How do I review a case?'],
 };
-type ChatMessage = { role: 'user' | 'assistant'; text: string; navigate_to?: TabId };
+type ChatMessage = { role: 'user' | 'assistant'; text: string; navigate_to?: TabId; notice?: string; mode?: 'ai' | 'guide' | 'case' | 'offline' };
 interface Props {
   cases: OffenderCase[];
   selectedCaseId?: string;
@@ -47,6 +47,8 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
       setMessages(prev => [...prev, {
         role: 'assistant',
         text: result.answer,
+        mode: result.mode,
+        ...(result.notice ? { notice: result.notice } : {}),
         ...(result.navigate_to ? { navigate_to: result.navigate_to } : {}),
       }]);
     } catch (err) {
@@ -110,6 +112,12 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
               <div key={index} className={`pathway-ai-message pathway-ai-message--${message.role}`}>
                 {message.role === 'assistant' && <div className="pathway-ai-mini-avatar"><Sparkles size={14}/></div>}
                 <div className="pathway-ai-message-content">
+                  {message.role === 'assistant' && (
+                    <div className="pathway-ai-response-mode">
+                      {message.mode === 'ai' ? 'Gemini AI' : message.mode === 'offline' ? 'Offline guidance · AI unavailable' : 'Verified record'}
+                    </div>
+                  )}
+                  {message.notice && <div className="pathway-ai-service-notice" role="status">{message.notice}</div>}
                   <div className="pathway-ai-bubble">{message.text}</div>
                   {message.navigate_to && (
                     <button type="button" className="pathway-ai-open-link" onClick={() => openDestination(message.navigate_to!)}>
@@ -119,7 +127,7 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                 </div>
               </div>
             ))}
-            {busy && <div className="pathway-ai-thinking"><Loader2 size={16} className="pathway-ai-spinner"/> Finding the best answer...</div>}
+            {busy && <div className="pathway-ai-thinking"><Loader2 size={16} className="pathway-ai-spinner"/> Asking Gemini about your question...</div>}
             <div ref={endRef}/>
           </div>
           <form className="pathway-ai-composer" onSubmit={event => { event.preventDefault(); void ask(draft); }}>
