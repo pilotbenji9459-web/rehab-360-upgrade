@@ -1564,12 +1564,12 @@ app.post(
 
       if (item.fieldName === 'gate_scores.skl') {
         updates.gate_scores = {
-          ...(updates.gate_scores || currentCase.gate_scores),
+          ...(updates.gate_scores || {}),
           skl: value,
         };
       } else if (item.fieldName === 'gate_scores.edu') {
         updates.gate_scores = {
-          ...(updates.gate_scores || currentCase.gate_scores),
+          ...(updates.gate_scores || {}),
           edu: value,
         };
       } else {
@@ -1577,7 +1577,7 @@ app.post(
       }
     }
 
-    // Run RBAC permission validation on accepted fields
+    // Check only requested gate evidence; existing clinical/behaviour gates remain untouched.
     const permCheck = validateCaseFieldPermissions(user.role, updates);
     if (!permCheck.allowed) {
       res.status(403).json({
@@ -1622,6 +1622,9 @@ app.post(
     const updatedCase = {
       ...currentCase,
       ...updates,
+      ...(updates.gate_scores
+        ? { gate_scores: { ...currentCase.gate_scores, ...updates.gate_scores } }
+        : {}),
       institution_id: user.institution_id,
       version: currentCase.version + 1,
       updated_at: new Date().toISOString(),
