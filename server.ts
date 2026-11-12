@@ -28,6 +28,7 @@ import {
   verifyDocumentWithAI,
 } from './server/documentAi';
 import { answerStaffQuestion } from './server/staffAssistant';
+import { answerCaseQuestion } from './server/caseAssistant';
 
 
 const app = express();
@@ -77,6 +78,27 @@ app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedReque
     }
   }
   try {
+    const requestedCaseId = req.body?.case_id;
+    if (requestedCaseId !== undefined && (typeof requestedCaseId !== 'string' || requestedCaseId.length > 80)) {
+      res.status(400).json({ error: 'Invalid case selection.' });
+      return;
+    }
+
+    if (requestedCaseId) {
+      // Validate the requested case against the authenticated staff member's tenant.
+      // Ignore any role, tenant ID or case data supplied by the browser.
+      const selectedCase = DB.findCaseById(requestedCaseId, staff.institution_id);
+      if (!selectedCase) {
+        res.status(404).json({ error: 'Case not found or not accessible in your institution.' });
+        return;
+      }
+
+      const linkedDocuments = DB.getDocuments(selectedCase.id, staff.institution_id);
+      const answer = answerCaseQuestion(staff.role, selectedCase, linkedDocuments, question.trim());
+      res.json({ answer, mode: 'case', role: staff.role, case_id: selectedCase.id });
+      return;
+    }
+
     const reply = await answerStaffQuestion(staff.role, question.trim());
     res.json({ ...reply, role: staff.role });
   } catch {

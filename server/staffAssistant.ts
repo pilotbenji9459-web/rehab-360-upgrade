@@ -57,7 +57,7 @@ Do not invent app features. Speak in plain language in the language of the user'
 Server-side authorization, not your response, determines what is accessible.`;
   try {
     const response = await client.models.generateContent({
-      model: process.env.GEMINI_ASSISTANT_MODEL || 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: question,
       config: { systemInstruction, temperature: 0.2, maxOutputTokens: 450 },
     });
