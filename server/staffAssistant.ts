@@ -202,8 +202,11 @@ Answer in the language of the user's current question if possible.`;
       config: {
         systemInstruction,
         responseMimeType: 'application/json',
-        temperature: 0.45,
-        maxOutputTokens: 900,
+        temperature: 0.35,
+        maxOutputTokens: 500,
+        // Avoid the SDK's multi-minute default request lifetime.
+        // Provider billing may still apply if a timed-out request finishes remotely.
+        abortSignal: AbortSignal.timeout(12000),
       },
     });
     const parsed = JSON.parse(response.text || '{}') as { answer?: unknown; navigate_to?: unknown };
@@ -220,9 +223,12 @@ Answer in the language of the user's current question if possible.`;
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown provider error';
     console.error('Staff assistant Gemini request failed:', detail);
+    const isTimeout = /timeout|timed.out|abort|deadline/i.test(detail);
     const isQuota = /429|quota|resource.exhausted|rate.limit/i.test(detail);
     const isAuth = /401|403|api.key|permission|unauthorized|unauthenticated/i.test(detail);
-    const notice = isQuota
+    const notice = isTimeout
+      ? 'Gemini took too long to respond, so this request stopped after 12 seconds.'
+      : isQuota
       ? 'Gemini quota or rate limit was reached. Check your Google AI Studio API quota.'
       : isAuth
         ? 'Gemini rejected the API key or project permissions. Check GEMINI_API_KEY in Render.'
