@@ -994,3 +994,37 @@ html[data-theme="light"] .app-header {
 @media (prefers-reduced-motion:reduce) {
   .app-root main .card,.app-root main .dashboard-panel {transition:none;}
 }
+
+/* Accessible brand shortcut: prevent generic button background from becoming blue. */
+[data-app-sidebar] button.rp-brand-home,
+html[data-theme="light"] [data-app-sidebar] button.rp-brand-home {
+  background:transparent!important;background-image:none!important;border:1px solid transparent!important;
+  box-shadow:none!important;color:var(--ink)!important;padding:4px!important;
+}
+[data-app-sidebar] button.rp-brand-home:hover {background:rgba(92,194,189,.10)!important;}
+[data-app-sidebar] .rp-brand-title {color:#f4faff!important;}
+html[data-theme="light"] [data-app-sidebar] .rp-brand-title {color:#13324e!important;}
+html[data-theme="light"] [data-app-sidebar] button.rp-brand-home:hover {background:#eaf5fb!important;}
+/* Explicit profile dropdown contrast instead of relying on Tailwind utility overrides. */
+html[data-theme="light"] .app-header .rp-profile-menu {background:#fff!important;border-color:#d9e4ed!important;color:#17324d!important;box-shadow:0 14px 36px rgba(14,42,72,.14);}
+html[data-theme="light"] .app-header .rp-profile-menu .rp-profile-settings,
+html[data-theme="light"] .app-header .rp-profile-menu .rp-profile-settings :is(span,svg) {color:#173a59!important;}
+html[data-theme="light"] .app-header .rp-profile-menu .rp-profile-settings:hover {background:#eaf3fa!important;}
+html[data-theme="light"] .app-header .rp-profile-menu button:last-of-type {color:#a22b40!important;}
+html[data-theme="light"] .app-header .rp-profile-menu button:last-of-type span {color:#a22b40!important;}
+/* Let the controls claim a second line instead of colliding. */
+.app-header .rp-header-actions {min-width:0;}
+.app-header .rp-header-actions > * {max-width:100%;min-width:0;}
+.app-header .rp-header-case select {text-overflow:ellipsis;}
+.app-header .rp-header-new-case {white-space:nowrap;min-height:38px;}
+@media(max-width:850px) {
+  .app-header .rp-header-actions {flex-basis:100%;justify-content:flex-start;}
+  .app-header .rp-header-case {flex:1 1 auto;}
+  .app-header .rp-header-case select {width:100%;max-width:230px;}
+  .app-header .rp-header-language {margin-left:auto;}
+}
+@media(max-width:420px) {
+  .app-header .rp-header-actions {gap:6px;}
+  .app-header .rp-header-case {flex:1 1 112px;}
+  .app-header .rp-header-case select {font-size:12px;}
+}

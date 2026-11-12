@@ -103,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header data-app-header className="app-header sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-2.5 min-w-0 w-full backdrop-blur-md border-b shadow-sm">
+    <header data-app-header className="app-header sticky top-0 z-30 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-2 sm:px-4 lg:px-6 py-2.5 min-w-0 w-full backdrop-blur-md border-b shadow-sm">
       <div className="flex items-center gap-2 min-w-0 shrink-0">
         {/* Mobile menu toggle */}
         <button
@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* WORKSPACE & HIERARCHICAL BREADCRUMB */}
-        <div className="hidden xl:flex items-center gap-2 text-sm min-w-0">
+        <div className="hidden 2xl:flex items-center gap-2 text-sm min-w-0">
           <Building2 className="w-4 h-4 text-[var(--teal)] shrink-0" />
           <span
             className="font-semibold text-white tracking-tight truncate max-w-[130px] 2xl:max-w-[200px]"
@@ -161,9 +161,9 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0">
+      <div className="rp-header-actions flex flex-1 flex-wrap items-center justify-end gap-1.5 sm:gap-2 min-w-0">
         {/* Workspace Quick Switcher Pill (Desktop) */}
-        <div className="hidden md:flex items-center gap-1 p-0.5 bg-[#071325] rounded-xl border border-[#1e3a5f] text-xs">
+        <div className="hidden 2xl:flex items-center gap-1 p-0.5 bg-[#071325] rounded-xl border border-[#1e3a5f] text-xs shrink-0">
           <button
             type="button"
             onClick={() => onSelectWorkspace('facility')}
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Case selector: STRICTLY SHOWN ONLY IN PERSON WORKSPACE */}
         {workspace === 'person' && cases.length > 0 && (
-          <div className="flex items-center gap-1 min-w-0">
+          <div className="rp-header-case flex items-center gap-1 min-w-0 max-w-full">
             <label htmlFor="case-selector" className="text-xs font-semibold text-slate-300 hidden lg:inline">
               {t('header.switch_case')}:
             </label>
@@ -200,7 +200,7 @@ export const Header: React.FC<HeaderProps> = ({
               id="case-selector"
               value={selectedCaseId}
               onChange={(e) => onCaseChange(e.target.value)}
-              className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[var(--acc)] cursor-pointer w-[130px] min-[420px]:w-[160px] sm:w-[190px] xl:w-[240px] max-w-full truncate"
+              className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[var(--acc)] cursor-pointer w-[118px] min-[420px]:w-[148px] sm:w-[170px] xl:w-[200px] max-w-full min-w-0 truncate"
             >
               {cases.map((c) => (
                 <option key={c.id} value={c.id} className="bg-[#0b1a30]">
@@ -216,7 +216,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={onOpenNewCaseModal}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284c7]/20 hover:bg-[#0284c7]/30 text-[#38bdf8] border border-[#0284c7]/40 text-xs font-semibold cursor-pointer transition-colors"
+            className="rp-header-new-case hidden md:inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284c7]/20 hover:bg-[#0284c7]/30 text-[#38bdf8] border border-[#0284c7]/40 text-xs font-semibold cursor-pointer transition-colors"
           >
             <PlusCircle className="w-4 h-4" />
             <span>{t('header.new_case')}</span>
@@ -285,7 +285,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="fixed inset-0 z-40 cursor-default"
                   onClick={() => setProfileDropdownOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[#0b1a30] border border-[#1e3a5f] shadow-2xl z-50 p-2 space-y-1">
+                <div className="rp-profile-menu absolute right-0 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-xl bg-[#0b1a30] border border-[#1e3a5f] shadow-2xl z-50 p-2 space-y-1">
                   <div className="p-2 border-b border-[#1e3a5f]/60 text-xs">
                     <span className="font-bold text-white block">{user.full_name}</span>
                     <span className="text-[11px] text-slate-400 font-mono">
@@ -299,7 +299,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectTab('settings');
                       setProfileDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-[#0f2744] rounded-lg transition-colors cursor-pointer"
+                    className="rp-profile-settings w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-[#0f2744] rounded-lg transition-colors cursor-pointer"
                   >
                     <Sliders className="w-3.5 h-3.5 text-slate-400" />
                     <span>{t('header.facility_settings')}</span>

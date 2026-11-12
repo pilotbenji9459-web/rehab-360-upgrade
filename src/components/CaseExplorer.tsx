@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpDown, CheckCircle2, CircleDashed, Clock3, Grid2X2, L
 import type { OffenderCase, TabId } from '../types';
 import { getOffenderPos } from '../utils/aiLogic';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../context/I18nContext';
 
 type FilterMode = 'all' | 'pending' | 'attention' | 'verified';
 type SortMode = 'recent' | 'name' | 'attendance';
@@ -48,6 +49,7 @@ export function getCaseExplorerResults(
 
 export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase, onSelectTab }) => {
   const { user } = useAuth();
+  const { t } = useI18n();
   const canViewPathway = Boolean(user && ['Administrator','Warden','Educator','Case Manager','Psychologist'].includes(user.role));
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterMode>('all');
@@ -92,10 +94,10 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
     setShowAll(false);
   };
   const tabs: { id: FilterMode; label: string; detail: string; count: number; icon: React.ElementType }[] = [
-    { id: 'all', label: 'All cases', detail: 'Entire caseload', count: cases.length, icon: Grid2X2 },
-    { id: 'pending', label: 'Pending', detail: 'Awaiting decision', count: cases.filter(c => !c.decision).length, icon: Clock3 },
-    { id: 'attention', label: 'Follow-up', detail: 'Workflow follow-up', count: cases.filter(c => !c.decision || c.session_attendance < 75).length, icon: CircleDashed },
-    { id: 'verified', label: 'Decided', detail: 'Decision recorded', count: cases.filter(c => Boolean(c.decision)).length, icon: CheckCircle2 },
+    { id: 'all', label: t('cx.all'), detail: 'Entire caseload', count: cases.length, icon: Grid2X2 },
+    { id: 'pending', label: t('cx.pending'), detail: 'Awaiting decision', count: cases.filter(c => !c.decision).length, icon: Clock3 },
+    { id: 'attention', label: t('cx.followup'), detail: 'Workflow follow-up', count: cases.filter(c => !c.decision || c.session_attendance < 75).length, icon: CircleDashed },
+    { id: 'verified', label: t('cx.decided'), detail: 'Decision recorded', count: cases.filter(c => Boolean(c.decision)).length, icon: CheckCircle2 },
   ];
 
   return (
@@ -104,14 +106,14 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
         <div className="cx-heading-wrap">
           <div className="cx-heading-icon" aria-hidden="true"><Sparkles size={20}/></div>
           <div>
-            <div className="cx-eyebrow">CASE MANAGEMENT · LIVE WORKSPACE</div>
-            <h2 id="case-explorer-heading" className="cx-title">Case Explorer</h2>
-            <p className="cx-subtitle">Find a case, inspect its progress, and open its workflow in one click.</p>
+            <div className="cx-eyebrow">{t('cx.eyebrow')}</div>
+            <h2 id="case-explorer-heading" className="cx-title">{t('cx.title')}</h2>
+            <p className="cx-subtitle">{t('cx.subtitle')}</p>
           </div>
         </div>
         <div className="cx-total" role="status" aria-live="polite">
           <span className="cx-pulse" aria-hidden="true" />
-          <strong>{results.length}</strong><span> / {cases.length} records</span>
+          <strong>{results.length}</strong><span> / {cases.length} {t('cx.records')}</span>
         </div>
       </div>
 
@@ -120,7 +122,7 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
           <Search size={18} aria-hidden="true" className="cx-search-icon" />
           <span className="sr-only">Search by case ID, name or category</span>
           <input type="search" value={query} onChange={event => {setQuery(event.target.value);setShowAll(false);}}
-            placeholder="Search ID, name or case category…" autoComplete="off" />
+            placeholder={t('cx.search')} autoComplete="off" />
           {query && <button type="button" aria-label="Clear case search" onClick={() => setQuery('')} className="cx-search-clear"><X size={15}/></button>}
           <kbd className="cx-search-hint">SEARCH</kbd>
         </label>
@@ -129,9 +131,9 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
             <ArrowUpDown size={16} aria-hidden="true"/>
             <span className="sr-only">Sort cases</span>
             <select value={sort} onChange={event => setSort(event.target.value as SortMode)} aria-label="Sort cases">
-              <option value="recent">Recently updated</option>
-              <option value="name">Name A–Z</option>
-              <option value="attendance">Lowest attendance</option>
+              <option value="recent">{t('cx.sort_recent')}</option>
+              <option value="name">{t('cx.sort_name')}</option>
+              <option value="attendance">{t('cx.sort_attendance')}</option>
             </select>
           </label>
           <div className="cx-view-switch" role="group" aria-label="Display layout">
@@ -142,7 +144,7 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
       </div>
 
       <div className="cx-filter-section">
-        <div className="cx-filter-caption"><SlidersHorizontal size={14} aria-hidden="true"/> Filter by workflow</div>
+        <div className="cx-filter-caption"><SlidersHorizontal size={14} aria-hidden="true"/> {t('cx.filter_caption')}</div>
         <div className="cx-filters" role="group" aria-label="Workflow status filters">
           {tabs.map(tab => {
             const Icon = tab.icon;
@@ -155,13 +157,13 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
               </button>
             );
           })}
-          {hasControls && <button type="button" className="cx-reset" onClick={reset}><RotateCcw size={14}/> Clear filters</button>}
+          {hasControls && <button type="button" className="cx-reset" onClick={reset}><RotateCcw size={14}/> {t('cx.clear')}</button>}
         </div>
       </div>
 
       <div className="cx-results-summary" role="status" aria-live="polite">
         <span>{query ? `Search results for “${query}”` : tabs.find(t => t.id === filter)?.detail}</span>
-        <span>{results.length === 1 ? '1 matching record' : `${results.length} matching records`}</span>
+        <span>{results.length === 1 ? `1 ${t('cx.matching')}` : `${results.length} ${t('cx.matching')}`}</span>
       </div>
 
       {visible.length ? (
@@ -175,20 +177,20 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
                 <div className="cx-case-top">
                   <span className="cx-case-id">{record.id}</span>
                   <span className={needsFollowup ? 'cx-status cx-attention' : 'cx-status cx-on-track'}>
-                    <span className="cx-status-dot" aria-hidden="true"/>{needsFollowup ? 'Follow-up' : 'On track'}
+                    <span className="cx-status-dot" aria-hidden="true"/>{needsFollowup ? t('cx.followup') : t('cx.on_track')}
                   </span>
                 </div>
                 <div className="cx-case-body">
                   <h3 className="cx-case-name">{record.first_name} {record.last_name}</h3>
-                  <p className="cx-case-meta">{record.crime_type} <span aria-hidden="true">·</span> {pos == null ? 'Stage not assigned' : `Stage ${pos + 1} of 12`}</p>
-                  <div className="cx-progress-head"><span>Assessment complete</span><strong>{Math.round(progress)}%</strong></div>
+                  <p className="cx-case-meta">{record.crime_type} <span aria-hidden="true">·</span> {pos == null ? t('cx.stage_unassigned') : `Stage ${pos + 1} of 12`}</p>
+                  <div className="cx-progress-head"><span>{t('cx.assessment')}</span><strong>{Math.round(progress)}%</strong></div>
                   <div role="progressbar" aria-label={`Assessment completion for ${record.id}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} className="cx-progress">
                     <div className="cx-progress-fill" style={{ width: `${progress}%` }}/>
                   </div>
                 </div>
                 <div className="cx-case-actions">
-                  <button type="button" className="cx-open" onClick={() => openRecord(record.id)}>Open case <ArrowRight size={16} aria-hidden="true"/></button>
-                  {canViewPathway && <button type="button" className="cx-pathway" onClick={() => openRecord(record.id, 'prog')}>Pathway</button>}
+                  <button type="button" className="cx-open" onClick={() => openRecord(record.id)}>{t('cx.open')} <ArrowRight size={16} aria-hidden="true"/></button>
+                  {canViewPathway && <button type="button" className="cx-pathway" onClick={() => openRecord(record.id, 'prog')}>{t('cx.pathway')}</button>}
                 </div>
               </article>
             );
@@ -197,9 +199,9 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
       ) : (
         <div className="cx-empty" role="status">
           <Search size={24} aria-hidden="true" />
-          <h3>No matching cases</h3>
-          <p>Try another search term or workflow status. Nothing was changed.</p>
-          <button type="button" onClick={reset}>Show all cases</button>
+          <h3>{t('cx.no_matches')}</h3>
+          <p>{t('cx.try_again')}</p>
+          <button type="button" onClick={reset}>{t('cx.show_all')}</button>
         </div>
       )}
       {results.length > 6 && (
@@ -207,7 +209,7 @@ export const CaseExplorer: React.FC<CaseExplorerProps> = ({ cases, onSelectCase,
           {showAll ? 'Show fewer records' : `Explore all ${results.length} matching records`} <ArrowRight size={16} aria-hidden="true"/>
         </button>
       )}
-      <p className="cx-footnote">Only records already authorized for your account appear here. Follow-up refers to workflow status, not a clinical risk rating.</p>
+      <p className="cx-footnote">{t('cx.footnote')}</p>
     </section>
   );
 };

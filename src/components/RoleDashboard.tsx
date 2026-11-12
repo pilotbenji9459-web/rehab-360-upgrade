@@ -327,7 +327,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <span>{t('section.needs_attention')}</span>
               </h2>
               <span className="text-[11px] font-semibold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
-                {attentionItems.length} Actionable
+                {attentionItems.length} {t('dash.actionable')}
               </span>
             </div>
 
@@ -372,7 +372,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
           <div className="mt-4 pt-3 border-t border-[#1e3a5f] text-[11px] text-slate-400 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Lock className="w-3 h-3 text-[#5cc2bd]" />
-              <span>Psychological privacy preserved</span>
+              <span>{t('dash.privacy')}</span>
             </span>
             <button
               type="button"
@@ -403,7 +403,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-white mb-2">
-            Multidisciplinary Clinical Protocol &amp; Gate Reviews
+            {t('dash.board_title')}
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed mb-4">
             Every 28-day review cycle requires multidisciplinary sign-off. Wardens, Clinical Psychologists, Case Managers, and Educators collaborate to audit evidentiary milestones before any stage advancement is approved.
@@ -414,14 +414,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('guide')}
               className="px-4 py-2 rounded-xl bg-[#0f2744] hover:bg-[#163860] border border-[#1e3a5f] text-xs font-semibold text-slate-200 transition-all cursor-pointer"
             >
-              Inspect 15-Step Clinical Protocol →
+              {t('dash.inspect_protocol')} →
             </button>
             <button
               type="button"
               onClick={() => onSelectTab('prog')}
               className="px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-xs font-semibold text-white transition-all cursor-pointer"
             >
-              Verify Progression Gates →
+              {t('dash.verify_gates')} →
             </button>
           </div>
         </div>
@@ -443,7 +443,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('cases')}
               className="text-xs text-[#38bdf8] hover:underline font-medium cursor-pointer"
             >
-              View complete caseload directory ({totalCases}) →
+              {t('dash.view_cases')} ({totalCases}) →
             </button>
           </div>
         </div>
@@ -463,7 +463,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                   className="px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0274b0] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-md"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
-                  <span>Register First Case</span>
+                  <span>{t('dash.register')}</span>
                 </button>
               )}
               <button
@@ -472,7 +472,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-[#5cc2bd]" />
-                <span>Document Intake</span>
+                <span>{t('dash.intake')}</span>
               </button>
             </div>
           </div>
@@ -481,14 +481,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
             <table className="app-table">
               <thead>
                 <tr>
-                  <th>Case ID</th>
-                  <th>Individual</th>
-                  <th>Crime Severity</th>
-                  <th>Rehabilitation Pathway</th>
-                  <th>Attendance</th>
-                  <th>Status</th>
-                  <th>Last Updated</th>
-                  <th className="text-right">Action</th>
+                  <th>{t('dash.case_id')}</th>
+                  <th>{t('dash.individual')}</th>
+                  <th>{t('dash.severity')}</th>
+                  <th>{t('dash.pathway')}</th>
+                  <th>{t('dash.attendance')}</th>
+                  <th>{t('dash.status')}</th>
+                  <th>{t('dash.updated')}</th>
+                  <th className="text-right">{t('dash.action')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -526,7 +526,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                         {c.decision ? (
                           <span className="tag o capitalize">{c.decision}</span>
                         ) : (
-                          <span className="tag w">Pending Review</span>
+                          <span className="tag w">{t('status.pending_review')}</span>
                         )}
                       </td>
                       <td className="text-[11px] text-slate-400">
@@ -541,7 +541,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                           }}
                           className="sec text-xs px-2.5 py-1 rounded-lg"
                         >
-                          Inspect File
+                          {t('action.inspect_file')}
                         </button>
                       </td>
                     </tr>
