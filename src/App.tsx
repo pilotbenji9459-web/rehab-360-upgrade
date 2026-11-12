@@ -11,6 +11,7 @@ import { OffenderCase, TabId, GateKey, WorkspaceMode } from './types';
 import { LandingPage } from './components/LandingPage';
 import { LoginModal } from './components/LoginModal';
 import { Header } from './components/Header';
+import { StaffAssistant } from './components/StaffAssistant';
 import { Sidebar } from './components/Sidebar';
 import { RoleDashboard } from './components/RoleDashboard';
 import { CasesView } from './components/CasesView';
@@ -409,6 +410,8 @@ const AppContent: React.FC = () => {
           {tab === 'guide' && <GuideView />}
         </main>
       </div>
+
+      <StaffAssistant />
 
       {/* New Case Registration Modal */}
       <NewCaseModal
