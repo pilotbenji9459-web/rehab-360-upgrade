@@ -155,11 +155,13 @@ const AppContent: React.FC = () => {
   const handleUpdateGate = async (domainKey: GateKey, val: number) => {
     if (!currentRecord) return;
     try {
-      const updatedGates = {
-        ...currentRecord.gate_scores,
-        [domainKey]: val,
-      };
-      await handleUpdateCase({ gate_scores: updatedGates });
+      // Only submit the gate being edited. Sending the whole gate object can
+      // overwrite another officer's newer scores and complicate role checks.
+      // The server validates the changed gate and merges it with saved scores.
+      await handleUpdateCase({
+        gate_scores: { [domainKey]: val } as OffenderCase['gate_scores'],
+        version: currentRecord.version,
+      });
     } catch (err: any) {
       showAlert(err.message || 'Failed to update gate evidence.', 'Error');
     }
