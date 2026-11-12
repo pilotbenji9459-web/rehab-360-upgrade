@@ -846,3 +846,75 @@ html[data-theme="light"] [data-dashboard] :is(td,th)[class*="text-slate-"] {
   .dashboard-kpi, .dashboard-hero__actions button { transition: none !important; }
   .dashboard-kpi:hover, .dashboard-hero__actions button:hover { transform: none !important; }
 }
+
+
+/* Readability and layout safety pass (Nov 2026).
+   Keep dashboard panels inside their grid cells at every viewport size. */
+html { font-size: 16px; }
+body {
+  font-family: "IBM Plex Sans", "Noto Sans", "Nirmala UI", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+.app-root, .app-root main, .dashboard-shell, .dashboard-shell > *,
+.dashboard-shell .grid, .dashboard-shell .grid > *,
+.dashboard-panel, .dashboard-kpi, .card {
+  min-width: 0;
+  max-width: 100%;
+}
+.app-root main { overflow-x: clip; }
+.dashboard-shell { width: 100%; }
+.dashboard-hero, .dashboard-hero > div,
+.dashboard-hero > div > div { min-width: 0; max-width: 100%; }
+.dashboard-hero__actions { min-width: 0; max-width: 100%; flex-wrap: wrap; }
+.dashboard-hero__actions button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.dashboard-panel, .dashboard-kpi, .dashboard-shell .card {
+  overflow-wrap: anywhere;
+}
+.dashboard-panel :is(h1,h2,h3,p,span,strong,button),
+.dashboard-kpi :is(h1,h2,h3,p,span,strong,button) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard-shell .scroll-container,
+.dashboard-panel .scroll-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.dashboard-shell img {
+  max-width: 100%;
+}
+.dashboard-shell button {
+  min-height: 40px;
+  line-height: 1.35;
+}
+.dashboard-shell :is(.text-xs, .text-\\[11px\\], .text-\\[10px\\]) {
+  line-height: 1.45;
+}
+@media (max-width: 767px) {
+  .dashboard-shell { gap: 1rem; }
+  .dashboard-hero { padding: 1.25rem; }
+  .dashboard-hero > div { gap: 1rem; }
+  .dashboard-hero__actions { width: 100%; }
+  .dashboard-hero__actions button { flex: 1 1 100%; justify-content: center; }
+  .dashboard-shell .grid > * { grid-column: auto; }
+  .dashboard-panel, .dashboard-kpi, .dashboard-shell .card { border-radius: 16px !important; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .dashboard-shell .grid > * { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-shell *, .dashboard-shell *::before, .dashboard-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

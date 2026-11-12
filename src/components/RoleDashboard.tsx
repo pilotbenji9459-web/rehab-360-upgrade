@@ -155,7 +155,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
     attentionItems.push({
       id: 'advance-ready',
       title: `Pathway Advancement Milestone Ready (${advanceReadyCase.id})`,
-      description: `Candidate has met all 4 gate evidentiary benchmarks (â‰¥70%). Ready for stage elevation.`,
+      description: `Candidate has met all 4 gate evidentiary benchmarks (≥70%). Ready for stage elevation.`,
       severity: 'info',
       actionTab: 'prog',
       caseId: advanceReadyCase.id,
@@ -379,7 +379,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('flags')}
               className="text-[#38bdf8] hover:underline cursor-pointer"
             >
-              All indicators â†’
+              All indicators →
             </button>
           </div>
         </div>
@@ -414,14 +414,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('guide')}
               className="px-4 py-2 rounded-xl bg-[#0f2744] hover:bg-[#163860] border border-[#1e3a5f] text-xs font-semibold text-slate-200 transition-all cursor-pointer"
             >
-              Inspect 15-Step Clinical Protocol â†’
+              Inspect 15-Step Clinical Protocol →
             </button>
             <button
               type="button"
               onClick={() => onSelectTab('prog')}
               className="px-4 py-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-xs font-semibold text-white transition-all cursor-pointer"
             >
-              Verify Progression Gates â†’
+              Verify Progression Gates →
             </button>
           </div>
         </div>
@@ -443,7 +443,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
               onClick={() => onSelectTab('cases')}
               className="text-xs text-[#38bdf8] hover:underline font-medium cursor-pointer"
             >
-              View complete caseload directory ({totalCases}) â†’
+              View complete caseload directory ({totalCases}) →
             </button>
           </div>
         </div>
@@ -500,7 +500,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
                       <td className="font-medium text-xs text-white">
                         {c.first_name} {c.last_name}
                         <span className="block text-[10px] text-slate-400 font-normal">
-                          {c.age_band} Â· {c.crime_type}
+                          {c.age_band} · {c.crime_type}
                         </span>
                       </td>
                       <td>

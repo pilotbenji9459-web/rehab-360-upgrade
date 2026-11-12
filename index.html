@@ -17,8 +17,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet" />
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+html[data-language="hi"], html[data-language="mr"] { --app-script-font: "Noto Sans Devanagari"; }
+html[data-language="bn"] { --app-script-font: "Noto Sans Bengali"; }
+html[data-language="te"] { --app-script-font: "Noto Sans Telugu"; }
+html[data-language="ta"] { --app-script-font: "Noto Sans Tamil"; }
+html[data-language="gu"] { --app-script-font: "Noto Sans Gujarati"; }
+html[data-language="kn"] { --app-script-font: "Noto Sans Kannada"; }
+html[data-language="ml"] { --app-script-font: "Noto Sans Malayalam"; }
+html[data-language="pa"] { --app-script-font: "Noto Sans Gurmukhi"; }
+html[data-language]:not([data-language="en"]) body,
+html[data-language]:not([data-language="en"]) button,
+html[data-language]:not([data-language="en"]) input,
+html[data-language]:not([data-language="en"]) select,
+html[data-language]:not([data-language="en"]) textarea {
+  font-family: var(--app-script-font), "IBM Plex Sans", "Nirmala UI", "Noto Sans", sans-serif;
+}
+</style>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
