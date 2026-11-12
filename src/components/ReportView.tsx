@@ -11,6 +11,7 @@ import {
   getNextReviewDate,
 } from '../utils/aiLogic';
 import { Printer, Download } from 'lucide-react';
+import { Api } from '../services/api';
 
 interface ReportViewProps {
   currentRecord: OffenderCase;
@@ -86,9 +87,12 @@ export const ReportView: React.FC<ReportViewProps> = ({ currentRecord, showAlert
     }
   };
 
-  const handleExportCsv = () => {
-    const token = localStorage.getItem('rehabpath360_auth_token');
-    window.location.href = `/api/reports/export-csv${token ? `?token=${token}` : ''}`;
+  const handleExportCsv = async () => {
+    try {
+      await Api.exportCaseloadCsv();
+    } catch (error) {
+      showAlert(error instanceof Error ? error.message : 'CSV export failed.', 'Export failed');
+    }
   };
 
   return (

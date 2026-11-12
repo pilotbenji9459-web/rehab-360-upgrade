@@ -42,12 +42,24 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
   fileFilter: (_req, file, cb) => {
-    const allowedExtensions = ['.docx', '.doc', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+    const allowedExtensions = ['.docx', '.xlsx', '.xls', '.csv', '.pdf', '.txt'];
+    const allowedMimeTypes = [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+      'text/csv',
+      'application/csv',
+      'application/pdf',
+      'text/plain',
+    ];
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedExtensions.includes(ext)) {
+    const isAllowed = ext
+      ? allowedExtensions.includes(ext)
+      : allowedMimeTypes.includes(file.mimetype.toLowerCase());
+    if (isAllowed) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type: ${ext}. Allowed: Word, Excel, CSV, PDF.`));
+      cb(new Error('Unsupported file type. Use DOCX, XLSX, XLS, CSV, PDF, or TXT; legacy DOC is not supported.'));
     }
   },
 });
@@ -1552,12 +1564,12 @@ app.post(
 
       if (item.fieldName === 'gate_scores.skl') {
         updates.gate_scores = {
-          ...(updates.gate_scores || currentCase.gate_scores),
+          ...(updates.gate_scores || {}),
           skl: value,
         };
       } else if (item.fieldName === 'gate_scores.edu') {
         updates.gate_scores = {
-          ...(updates.gate_scores || currentCase.gate_scores),
+          ...(updates.gate_scores || {}),
           edu: value,
         };
       } else {
@@ -1565,7 +1577,7 @@ app.post(
       }
     }
 
-    // Run RBAC permission validation on accepted fields
+    // Check only requested gate evidence; existing clinical/behaviour gates remain untouched.
     const permCheck = validateCaseFieldPermissions(user.role, updates);
     if (!permCheck.allowed) {
       res.status(403).json({
@@ -1610,6 +1622,9 @@ app.post(
     const updatedCase = {
       ...currentCase,
       ...updates,
+      ...(updates.gate_scores
+        ? { gate_scores: { ...currentCase.gate_scores, ...updates.gate_scores } }
+        : {}),
       institution_id: user.institution_id,
       version: currentCase.version + 1,
       updated_at: new Date().toISOString(),

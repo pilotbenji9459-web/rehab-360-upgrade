@@ -46,15 +46,23 @@ export async function extractTextFromBuffer(
   filename: string
 ): Promise<{ text: string; sheets?: string[]; tablePreview?: any[] }> {
   const lowerName = filename.toLowerCase();
+  const extension = lowerName.includes('.') ? lowerName.slice(lowerName.lastIndexOf('.')) : '';
+  const mime = mimeType.toLowerCase();
+  const fileType = extension || ({
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+    'application/vnd.ms-excel': '.xls',
+    'text/csv': '.csv',
+    'application/csv': '.csv',
+    'application/pdf': '.pdf',
+    'text/plain': '.txt',
+  } as Record<string, string>)[mime] || '';
 
   // Excel (.xlsx, .xls) and CSV
   if (
-    mimeType.includes('spreadsheet') ||
-    mimeType.includes('excel') ||
-    mimeType.includes('csv') ||
-    lowerName.endsWith('.xlsx') ||
-    lowerName.endsWith('.xls') ||
-    lowerName.endsWith('.csv')
+    fileType === '.xlsx' ||
+    fileType === '.xls' ||
+    fileType === '.csv'
   ) {
     const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheetNames = workbook.SheetNames;
@@ -76,16 +84,14 @@ export async function extractTextFromBuffer(
 
   // Word (.docx)
   if (
-    mimeType.includes('wordprocessingml') ||
-    mimeType.includes('msword') ||
-    lowerName.endsWith('.docx')
+    fileType === '.docx'
   ) {
     const result = await mammoth.extractRawText({ buffer });
     return { text: result.value };
   }
 
   // PDF (pdf-parse v2 API). Do not decode a failed PDF as UTF-8 binary.
-  if (mimeType.includes('pdf') || lowerName.endsWith('.pdf')) {
+  if (fileType === '.pdf') {
     const pdfModule: any = await import('pdf-parse');
     if (pdfModule.PDFParse) {
       const parser = new pdfModule.PDFParse({ data: buffer });
@@ -101,8 +107,11 @@ export async function extractTextFromBuffer(
     return { text: String(pdfData.text || '').trim() };
   }
 
-  // Plain text fallback
-  return { text: buffer.toString('utf-8') };
+  if (fileType === '.txt') {
+    return { text: buffer.toString('utf-8') };
+  }
+
+  throw new Error('No readable text: unsupported document format. Use DOCX, XLSX, XLS, CSV, PDF, or TXT.');
 }
 
 /**
