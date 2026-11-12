@@ -57,13 +57,14 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
 
   // Compute live dashboard metrics from current institution's cases
   const totalCases = cases.length;
+  const canViewClinicalSignals = user.role === 'Psychologist' || user.role === 'Administrator';
   const pendingDecisions = cases.filter((c) => !c.decision).length;
   const plansOnTrack = cases.filter(
     (c) => c.session_attendance >= 75 && c.programme_engagement >= 3
   ).length;
   const scheduledCheckins = cases.filter((c) => {
     // Review due if assessment is in progress or pending verification
-    return !c.decision || c.session_attendance < 75 || c.low_mood_count > 0;
+    return !c.decision || c.session_attendance < 75 || (canViewClinicalSignals && c.low_mood_count > 0);
   }).length;
 
   // Cohort distribution for rehabilitation progress chart
@@ -131,7 +132,6 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
   }
 
   // 3. Clinical well-being notice (Safely summarized: DO NOT expose confidential psychotherapy details!)
-  const canViewClinicalSignals = user.role === 'Psychologist' || user.role === 'Administrator';
   const clinicalFlagCase = canViewClinicalSignals ? cases.find(
     (c) => c.low_mood_count >= 3 || (c.mental_wellbeing && c.mental_wellbeing <= 2)
   ) : undefined;
