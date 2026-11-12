@@ -203,3 +203,16 @@ html[dir="rtl"] .cx-shell button.cx-search-clear {right:auto;left:72px;}
   .cases-view [class*="text-[10px]"],
   .cases-view [class*="text-[11px]"] { font-size: 0.84rem !important; }
 }
+
+/* Larger explanatory copy and resilient cards, including long translations. */
+.cx-shell, .cx-shell * { min-width:0; }
+.cx-heading-wrap, .cx-topline, .cx-toolbar { flex-wrap:wrap; }
+.cx-subtitle { font-size:16px; line-height:1.65; overflow-wrap:break-word; }
+.cx-eyebrow { font-size:12px; }
+.cx-total, .cx-results-summary { font-size:14px; }
+.cx-shell .cx-search input { font-size:15px; }
+.cx-shell button.cx-filter, .cx-shell button.cx-reset { font-size:14px; }
+.cx-shell .cx-sort select { font-size:14px; }
+.cx-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media (max-width:1100px) { .cx-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:700px) { .cx-grid { grid-template-columns:minmax(0,1fr); } }
