@@ -90,11 +90,35 @@ app.post('/api/assistant/ask', authenticateToken, async (req: AuthenticatedReque
           message && (message.role === 'user' || message.role === 'assistant')
           && typeof message.text === 'string' && message.text.length <= 450)
       : [];
-    const selectedCase = requestedCaseId
+    let selectedCase = requestedCaseId
       ? DB.findCaseById(requestedCaseId, staff.institution_id)
       : undefined;
     if (requestedCaseId && !selectedCase) {
       res.status(404).json({ error: 'Case not found or not accessible in your institution.' });
+      return;
+    }
+
+    // Resolve explicit case names only within this staff member's institution.
+    // The server, not the language model, chooses the authorized record.
+    const allCases = DB.getCases(staff.institution_id);
+    const normalizedQuestion = ' ' + question.toLowerCase().replace(/[^a-z0-9 -]/g, ' ').replace(/\\s+/g, ' ').trim() + ' ';
+    const mentions = (name: string) => {
+      const value = name.toLowerCase().replace(/[^a-z0-9 -]/g, ' ').trim();
+      return value.length >= 3 && normalizedQuestion.includes(' ' + value + ' ');
+    };
+    const matchingCases = allCases.filter(entry =>
+      mentions(entry.id) ||
+      mentions(entry.first_name + ' ' + entry.last_name) ||
+      mentions(entry.first_name)
+    );
+    if (matchingCases.length === 1) {
+      selectedCase = matchingCases[0];
+    } else if (matchingCases.length > 1 && !selectedCase) {
+      res.json({ answer: 'More than one case matches that name. Please select the right person from the case list.', mode: 'guide', role: staff.role });
+      return;
+    }
+    if (!selectedCase && /\\b(charge|charged|offen[cs]e|crime|sentence|attendance)\\b/i.test(question)) {
+      res.json({ answer: 'Which case should I check? Select a person or include their name in your question.', mode: 'guide', role: staff.role });
       return;
     }
     const linkedDocuments = selectedCase ? DB.getDocuments(selectedCase.id, staff.institution_id) : [];
