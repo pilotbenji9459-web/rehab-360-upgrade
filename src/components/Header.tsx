@@ -182,7 +182,7 @@ export const Header: React.FC<HeaderProps> = ({
         {workspace === 'person' && cases.length > 0 && (
           <div className="flex items-center gap-1 min-w-0">
             <label htmlFor="case-selector" className="text-xs font-semibold text-slate-300 hidden lg:inline">
-              Switch Case:
+              {t('header.switch_case')}:
             </label>
             <select
               id="case-selector"
@@ -207,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284c7]/20 hover:bg-[#0284c7]/30 text-[#38bdf8] border border-[#0284c7]/40 text-xs font-semibold cursor-pointer transition-colors"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>New Case</span>
+            <span>{t('header.new_case')}</span>
           </button>
         )}
 
@@ -232,8 +232,8 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={toggleTheme}
-          aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-          title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-label={isDark ? t('header.light_theme') : t('header.dark_theme')}
+          title={isDark ? t('header.light_theme') : t('header.dark_theme')}
           aria-pressed={!isDark}
           className="app-theme-switch"
         >
@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-[#0f2744] rounded-lg transition-colors cursor-pointer"
                   >
                     <Sliders className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Facility Settings</span>
+                    <span>{t('header.facility_settings')}</span>
                   </button>
 
                   <button
@@ -302,7 +302,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-300 hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                    <span>Sign Out</span>
+                    <span>{t('header.sign_out')}</span>
                   </button>
                 </div>
               </>
@@ -314,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenLogin}
             className="px-3.5 py-1.5 rounded-xl bg-[#0284c7] text-white text-xs font-semibold cursor-pointer shadow-md"
           >
-            Sign In
+            {t('header.sign_in')}
           </button>
         )}
       </div>
