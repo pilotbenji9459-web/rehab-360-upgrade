@@ -239,11 +239,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onGoFacilityOverview}
             aria-label="RehabPath360 — go to Facility Overview"
             title="Go to Facility Overview"
-            className="group flex w-full min-w-0 items-center gap-3 rounded-xl bg-transparent p-1 text-left transition-colors hover:bg-[#173656] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+            className="rp-brand-home group flex w-full min-w-0 items-center gap-3 rounded-xl p-1 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
           >
             <img src={progressRingLogo} alt="" aria-hidden="true" className="h-11 w-11 shrink-0 object-contain transition-transform group-hover:scale-105" />
             <span className="min-w-0 flex-1">
-              <span className="block truncate font-serif text-base font-bold tracking-tight text-white">
+              <span className="rp-brand-title block truncate font-serif text-base font-bold tracking-tight">
                 REHABPATH<span className="text-[var(--teal)]">360</span>
               </span>
               <span className="block truncate text-[11px] font-medium text-slate-400">
