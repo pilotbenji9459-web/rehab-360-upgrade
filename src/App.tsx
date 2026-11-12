@@ -98,6 +98,16 @@ const AppContent: React.FC = () => {
 
   const currentRecord = cases.find((c) => c.id === selectedCaseId) || cases[0];
 
+  // Shared, predictable home action for desktop sidebar and mobile header.
+  // Never show the public landing page for an authenticated staff user.
+  const handleGoFacilityOverview = () => {
+    setShowLanding(false);
+    setWorkspace('facility');
+    setTab('dashboard');
+    setIsMobileSidebarOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSelectWorkspace = (ws: WorkspaceMode) => {
     setWorkspace(ws);
     if (ws === 'facility') {
@@ -243,6 +253,7 @@ const AppContent: React.FC = () => {
         workspace={workspace}
         onSelectWorkspace={handleSelectWorkspace}
         selectedCase={currentRecord}
+        onGoFacilityOverview={handleGoFacilityOverview}
       />
 
       {/* Main Content Area (offset by sidebar width on desktop) */}
@@ -255,7 +266,7 @@ const AppContent: React.FC = () => {
           cases={cases}
           currentTab={tab}
           onOpenLogin={() => setIsLoginModalOpen(true)}
-          onGoHome={() => setShowLanding(true)}
+          onGoHome={handleGoFacilityOverview}
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           onOpenNewCaseModal={() => setIsNewCaseModalOpen(true)}
           onSelectTab={(newTab) => {
