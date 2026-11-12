@@ -137,8 +137,8 @@
       "education_history": "Secondary school; Level 2 vocational study",
       "employment_history": "Warehouse operative, 6 years continuous service",
       "rehabilitation_history": "One earlier programme completed satisfactorily",
-      "version": 6,
-      "updated_at": "2026-10-15T22:07:49.855Z",
+      "version": 10,
+      "updated_at": "2026-11-12T03:34:05.631Z",
       "updated_by_id": "usr-warden",
       "updated_by_name": "Marcus Vance",
       "institution_id": "inst-demo"
@@ -484,7 +484,50 @@
       "institution_id": "inst-demo"
     }
   ],
-  "documents": [],
+  "documents": [
+    {
+      "id": "doc-test-fac-01",
+      "case_id": "RP-1041",
+      "filename": "unassigned.pdf",
+      "original_name": "Unassigned_Court_Assessment_RP-1041.pdf",
+      "mime_type": "application/pdf",
+      "size_bytes": 2048,
+      "uploaded_by": "usr-edu",
+      "uploaded_at": "2026-11-12T03:34:06.202Z",
+      "status": "rejected",
+      "extracted_data": {
+        "detected_case_id": "RP-1041",
+        "candidate_fields": {
+          "session_attendance": 85
+        }
+      },
+      "institution_id": "inst-demo",
+      "assigned_by": "usr-edu",
+      "assigned_at": "2026-11-12T03:34:06.202Z",
+      "rejection_reason": "Discrepancy with official tribunal docket"
+    },
+    {
+      "id": "doc-test-fac-01",
+      "case_id": "RP-1041",
+      "filename": "unassigned.pdf",
+      "original_name": "Unassigned_Court_Assessment_RP-1041.pdf",
+      "mime_type": "application/pdf",
+      "size_bytes": 2048,
+      "uploaded_by": "usr-edu",
+      "uploaded_at": "2026-11-12T03:32:46.394Z",
+      "status": "rejected",
+      "extracted_data": {
+        "detected_case_id": "RP-1041",
+        "candidate_fields": {
+          "session_attendance": 85
+        }
+      },
+      "institution_id": "inst-demo",
+      "assigned_by": "usr-edu",
+      "assigned_at": "2026-11-12T03:32:46.395Z",
+      "rejection_reason": "Discrepancy with official tribunal docket"
+    }
+  ],
   "audit_events": [
     {
       "actor_id": "usr-admin",

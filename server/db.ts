@@ -75,7 +75,7 @@ export interface OffenderCase {
   score_history: number[]; // 5 cycles of placement scores
   gate_history: number[]; // 5 cycles of avg gate completion
   certifications: string[];
-  decision: 'approved' | 'modified' | 'overridden' | null;
+  decision: 'approved' | 'modified' | 'overridden' | 'rejected' | null;
   pathway_position: number | null; // 0..11
   decision_reason: string;
   rehabilitation_remarks: string[];

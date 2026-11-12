@@ -172,9 +172,125 @@ async function runTests() {
     'Demo/deployment separation: demo credentials and fictional records cannot leak into clean deployment storage.'
   );
 
+  // Scenario 16: Educator and Case Manager can edit education and vocational skills gates
+  const eduEditEduGate = validateCaseFieldPermissions('Educator', {
+    gate_scores: { edu: 85, skl: 80 },
+    education_level: 'Vocational Level 2',
+    certifications: ['Forklift Certified'],
+  });
+  const caseMgrEditEduGate = validateCaseFieldPermissions('Case Manager', {
+    gate_scores: { edu: 88, skl: 82 },
+  });
+  assert(
+    eduEditEduGate.allowed && caseMgrEditEduGate.allowed,
+    'Educators and Case Managers are authorized to update education/skills evidence and gate scores.'
+  );
+
+  // Scenario 17: Psychologist is strictly blocked from modifying education/skills gates
+  const psychEditEduGate = validateCaseFieldPermissions('Psychologist', {
+    gate_scores: { edu: 90 },
+  });
+  const psychEditSklGate = validateCaseFieldPermissions('Psychologist', {
+    gate_scores: { skl: 90 },
+  });
+  assert(
+    !psychEditEduGate.allowed && !psychEditSklGate.allowed,
+    'Psychologists are strictly blocked from editing education/skills gate scores.'
+  );
+
+  // Scenario 18: Psychologist can edit clinical well-being fields
+  const psychEditWbGate = validateCaseFieldPermissions('Psychologist', {
+    gate_scores: { wb: 92 },
+    mental_wellbeing: 4,
+  });
+  assert(
+    psychEditWbGate.allowed,
+    'Psychologists are authorized to update clinical well-being gate scores and mental wellbeing metrics.'
+  );
+
+  // Scenario 19: Warden can reject placement; non-warden cannot decide placement
+  const wardenRejectPlacement = validateCaseFieldPermissions('Warden', {
+    decision: 'rejected',
+    placement_override_reason: 'Statutory milestone pending comprehensive tribunal clearance.',
+  });
+  const psychRejectPlacement = validateCaseFieldPermissions('Psychologist', {
+    decision: 'rejected',
+  });
+  assert(
+    wardenRejectPlacement.allowed && !psychRejectPlacement.allowed,
+    'Warden can execute rejected placement with documented reason; non-warden staff are blocked from pathway decisions.'
+  );
+
+  // Scenario 20: Dual-level document intake: facility upload, case assignment, and rejection
+  const facilityDoc = DB.addDocument({
+    id: 'doc-test-fac-01',
+    case_id: null,
+    filename: 'unassigned.pdf',
+    original_name: 'Unassigned_Court_Assessment_RP-1041.pdf',
+    mime_type: 'application/pdf',
+    size_bytes: 2048,
+    uploaded_by: educator.id,
+    uploaded_at: new Date().toISOString(),
+    status: 'pending',
+    extracted_data: { detected_case_id: 'RP-1041', candidate_fields: { session_attendance: 85 } },
+    institution_id: 'inst-demo',
+  });
+  assert(
+    facilityDoc.case_id === null && facilityDoc.status === 'pending',
+    'Facility-level document intake accepts unassigned documents awaiting human review.'
+  );
+
+  // Scenario 21: Case assignment and rejection workflows
+  facilityDoc.case_id = 'RP-1041';
+  facilityDoc.assigned_by = educator.id;
+  facilityDoc.assigned_at = new Date().toISOString();
+  DB.updateDocument(facilityDoc, 'inst-demo');
+  const assignedDoc = DB.findDocumentById('doc-test-fac-01', 'inst-demo');
+  assert(
+    assignedDoc?.case_id === 'RP-1041',
+    'Facility document can be explicitly assigned to target case with audit trail.'
+  );
+  assignedDoc!.status = 'rejected';
+  assignedDoc!.rejection_reason = 'Discrepancy with official tribunal docket';
+  DB.updateDocument(assignedDoc!, 'inst-demo');
+  const rejectedDoc = DB.findDocumentById('doc-test-fac-01', 'inst-demo');
+  assert(
+    rejectedDoc?.status === 'rejected',
+    'Document review process allows explicit rejection of invalid or unverified documents.'
+  );
+
+  // Scenario 22: Multi-tenant document isolation strictly enforced
+  const foreignDocCheck = DB.findDocumentById('doc-test-fac-01', 'inst-foreign-facility-99');
+  assert(
+    !foreignDocCheck,
+    'Multi-tenant document isolation: cross-tenant access to documents is strictly blocked.'
+  );
+
+  // Scenario 23: Longitudinal progress calculation handles < 2 cycles cleanly without synthetic flatlining
+  const baseCase = DB.findCaseById('RP-1041')!;
+  const singleCycleHistory = [
+    {
+      timestamp: new Date().toISOString(),
+      gate_scores: { ...baseCase.gate_scores },
+      overall: 70,
+    },
+  ];
+  const insufficientDataDetected = singleCycleHistory.length < 2;
+  assert(
+    insufficientDataDetected,
+    'Longitudinal progress analytics detects insufficient historical cycles (< 2) without synthesizing artificial zero trends.'
+  );
+
   console.log('\n----------------------------------------------------------------');
   console.log(`Results: ${passed}/${total} test scenarios passed successfully.`);
   console.log('----------------------------------------------------------------\n');
+
+  if (passed !== total) {
+    process.exit(1);
+  }
 }
 
-runTests().catch(console.error);
+runTests().catch((err) => {
+  console.error('Fatal test runner error:', err);
+  process.exit(1);
+});

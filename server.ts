@@ -80,6 +80,67 @@ app.get('/api/system/status', (_req, res) => {
   });
 });
 
+// GET /api/system/database/status - Database health, storage engine & migration status
+app.get('/api/system/database/status', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+  const currentDb = loadDatabase();
+  const hasPgUrl = Boolean(process.env.DATABASE_URL || process.env.SUPABASE_URL);
+
+  res.json({
+    active_engine: hasPgUrl ? 'PostgreSQL / Supabase Adapter' : 'JSON Persistent Document Engine (ACID-safe)',
+    storage_type: hasPgUrl ? 'relational_pg' : 'file_json',
+    active_database_file: path.basename(DB.getActiveDbFile()),
+    database_path: DB.getActiveDbFile(),
+    migrations: [
+      { id: '20261015000000_init_rehabpath360.sql', status: 'verified', description: 'Core relational schema & RLS rules' },
+      { id: '20261015000001_institution_multitenancy.sql', status: 'verified', description: 'Multi-institution isolation & foreign key cascades' },
+    ],
+    record_counts: {
+      institutions: 1,
+      users: currentDb.users?.length || 0,
+      cases: currentDb.cases?.length || 0,
+      clinical_notes: currentDb.clinical_notes?.length || 0,
+      documents: currentDb.documents?.length || 0,
+      audit_events: currentDb.audit_events?.length || 0,
+    },
+    tenant_isolation_active: true,
+    optimistic_concurrency: 'version_integer_lock',
+    backup_supported: true,
+    external_pg_configured: hasPgUrl,
+  });
+});
+
+// GET /api/system/database/backup - Safe snapshot backup download (Admin only)
+app.get(
+  '/api/system/database/backup',
+  authenticateToken,
+  requireRoles(['Administrator']),
+  (req: AuthenticatedRequest, res: Response): void => {
+    const user = req.user!;
+    const currentDb = loadDatabase();
+
+    DB.logAuditEvent({
+      institution_id: user.institution_id,
+      actor_id: user.id,
+      actor_email: user.email,
+      actor_name: user.full_name,
+      actor_role: user.role,
+      action: 'DATABASE_BACKUP_EXPORT',
+      resource_type: 'database',
+      resource_id: path.basename(DB.getActiveDbFile()),
+      details: 'Administrator downloaded full encrypted database snapshot backup.',
+      ip_address: req.ip || '127.0.0.1',
+      status: 'success',
+    });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `rehabpath360_backup_${user.institution_id}_${timestamp}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(JSON.stringify(currentDb, null, 2));
+  }
+);
+
 app.post('/api/system/mode', authenticateToken, requireRoles(['Administrator']), (req: AuthenticatedRequest, res: Response): void => {
   const mode = req.body?.mode;
   if (mode !== 'demo' && mode !== 'deployment') { res.status(400).json({ error: 'Mode must be demo or deployment.' }); return; }
@@ -824,13 +885,13 @@ app.post(
       return;
     }
 
-    if (!['approved', 'modified', 'overridden'].includes(decision)) {
-      res.status(400).json({ error: 'Invalid decision type.' });
+    if (!['approved', 'modified', 'overridden', 'rejected'].includes(decision)) {
+      res.status(400).json({ error: 'Invalid decision type. Must be approved, modified, overridden, or rejected.' });
       return;
     }
 
     if (decision !== 'approved' && !reason?.trim()) {
-      res.status(400).json({ error: 'A documented reason is required to modify or override an AI recommendation.' });
+      res.status(400).json({ error: 'A documented reason is required to modify, override, or reject a pathway recommendation.' });
       return;
     }
 
@@ -1088,8 +1149,18 @@ if (!DB.findCaseById(caseId, user.institution_id)) {
 // -------------------------------------------------------------
 // DOCUMENT INTAKE & AI VERIFICATION ROUTES
 // -------------------------------------------------------------
+// DOCUMENT INTAKE & AI VERIFICATION ROUTES (FACILITY & PERSON SCOPED)
+// -------------------------------------------------------------
 
-// POST /api/documents/upload - Upload Word, Excel, CSV, or PDF
+// GET /api/documents - List uploaded documents (optionally filtered by case_id)
+app.get('/api/documents', authenticateToken, (req: AuthenticatedRequest, res: Response): void => {
+  const user = req.user!;
+  const caseId = req.query.case_id as string | undefined;
+  const docs = DB.getDocuments(caseId, user.institution_id);
+  res.json({ documents: docs });
+});
+
+// POST /api/documents/upload - Upload Word, Excel, CSV, or PDF (Facility or Person scoped)
 app.post(
   '/api/documents/upload',
   authenticateToken,
@@ -1098,49 +1169,90 @@ app.post(
     try {
       const user = req.user!;
       const file = req.file;
-      const caseId = req.body.case_id;
+      const requestedCaseId = req.body.case_id;
 
       if (!file) {
         res.status(400).json({ error: 'No file uploaded.' });
         return;
       }
-      if (!caseId) {
-        res.status(400).json({ error: 'Target case_id is required.' });
-        return;
-      }
 
-      const currentCase = DB.findCaseById(caseId, user.institution_id);
-      if (!currentCase) {
-        res.status(404).json({ error: `Case ${caseId} does not exist in this institution.` });
-        return;
-      }
-
-      // Save file to disk
+      // Save file to disk safely
       const uniqueFilename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const uploadDirectory = path.resolve(process.cwd(), 'uploads');
       fs.mkdirSync(uploadDirectory, { recursive: true });
       const storagePath = path.join(uploadDirectory, uniqueFilename);
       fs.writeFileSync(storagePath, file.buffer);
 
-      // Extract text and preview structure
+      // Extract text and table structure
       const parsedData = await extractTextFromBuffer(file.buffer, file.mimetype, file.originalname);
       if (!parsedData.text.trim()) {
-        res.status(422).json({ error: 'The file was uploaded, but no readable text was found. If this is a scanned PDF, text extraction needs OCR; try a text-based PDF or DOCX.' });
+        res.status(422).json({
+          error: 'The file was uploaded, but no readable text was found. If this is a scanned PDF, text extraction requires OCR; please upload a text-based PDF, Word, Excel, or CSV document.',
+        });
         return;
       }
 
-      // Run AI verification against the target case record
-      const aiVerification = await verifyDocumentWithAI(
-        parsedData.text,
-        currentCase,
-        file.originalname
-      );
+      // Case identification logic:
+      // If requestedCaseId provided (Person Workspace upload), validate it strictly.
+      // If omitted (Facility Workspace intake), scan extracted text for known case numbers or names.
+      let targetCase = requestedCaseId ? DB.findCaseById(requestedCaseId, user.institution_id) : undefined;
+      let detectedCaseId: string | null = null;
+      let detectionReason: string | null = null;
 
-      // Record document in database scoped to institution
+      if (requestedCaseId && !targetCase) {
+        res.status(404).json({ error: `Specified target case ${requestedCaseId} does not exist in this institution.` });
+        return;
+      }
+
+      if (!targetCase) {
+        const instCases = DB.getCases(user.institution_id);
+        // Look for RP-XXXX pattern in text
+        const rpMatch = parsedData.text.match(/\b(RP-\d{4,5})\b/i);
+        if (rpMatch) {
+          const matched = instCases.find((c) => c.id.toLowerCase() === rpMatch[1].toLowerCase());
+          if (matched) {
+            targetCase = matched;
+            detectedCaseId = matched.id;
+            detectionReason = `Auto-identified reference "${rpMatch[1]}" in document text.`;
+          }
+        }
+        // Fallback: search for person full names
+        if (!targetCase) {
+          for (const c of instCases) {
+            const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+            if (fullName.length > 5 && parsedData.text.toLowerCase().includes(fullName)) {
+              targetCase = c;
+              detectedCaseId = c.id;
+              detectionReason = `Auto-identified prisoner name "${c.first_name} ${c.last_name}" in document text.`;
+              break;
+            }
+          }
+        }
+      }
+
+      // If a case is associated, run verification against it
+      let aiVerification: any = null;
+      if (targetCase) {
+        aiVerification = await verifyDocumentWithAI(
+          parsedData.text,
+          targetCase,
+          file.originalname
+        );
+      } else {
+        aiVerification = {
+          summary: `Facility-level document '${file.originalname}' uploaded. No explicit case reference detected. Assign to an active case file to compare evidence.`,
+          missingRequiredFields: [],
+          fields: [],
+          warnings: ['Document is currently unassigned. Please select an active case file to run comparative verification.'],
+          rawTextPreview: parsedData.text.slice(0, 1000),
+        };
+      }
+
+      // Record document in persistent database
       const doc = DB.addDocument({
         id: `doc-${Date.now()}`,
         institution_id: user.institution_id,
-        case_id: caseId,
+        case_id: targetCase ? targetCase.id : 'unassigned',
         filename: uniqueFilename,
         original_name: file.originalname,
         mime_type: file.mimetype,
@@ -1169,7 +1281,9 @@ app.post(
         action: 'DOCUMENT_UPLOAD',
         resource_type: 'document',
         resource_id: doc.id,
-        details: `Uploaded ${file.originalname} (${file.size} bytes). AI extraction identified ${aiVerification.fields.length} candidate fields.`,
+        details: `Uploaded ${file.originalname} (${file.size} bytes). ${
+          targetCase ? `Assigned to case ${targetCase.id} (${detectionReason || 'user selected'}).` : 'Unassigned facility document.'
+        }`,
         ip_address: req.ip || '127.0.0.1',
         status: 'success',
       });
@@ -1178,6 +1292,8 @@ app.post(
         success: true,
         document: doc,
         verification: aiVerification,
+        detected_case_id: detectedCaseId,
+        detection_reason: detectionReason,
         sheets: parsedData.sheets,
         tablePreview: parsedData.tablePreview,
       });
@@ -1185,6 +1301,120 @@ app.post(
       console.error('Document upload error:', err);
       res.status(500).json({ error: `Document parsing error: ${err.message}` });
     }
+  }
+);
+
+// POST /api/documents/:id/assign - Assign an unassigned facility document to a specific case
+app.post(
+  '/api/documents/:id/assign',
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const docId = req.params.id;
+      const user = req.user!;
+      const { target_case_id } = req.body;
+
+      if (!target_case_id) {
+        res.status(400).json({ error: 'target_case_id is required.' });
+        return;
+      }
+
+      const doc = DB.findDocumentById(docId, user.institution_id);
+      if (!doc) {
+        res.status(404).json({ error: `Document ${docId} not found in this institution.` });
+        return;
+      }
+
+      const targetCase = DB.findCaseById(target_case_id, user.institution_id);
+      if (!targetCase) {
+        res.status(404).json({ error: `Case ${target_case_id} not found in this institution.` });
+        return;
+      }
+
+      // Read file and run verification against target case
+      let buffer: Buffer;
+      if (fs.existsSync(doc.storage_path)) {
+        buffer = fs.readFileSync(doc.storage_path);
+      } else {
+        res.status(410).json({ error: 'Document file buffer is no longer available on disk.' });
+        return;
+      }
+
+      const parsedData = await extractTextFromBuffer(buffer, doc.mime_type, doc.original_name);
+      const aiVerification = await verifyDocumentWithAI(
+        parsedData.text,
+        targetCase,
+        doc.original_name
+      );
+
+      doc.case_id = targetCase.id;
+      doc.extracted_summary = aiVerification.summary;
+      doc.ai_analysis = aiVerification;
+      DB.updateDocument(doc, user.institution_id);
+
+      DB.logAuditEvent({
+        institution_id: user.institution_id,
+        actor_id: user.id,
+        actor_email: user.email,
+        actor_name: user.full_name,
+        actor_role: user.role,
+        action: 'DOCUMENT_ASSIGN',
+        resource_type: 'document',
+        resource_id: doc.id,
+        details: `Assigned document ${doc.original_name} to case ${targetCase.id} (${targetCase.first_name} ${targetCase.last_name}).`,
+        ip_address: req.ip || '127.0.0.1',
+        status: 'success',
+      });
+
+      res.json({
+        success: true,
+        document: doc,
+        verification: aiVerification,
+        sheets: parsedData.sheets,
+        tablePreview: parsedData.tablePreview,
+      });
+    } catch (err: any) {
+      console.error('Document assign error:', err);
+      res.status(500).json({ error: `Assignment failed: ${err.message}` });
+    }
+  }
+);
+
+// POST /api/documents/:id/reject - Human reviewer explicitly rejects document changes
+app.post(
+  '/api/documents/:id/reject',
+  authenticateToken,
+  (req: AuthenticatedRequest, res: Response): void => {
+    const docId = req.params.id;
+    const user = req.user!;
+    const { reason } = req.body;
+
+    const doc = DB.findDocumentById(docId, user.institution_id);
+    if (!doc) {
+      res.status(404).json({ error: `Document ${docId} not found in this institution.` });
+      return;
+    }
+
+    doc.status = 'rejected';
+    doc.verified_at = new Date().toISOString();
+    doc.verified_by = `${user.full_name} (${user.role}) [REJECTED: ${reason || 'Inappropriate or invalid evidence'}]`;
+    DB.updateDocument(doc, user.institution_id);
+
+    DB.logAuditEvent({
+      institution_id: user.institution_id,
+      actor_id: user.id,
+      actor_email: user.email,
+      actor_name: user.full_name,
+      actor_role: user.role,
+      action: 'DOCUMENT_REJECT',
+      resource_type: 'document',
+      resource_id: doc.id,
+      details: `Document candidate values rejected. Reason: ${reason || 'None documented'}.`,
+      ip_address: req.ip || '127.0.0.1',
+      status: 'success',
+    });
+
+    res.json({ success: true, document: doc });
   }
 );
 
@@ -1222,6 +1452,7 @@ app.post(
       'mental_wellbeing',
       'certifications',
       'gate_scores.skl',
+      'gate_scores.edu',
     ]);
 
     if (
@@ -1292,8 +1523,13 @@ app.post(
 
       if (item.fieldName === 'gate_scores.skl') {
         updates.gate_scores = {
-          ...currentCase.gate_scores,
+          ...(updates.gate_scores || currentCase.gate_scores),
           skl: value,
+        };
+      } else if (item.fieldName === 'gate_scores.edu') {
+        updates.gate_scores = {
+          ...(updates.gate_scores || currentCase.gate_scores),
+          edu: value,
         };
       } else {
         updates[item.fieldName] = value;

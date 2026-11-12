@@ -62,6 +62,20 @@ export const Api = {
   getSystemStatus: () =>
     request<SystemStatus>('/api/system/status'),
 
+  getDatabaseStatus: () =>
+    request<{
+      active_engine: string;
+      storage_type: string;
+      active_database_file: string;
+      database_path: string;
+      migrations: { id: string; status: string; description: string }[];
+      record_counts: Record<string, number>;
+      tenant_isolation_active: boolean;
+      optimistic_concurrency: string;
+      backup_supported: boolean;
+      external_pg_configured: boolean;
+    }>('/api/system/database/status'),
+
   switchSystemMode: (mode: 'demo' | 'deployment', setup_token?: string) =>
     request<{ success: boolean; mode: 'demo' | 'deployment'; database_file: string }>('/api/system/mode', { method: 'POST', body: JSON.stringify({ mode, ...(setup_token ? {setup_token} : {}) }) }),
 
@@ -143,7 +157,7 @@ export const Api = {
 
   decidePlacement: (
     id: string,
-    decision: 'approved' | 'modified' | 'overridden',
+    decision: 'approved' | 'modified' | 'overridden' | 'rejected',
     pathway_position: number,
     reason: string
   ) =>
@@ -187,14 +201,18 @@ export const Api = {
     }),
 
   // Documents & AI Verification
-  uploadDocument: (caseId: string, file: File) => {
+  uploadDocument: (caseId: string | undefined, file: File) => {
     const formData = new FormData();
-    formData.append('case_id', caseId);
+    if (caseId) {
+      formData.append('case_id', caseId);
+    }
     formData.append('file', file);
     return request<{
       success: boolean;
       document: UploadedDocument;
       verification: VerificationResult;
+      detected_case_id?: string | null;
+      detection_reason?: string | null;
       sheets?: string[];
       tablePreview?: any[];
     }>('/api/documents/upload', {
@@ -202,6 +220,29 @@ export const Api = {
       body: formData,
     });
   },
+
+  getDocuments: (caseId?: string) =>
+    request<{ documents: UploadedDocument[] }>(
+      caseId ? `/api/documents?case_id=${encodeURIComponent(caseId)}` : '/api/documents'
+    ),
+
+  assignDocument: (documentId: string, target_case_id: string) =>
+    request<{
+      success: boolean;
+      document: UploadedDocument;
+      verification: VerificationResult;
+      sheets?: string[];
+      tablePreview?: any[];
+    }>(`/api/documents/${documentId}/assign`, {
+      method: 'POST',
+      body: JSON.stringify({ target_case_id }),
+    }),
+
+  rejectDocument: (documentId: string, reason?: string) =>
+    request<{ success: boolean; document: UploadedDocument }>(`/api/documents/${documentId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
 
   commitVerifiedFields: (
     documentId: string,

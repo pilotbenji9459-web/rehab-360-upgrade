@@ -12,6 +12,7 @@
     "test:tour-visuals": "tsx scripts/test_tour_visuals.ts",
     "test:visual": "tsx scripts/test_visual_regressions.ts",
     "test:case-explorer": "tsx scripts/test_case_explorer.ts",
+    "lint": "tsc --noEmit",
     "build": "tsc && vite build",
     "start": "NODE_ENV=production tsx server.ts",
     "start:deployment": "NODE_ENV=production APP_MODE=deployment tsx server.ts",

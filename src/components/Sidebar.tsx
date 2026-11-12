@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { TabId, StaffRole } from '../types';
+import { TabId, StaffRole, WorkspaceMode, OffenderCase } from '../types';
 import {
   LayoutDashboard,
   Users,
@@ -19,7 +19,9 @@ import {
   Building2,
   ChevronRight,
   ShieldCheck,
-  Sparkles,
+  User,
+  ArrowLeft,
+  FolderOpen,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,6 +29,9 @@ interface SidebarProps {
   onSelectTab: (tab: TabId) => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
+  workspace: WorkspaceMode;
+  onSelectWorkspace: (ws: WorkspaceMode) => void;
+  selectedCase?: OffenderCase;
 }
 
 interface NavItem {
@@ -42,63 +47,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   isOpenMobile,
   onCloseMobile,
+  workspace,
+  onSelectWorkspace,
+  selectedCase,
 }) => {
   const { user, institution, systemStatus, logout } = useAuth();
-
   const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
 
-  // Define navigation items with RBAC permissions
-  const navItems: NavItem[] = [
+  // Facility Workspace navigation modules
+  const facilityNavItems: NavItem[] = [
     {
       id: 'dashboard',
-      label: 'Overview',
+      label: 'Facility Overview',
       icon: LayoutDashboard,
     },
     {
       id: 'cases',
-      label: 'Case Management',
+      label: 'Caseload Management',
       icon: Users,
     },
     {
       id: 'intake',
-      label: 'Document Intake',
+      label: 'Document Intake Centre',
       icon: FileSpreadsheet,
-      badge: 'AI',
-    },
-    {
-      id: 'plan',
-      label: 'Rehabilitation Plans',
-      icon: FileCheck,
-      allowedRoles: ['Administrator', 'Warden', 'Case Manager'],
-    },
-    {
-      id: 'clinical',
-      label: 'Clinical Notes',
-      icon: Lock,
-      badge: 'Protected',
-      allowedRoles: ['Administrator', 'Psychologist'],
-    },
-    {
-      id: 'prog',
-      label: 'Progress Tracking',
-      icon: TrendingUp,
-      allowedRoles: ['Administrator', 'Warden', 'Educator', 'Case Manager', 'Psychologist'],
-    },
-    {
-      id: 'flags',
-      label: 'Clinical Indicators',
-      icon: HeartPulse,
-      allowedRoles: ['Administrator', 'Psychologist', 'Warden'],
-    },
-    {
-      id: 'hand',
-      label: 'Parole Handover',
-      icon: Award,
-      allowedRoles: ['Administrator', 'Warden', 'Community Rehabilitation Officer'],
+      badge: 'AI Verified',
     },
     {
       id: 'rep',
-      label: 'Reports',
+      label: 'Facility Reports & CSV',
       icon: FileText,
       allowedRoles: ['Administrator', 'Warden', 'Case Manager', 'Community Rehabilitation Officer'],
     },
@@ -110,24 +86,83 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'audit',
-      label: 'Audit Trail',
+      label: 'Facility Audit Trail',
       icon: History,
       allowedRoles: ['Administrator', 'Warden'],
     },
     {
       id: 'settings',
-      label: 'Settings',
+      label: 'System & Database',
       icon: Settings,
     },
     {
       id: 'guide',
-      label: 'System Guide',
+      label: 'Operational Blueprint',
       icon: BookOpen,
     },
   ];
 
+  // Person Workspace navigation modules (scoped to selected individual)
+  const personNavItems: NavItem[] = [
+    {
+      id: 'cases',
+      label: 'Case File & Profile',
+      icon: User,
+    },
+    {
+      id: 'plan',
+      label: 'Rehabilitation Trajectory',
+      icon: FileCheck,
+      allowedRoles: ['Administrator', 'Warden', 'Case Manager'],
+    },
+    {
+      id: 'prog',
+      label: 'Progression Gates',
+      icon: TrendingUp,
+      allowedRoles: ['Administrator', 'Warden', 'Educator', 'Case Manager', 'Psychologist'],
+    },
+    {
+      id: 'mx',
+      label: 'Domain Matrix',
+      icon: LayoutDashboard,
+      allowedRoles: ['Administrator', 'Warden', 'Educator', 'Case Manager', 'Psychologist', 'Community Rehabilitation Officer'],
+    },
+    {
+      id: 'trend',
+      label: 'Progress Trends',
+      icon: TrendingUp,
+      allowedRoles: ['Administrator', 'Warden', 'Educator', 'Case Manager', 'Psychologist'],
+    },
+    {
+      id: 'clinical',
+      label: 'Clinical Notes',
+      icon: Lock,
+      badge: 'Protected',
+      allowedRoles: ['Administrator', 'Psychologist'],
+    },
+    {
+      id: 'flags',
+      label: 'Wellbeing Indicators',
+      icon: HeartPulse,
+      allowedRoles: ['Administrator', 'Psychologist', 'Warden'],
+    },
+    {
+      id: 'person_intake',
+      label: 'Case Evidence & Documents',
+      icon: FolderOpen,
+    },
+    {
+      id: 'hand',
+      label: 'Parole Handover Brief',
+      icon: Award,
+      allowedRoles: ['Administrator', 'Warden', 'Community Rehabilitation Officer'],
+    },
+  ];
+
+  const activeItems = workspace === 'facility' ? facilityNavItems : personNavItems;
+
   // Filter items based on signed-in user's role
-  const visibleItems = navItems.filter((item) => {
+  const visibleItems = activeItems.filter((item) => {
     if (!item.allowedRoles) return true;
     if (!user) return false;
     return item.allowedRoles.includes(user.role);
@@ -164,12 +199,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Container */}
       <aside
         data-app-sidebar
+        data-motion-scope="sidebar"
         className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#071325] border-r border-[#1e3a5f] flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Institution Brand Header */}
-        <div className="p-5 border-b border-[#1e3a5f]/80 bg-[#0b1a30]/60">
+        <div className="p-4 sm:p-5 border-b border-[#1e3a5f]/80 bg-[#0b1a30]/60">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white shadow-lg shadow-[#0284c7]/20 shrink-0">
               <ShieldCheck className="w-6 h-6" />
@@ -187,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Mode Pill: Exhibition Demo vs Clean Deployment */}
-          <div className="mt-3.5 flex items-center justify-between px-2.5 py-1 rounded-lg bg-[#0f2744] border border-[#1e3a5f] text-[11px]">
+          <div className="mt-3 flex items-center justify-between px-2.5 py-1 rounded-lg bg-[#0f2744] border border-[#1e3a5f] text-[11px]">
             <span className="flex items-center gap-1.5 text-slate-300 font-medium truncate">
               <Building2 className="w-3.5 h-3.5 text-[var(--teal)] shrink-0" />
               <span className="truncate">{institution?.code || 'FACILITY'}</span>
@@ -204,10 +240,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
+        {/* WORKSPACE SELECTION SWITCHER */}
+        <div className="p-3 border-b border-[#1e3a5f] bg-[#071325]">
+          <div className="text-[10px] uppercase font-bold text-slate-400 px-1 mb-1.5 tracking-wider">
+            Workspace Mode
+          </div>
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0b1a30] rounded-xl border border-[#1e3a5f]">
+            <button
+              type="button"
+              onClick={() => onSelectWorkspace('facility')}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                workspace === 'facility'
+                  ? 'bg-[#0284c7] text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-[#0f2744]'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Facility</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectWorkspace('person')}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                workspace === 'person'
+                  ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-[#0f2744]'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Person</span>
+            </button>
+          </div>
+
+          {/* Person Context Box when in Person Workspace */}
+          {workspace === 'person' && selectedCase && (
+            <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-[#0f2744] to-[#0b1a30] border border-sky-500/30 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                  Active Case File
+                </span>
+                <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/30">
+                  {selectedCase.id}
+                </span>
+              </div>
+              <div className="font-semibold text-white text-sm mt-0.5 truncate">
+                {selectedCase.first_name} {selectedCase.last_name}
+              </div>
+              <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                {selectedCase.crime_type} · {selectedCase.sentence_length_months} mos
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto p-3.5 space-y-1 scrollbar-thin" aria-label="Main Navigation">
-          <div className="px-2 pb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-            Institutional Portal
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin" aria-label="Main Navigation">
+          <div className="px-2 pb-1.5 text-xs font-bold uppercase tracking-wider text-slate-300">
+            {workspace === 'facility' ? 'Facility Modules' : 'Person Case Modules'}
           </div>
           {visibleItems.map((item) => {
             const Icon = item.icon;
@@ -219,7 +309,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 data-active={isActive ? 'true' : 'false'}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[14px] font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'bg-gradient-to-r from-[var(--acc)] to-[var(--teal)] text-white shadow-md shadow-[#0284c7]/25 font-semibold'
                     : 'text-slate-200 hover:text-white hover:bg-[#0f2744]/70'
@@ -227,7 +317,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <div className="flex items-center gap-3 truncate">
                   <Icon
-                    className={`w-5 h-5 shrink-0 ${
+                    className={`w-4.5 h-4.5 shrink-0 ${
                       isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                     }`}
                   />
@@ -235,7 +325,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 {item.badge && (
                   <span
-                    className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider ${
                       isActive
                         ? 'bg-white/20 text-white'
                         : 'bg-[#5cc2bd]/20 text-[var(--teal)] border border-[#5cc2bd]/30'
@@ -251,16 +341,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Active Staff User Profile Footer */}
         {user && (
-          <div className="p-3.5 border-t border-[#1e3a5f] bg-[#0b1a30]/80">
-            <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#0f2744] border border-[#1e3a5f]/80">
+          <div className="p-3 border-t border-[#1e3a5f] bg-[#0b1a30]/80">
+            <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#0f2744] border border-[#1e3a5f]/80">
               <div className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white truncate">
+                <span className="block text-xs font-bold text-white truncate">
                   {user.full_name}
                 </span>
-                <span className="block text-xs text-[var(--teal)] font-semibold truncate">
+                <span className="block text-[11px] text-[var(--teal)] font-semibold truncate">
                   {getCustomDesignation(user.role)}
                 </span>
-                <span className="block text-xs text-slate-400 font-mono mt-0.5">
+                <span className="block text-[10px] text-slate-400 font-mono mt-0.5 truncate">
                   #{user.badge_number} · {user.department}
                 </span>
               </div>

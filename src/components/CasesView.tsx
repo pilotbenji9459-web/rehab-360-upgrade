@@ -28,7 +28,7 @@ interface CasesViewProps {
   currentRecord: OffenderCase;
   cases: OffenderCase[];
   onSelectCase: (caseId: string) => void;
-  onDecide: (decision: 'approved' | 'modified' | 'overridden', pos: number, reason: string) => void;
+  onDecide: (decision: 'approved' | 'modified' | 'overridden' | 'rejected', pos: number, reason: string) => void;
   onUpdateCase: (updates: Partial<OffenderCase>) => Promise<void>;
   showAlert: (msg: string, title?: string) => void;
 }
@@ -166,9 +166,18 @@ export const CasesView: React.FC<CasesViewProps> = ({
   };
 
   // Human placement decision handler
-  const handleDecision = (type: 'approved' | 'modified' | 'overridden') => {
+  const handleDecision = (type: 'approved' | 'modified' | 'overridden' | 'rejected') => {
     const targetPos = selectedLevel * 3 + selectedSubLevel;
     const trimmedReason = decisionReason.trim();
+
+    if (type === 'rejected') {
+      if (!trimmedReason) {
+        showAlert('Enter a documented statutory reason before rejecting the pathway recommendation.', 'Reason Required');
+        return;
+      }
+      onDecide('rejected', c.pathway_position ?? a.pos, trimmedReason);
+      return;
+    }
 
     if (type !== 'approved') {
       const verb = type === 'modified' ? 'modifying' : 'overriding';
@@ -177,7 +186,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
         return;
       }
       if (targetPos === a.pos) {
-        showAlert('Choose a different level or sub-level from the AI recommendation.', 'Validation');
+        showAlert('Choose a different level or sub-level from the recommendation.', 'Validation');
         return;
       }
       if (type === 'modified' && Math.floor(targetPos / 3) !== Math.floor(a.pos / 3)) {
@@ -524,26 +533,57 @@ export const CasesView: React.FC<CasesViewProps> = ({
           </div>
         </div>
 
-        {/* Explainable AI Recommendation Card */}
+        {/* Explainable Decision-Support Recommendation Card */}
         <div className="card">
-          <h2>AI Placement Engine: {formatPathwayName(a.pos)}</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2>Rules-Based Pathway Suggestion: {formatPathwayName(a.pos)}</h2>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 border border-[#1e3a5f] text-slate-300 font-mono">
+              Advisory Decision Support
+            </span>
+          </div>
+
           <div className="row mb-3">
-            <span className="tag font-semibold">Confidence {a.conf}%</span>
+            <span className="tag font-semibold">Algorithmic Confidence {a.conf}%</span>
             <span className="tag o font-semibold">Protective Index {a.P}/100</span>
             <span className={`tag font-semibold ${a.Rk >= 80 ? 'b' : 'w'}`}>
               Risk Load {a.Rk}/100
             </span>
-            <span className="tag font-semibold">Placement Score {a.s}</span>
+            <span className="tag font-semibold">Composite Score {a.s}/100</span>
           </div>
 
-          <p className="mute text-xs mb-4">
-            Algorithmic scoring: 60% protective factors (education, well-being, support, engagement) + 40% (100 − risk load).
+          <p className="mute text-xs mb-3 leading-relaxed">
+            Deterministic formula: 60% Protective Index (Education 6x, Well-being 6x, Support 4x, Engagement 4x) + 40% (100 − Risk Load).
           </p>
+
+          {/* Contributing Variables Breakdown */}
+          <div className="p-3.5 rounded-xl bg-[#071325] border border-[#1e3a5f] mb-4 text-xs space-y-2">
+            <span className="font-bold text-slate-200 block uppercase tracking-wider text-[11px]">
+              Contributing Variable Breakdown
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
+              <div className="p-2 rounded-lg bg-[#0b1a30] border border-[#1e3a5f]/60">
+                <span className="text-slate-400 block text-[10px]">Education (6x)</span>
+                <span className="font-bold text-white">{formData.education_level}/5 &rarr; {formData.education_level * 6} pts</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0b1a30] border border-[#1e3a5f]/60">
+                <span className="text-slate-400 block text-[10px]">Well-being (6x)</span>
+                <span className="font-bold text-white">{formData.mental_wellbeing}/5 &rarr; {formData.mental_wellbeing * 6} pts</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0b1a30] border border-[#1e3a5f]/60">
+                <span className="text-slate-400 block text-[10px]">Support Network (4x)</span>
+                <span className="font-bold text-white">{formData.support_network}/5 &rarr; {formData.support_network * 4} pts</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0b1a30] border border-[#1e3a5f]/60">
+                <span className="text-slate-400 block text-[10px]">Engagement (4x)</span>
+                <span className="font-bold text-white">{formData.programme_engagement}/5 &rarr; {formData.programme_engagement * 4} pts</span>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
               <h3 className="text-xs font-bold text-[var(--bad)] uppercase tracking-wider mb-2">
-                Risk Factors
+                Identified Risk Factors
               </h3>
               <ul className="app-list space-y-1">
                 {a.f.length ? (
@@ -556,7 +596,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
 
             <div>
               <h3 className="text-xs font-bold text-[var(--ok)] uppercase tracking-wider mb-2">
-                Protective Factors
+                Identified Protective Factors
               </h3>
               <ul className="app-list space-y-1">
                 {a.p.length ? (
@@ -567,6 +607,10 @@ export const CasesView: React.FC<CasesViewProps> = ({
               </ul>
             </div>
           </div>
+
+          <div className="mt-3.5 pt-2.5 border-t border-[#1e3a5f] text-[11px] text-slate-400 italic">
+            Statutory Governance Mandate: Algorithmic calculations are advisory decision-support recommendations only and never independently approve a custodial placement or clinical diagnosis. Human verification is required.
+          </div>
         </div>
       </div>
 
@@ -576,7 +620,7 @@ export const CasesView: React.FC<CasesViewProps> = ({
           <div>
             <h3>Human Verification &amp; Pathway Authorization</h3>
             <p className="mute text-xs mb-3">
-              No AI recommendation takes effect in custody without explicit verification. Any modification or override requires a documented rationale.
+              No algorithmic recommendation takes effect in custody without explicit human verification. Modifying, overriding, or rejecting requires a documented reason.
             </p>
 
             <div className="row mb-3">
@@ -612,37 +656,44 @@ export const CasesView: React.FC<CasesViewProps> = ({
             </div>
 
             <label className="mb-3">
-              Formal Decision Rationale (Required for Modify or Override)
+              Formal Statutory Rationale (Required for Modify, Override, or Reject)
               <textarea
                 value={decisionReason}
                 onChange={(e) => setDecisionReason(e.target.value)}
                 rows={2}
-                placeholder="Document institutional or behavioural reasons for overriding AI suggestions..."
+                placeholder="Document institutional, security, or behavioural rationale..."
                 className="w-full text-xs rounded border border-[var(--line)] p-2 bg-[var(--panel)]"
               />
             </label>
 
-            <div className="row gap-2.5">
+            <div className="row gap-2.5 flex-wrap">
               <button
                 type="button"
                 onClick={() => handleDecision('approved')}
-                className="px-4 py-2 bg-[#0079d6] text-white text-xs font-semibold rounded-lg"
+                className="px-4 py-2 bg-[#0079d6] hover:bg-[#0284c7] text-white text-xs font-semibold rounded-lg cursor-pointer"
               >
-                Approve AI Pathway ({formatPathwayName(a.pos)})
+                Approve Suggested Pathway ({formatPathwayName(a.pos)})
               </button>
               <button
                 type="button"
                 onClick={() => handleDecision('modified')}
-                className="sec px-4 py-2 text-xs font-semibold rounded-lg"
+                className="sec px-4 py-2 text-xs font-semibold rounded-lg cursor-pointer"
               >
                 Modify Sub-level
               </button>
               <button
                 type="button"
                 onClick={() => handleDecision('overridden')}
-                className="sec px-4 py-2 text-xs font-semibold rounded-lg"
+                className="sec px-4 py-2 text-xs font-semibold rounded-lg cursor-pointer"
               >
                 Override Level
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDecision('rejected')}
+                className="sec px-4 py-2 text-xs font-semibold rounded-lg border-rose-500/50 text-rose-300 hover:bg-rose-950/40 cursor-pointer"
+              >
+                Reject Recommendation
               </button>
             </div>
           </div>

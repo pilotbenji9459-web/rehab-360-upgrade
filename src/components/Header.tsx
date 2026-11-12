@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { OffenderCase, TabId, StaffRole } from '../types';
+import { useI18n, SUPPORTED_LANGUAGES, LanguageCode } from '../context/I18nContext';
+import { OffenderCase, TabId, StaffRole, WorkspaceMode } from '../types';
 import {
   Menu,
   ShieldCheck,
@@ -12,6 +13,8 @@ import {
   User,
   Sliders,
   ChevronDown,
+  Languages,
+  ArrowRight,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -24,6 +27,8 @@ interface HeaderProps {
   onToggleSidebar: () => void;
   onOpenNewCaseModal?: () => void;
   onSelectTab: (tab: TabId) => void;
+  workspace: WorkspaceMode;
+  onSelectWorkspace: (ws: WorkspaceMode) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,8 +41,11 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onOpenNewCaseModal,
   onSelectTab,
+  workspace,
+  onSelectWorkspace,
 }) => {
   const { user, institution, systemStatus, isAuthenticated, logout } = useAuth();
+  const { language, setLanguage, t } = useI18n();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isDark, setIsDark] = useState<boolean>(() => {
     try {
@@ -45,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
       if (stored === 'light') return false;
       if (stored === 'dark') return true;
     } catch {
-      // Private browsing may block persistent storage.
+      // Storage fallback
     }
     return document.documentElement.getAttribute('data-theme') !== 'light';
   });
@@ -53,12 +61,14 @@ export const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-    try { localStorage.setItem('rehabpath360:theme', isDark ? 'dark' : 'light'); } catch { /* optional */ }
+    try {
+      localStorage.setItem('rehabpath360:theme', isDark ? 'dark' : 'light');
+    } catch {
+      // Optional storage
+    }
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(value => !value);
-
-  const isDemo = institution?.is_demo ?? (systemStatus?.mode === 'demo');
+  const toggleTheme = () => setIsDark((value) => !value);
 
   const getCustomDesignation = (role: StaffRole): string => {
     if (institution?.staff_designations && institution.staff_designations[role]) {
@@ -67,10 +77,49 @@ export const Header: React.FC<HeaderProps> = ({
     return role;
   };
 
-  const hideCaseSelector = ['dashboard', 'intake', 'staff', 'audit', 'settings', 'guide'].includes(currentTab);
+  const selectedCase = cases.find((c) => c.id === selectedCaseId) || cases[0];
+
+  const getTabLabel = (tId: TabId): string => {
+    switch (tId) {
+      case 'dashboard':
+        return 'Executive Overview';
+      case 'cases':
+        return workspace === 'person' ? 'Case File Profile' : 'Caseload Directory';
+      case 'intake':
+        return 'Document Intake Centre';
+      case 'person_intake':
+        return 'Case Evidence Documents';
+      case 'plan':
+        return 'Rehabilitation Trajectory';
+      case 'prog':
+        return 'Progression Gates';
+      case 'clinical':
+        return 'Protected Clinical Notes';
+      case 'flags':
+        return 'Clinical Wellbeing Indicators';
+      case 'trend':
+        return 'Progress Trends';
+      case 'mx':
+        return 'Domain Assessment Matrix';
+      case 'hand':
+        return 'Parole Handover Brief';
+      case 'rep':
+        return 'Reports & Data Exports';
+      case 'staff':
+        return 'Staff Management';
+      case 'audit':
+        return 'Audit Trail';
+      case 'settings':
+        return 'System Settings';
+      case 'guide':
+        return 'Operational Blueprint';
+      default:
+        return tId;
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-3 min-w-0 w-full bg-[#0b1a30]/95 backdrop-blur-md border-b border-[#1e3a5f] shadow-sm">
+    <header className="sticky top-0 z-30 flex items-center justify-between gap-2 px-2 sm:px-4 lg:px-6 py-2.5 min-w-0 w-full bg-[#0b1a30]/95 backdrop-blur-md border-b border-[#1e3a5f] shadow-sm">
       <div className="flex items-center gap-2 min-w-0 shrink-0">
         {/* Mobile menu toggle */}
         <button
@@ -82,37 +131,81 @@ export const Header: React.FC<HeaderProps> = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Institution breadcrumb */}
+        {/* WORKSPACE & HIERARCHICAL BREADCRUMB */}
         <div className="hidden xl:flex items-center gap-2 text-sm min-w-0">
-          <Building2 className="w-5 h-5 text-[var(--teal)] shrink-0" />
-          <span className="font-semibold text-white tracking-tight truncate max-w-[140px] 2xl:max-w-[240px]" title={institution?.name || 'Rehabilitation Management Facility'}>
-            {institution?.name || 'Rehabilitation Management Facility'}
+          <Building2 className="w-4 h-4 text-[var(--teal)] shrink-0" />
+          <span
+            className="font-semibold text-white tracking-tight truncate max-w-[130px] 2xl:max-w-[200px]"
+            title={institution?.name || 'Rehabilitation Management Facility'}
+          >
+            {institution?.name || 'Facility'}
           </span>
-          <span className="text-slate-500 shrink-0">/</span>
-          <span className="text-slate-300 capitalize font-medium shrink-0">
-            {currentTab === 'dashboard'
-              ? 'Executive Dashboard'
-              : currentTab === 'cases'
-              ? 'Case Management'
-              : currentTab === 'intake'
-              ? 'Document Intake'
-              : currentTab}
-          </span>
+          <span className="text-slate-500 shrink-0">&rarr;</span>
+
+          {workspace === 'facility' ? (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="px-2 py-0.5 rounded-md bg-[#0284c7]/20 border border-[#0284c7]/40 text-[#38bdf8] text-xs font-semibold">
+                Facility Workspace
+              </span>
+              <span className="text-slate-500">/</span>
+              <span className="text-slate-200 font-medium text-xs">
+                {getTabLabel(currentTab)}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-sky-600/30 to-indigo-600/30 border border-sky-500/40 text-sky-200 text-xs font-semibold">
+                Person: {selectedCase ? `${selectedCase.id} (${selectedCase.first_name} ${selectedCase.last_name})` : selectedCaseId}
+              </span>
+              <span className="text-slate-500">&rarr;</span>
+              <span className="text-slate-200 font-medium text-xs">
+                {getTabLabel(currentTab)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0">
-        {/* Case selector for case-specific views */}
-        {!hideCaseSelector && cases.length > 0 && (
+        {/* Workspace Quick Switcher Pill (Desktop) */}
+        <div className="hidden md:flex items-center gap-1 p-0.5 bg-[#071325] rounded-xl border border-[#1e3a5f] text-xs">
+          <button
+            type="button"
+            onClick={() => onSelectWorkspace('facility')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
+              workspace === 'facility'
+                ? 'bg-[#0284c7] text-white shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Facility</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectWorkspace('person')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
+              workspace === 'person'
+                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>Person File</span>
+          </button>
+        </div>
+
+        {/* Case selector: STRICTLY SHOWN ONLY IN PERSON WORKSPACE */}
+        {workspace === 'person' && cases.length > 0 && (
           <div className="flex items-center gap-1 min-w-0">
-            <label htmlFor="case-selector" className="text-sm font-semibold text-slate-200 hidden md:inline">
-              Selected Case:
+            <label htmlFor="case-selector" className="text-xs font-semibold text-slate-300 hidden lg:inline">
+              Switch Case:
             </label>
             <select
               id="case-selector"
               value={selectedCaseId}
               onChange={(e) => onCaseChange(e.target.value)}
-              className="text-sm sm:text-base py-2 px-3.5 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[var(--acc)] cursor-pointer w-[132px] min-[420px]:w-[160px] sm:w-[200px] xl:w-[260px] max-w-full truncate"
+              className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-white font-semibold focus:border-[var(--acc)] cursor-pointer w-[130px] min-[420px]:w-[160px] sm:w-[190px] xl:w-[240px] max-w-full truncate"
             >
               {cases.map((c) => (
                 <option key={c.id} value={c.id} className="bg-[#0b1a30]">
@@ -128,12 +221,29 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={onOpenNewCaseModal}
-            className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0284c7]/20 hover:bg-[#0284c7]/30 text-[#38bdf8] border border-[#0284c7]/40 text-sm font-semibold cursor-pointer transition-colors"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284c7]/20 hover:bg-[#0284c7]/30 text-[#38bdf8] border border-[#0284c7]/40 text-xs font-semibold cursor-pointer transition-colors"
           >
-            <PlusCircle className="w-4.5 h-4.5" />
+            <PlusCircle className="w-4 h-4" />
             <span>New Case</span>
           </button>
         )}
+
+        {/* Language selector toggle */}
+        <div className="flex items-center">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+            className="text-xs py-1.5 px-2 rounded-xl border border-[#1e3a5f] bg-[#0f2744] text-slate-200 cursor-pointer font-medium"
+            title="Interface Language"
+            aria-label="Interface Language"
+          >
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code} className="bg-[#0b1a30]">
+                {lang.label} ({lang.code.toUpperCase()})
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Persistent, accessible light/dark appearance switch */}
         <button
@@ -144,8 +254,8 @@ export const Header: React.FC<HeaderProps> = ({
           aria-pressed={!isDark}
           className="app-theme-switch"
         >
-          {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden="true" /> : <Moon className="w-4.5 h-4.5" aria-hidden="true" />}
-          <span className="hidden min-[520px]:inline">{isDark ? 'Light mode' : 'Dark mode'}</span>
+          {isDark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
+          <span className="hidden min-[520px]:inline text-xs">{isDark ? 'Light' : 'Dark'}</span>
         </button>
 
         {/* User Profile / Menu */}
@@ -154,20 +264,20 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-[#0f2744] hover:bg-[#143258] border border-[#1e3a5f] text-left cursor-pointer transition-all"
+              className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#0f2744] hover:bg-[#143258] border border-[#1e3a5f] text-left cursor-pointer transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[var(--acc)] to-[var(--teal)] flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {user.full_name.charAt(0)}
               </div>
-              <div className="hidden sm:block min-w-0 max-w-[160px]">
-                <span className="block text-sm font-semibold text-white truncate leading-tight">
+              <div className="hidden sm:block min-w-0 max-w-[140px]">
+                <span className="block text-xs font-semibold text-white truncate leading-tight">
                   {user.full_name}
                 </span>
-                <span className="block text-xs text-[var(--teal)] truncate font-semibold">
+                <span className="block text-[10px] text-[var(--teal)] truncate font-semibold">
                   {getCustomDesignation(user.role)}
                 </span>
               </div>
-              <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block shrink-0" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block shrink-0" />
             </button>
 
             {/* Dropdown Menu */}
@@ -179,16 +289,12 @@ export const Header: React.FC<HeaderProps> = ({
                   aria-label="Close profile dropdown"
                   className="fixed inset-0 z-40 cursor-default"
                   onClick={() => setProfileDropdownOpen(false)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') setProfileDropdownOpen(false);
-                  }}
                 />
-                <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-[#0c1c36] border border-[#1e3a5f] shadow-2xl py-2 z-50 animate-fade-in text-sm">
-                  <div className="px-4 py-2.5 border-b border-[#1e3a5f]">
-                    <span className="block font-bold text-white text-sm">{user.full_name}</span>
-                    <span className="block text-xs text-[var(--teal)] font-semibold">{getCustomDesignation(user.role)}</span>
-                    <span className="block text-xs text-slate-400 font-mono mt-0.5">
-                      Badge #{user.badge_number} · {user.email}
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[#0b1a30] border border-[#1e3a5f] shadow-2xl z-50 p-2 space-y-1">
+                  <div className="p-2 border-b border-[#1e3a5f]/60 text-xs">
+                    <span className="font-bold text-white block">{user.full_name}</span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      #{user.badge_number} · {user.department}
                     </span>
                   </div>
 
@@ -198,7 +304,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectTab('settings');
                       setProfileDropdownOpen(false);
                     }}
-                    className="w-full px-3.5 py-2 text-left text-slate-300 hover:text-white hover:bg-[#0f2744] flex items-center gap-2 cursor-pointer"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-[#0f2744] rounded-lg transition-colors cursor-pointer"
                   >
                     <Sliders className="w-3.5 h-3.5 text-slate-400" />
                     <span>Facility Settings</span>
@@ -206,24 +312,13 @@ export const Header: React.FC<HeaderProps> = ({
 
                   <button
                     type="button"
-                    onClick={onGoHome}
-                    className="w-full px-3.5 py-2 text-left text-slate-300 hover:text-white hover:bg-[#0f2744] flex items-center gap-2 cursor-pointer"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--teal)]" />
-                    <span>Public Overview</span>
-                  </button>
-
-                  <div className="border-t border-[#1e3a5f] my-1" />
-
-                  <button
-                    type="button"
                     onClick={() => {
                       setProfileDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full px-3.5 py-2 text-left text-rose-400 hover:text-rose-200 hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-300 hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <LogOut className="w-3.5 h-3.5 text-rose-400" />
                     <span>Sign Out</span>
                   </button>
                 </div>
@@ -234,9 +329,9 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={onOpenLogin}
-            className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#0369a1] text-white text-xs font-semibold shadow hover:from-[#0274b0] hover:to-[#025a8b] transition-all cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl bg-[#0284c7] text-white text-xs font-semibold cursor-pointer shadow-md"
           >
-            Staff Portal Sign In
+            Sign In
           </button>
         )}
       </div>

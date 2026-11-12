@@ -3,8 +3,9 @@ import { ScrollRevealManager } from './components/ScrollRevealManager';
 import './components/caseExplorer.css';
 import './components/exhibitionTour.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { I18nProvider, useI18n } from './context/I18nContext';
 import { Api } from './services/api';
-import { OffenderCase, TabId, GateKey } from './types';
+import { OffenderCase, TabId, GateKey, WorkspaceMode } from './types';
 
 // Components
 import { LandingPage } from './components/LandingPage';
@@ -32,8 +33,10 @@ import { ModalAlert } from './components/ModalAlert';
 
 const AppContent: React.FC = () => {
   const { user, institution, systemStatus, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { t } = useI18n();
 
-  // Navigation & View State
+  // Navigation & Workspace State
+  const [workspace, setWorkspace] = useState<WorkspaceMode>('facility');
   const [showLanding, setShowLanding] = useState<boolean>(true);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState<boolean>(false);
@@ -94,6 +97,29 @@ const AppContent: React.FC = () => {
 
   const currentRecord = cases.find((c) => c.id === selectedCaseId) || cases[0];
 
+  const handleSelectWorkspace = (ws: WorkspaceMode) => {
+    setWorkspace(ws);
+    if (ws === 'facility') {
+      const personTabs: TabId[] = ['plan', 'prog', 'mx', 'trend', 'clinical', 'person_intake', 'hand'];
+      if (personTabs.includes(tab)) {
+        setTab('dashboard');
+      }
+    } else {
+      const facilityTabs: TabId[] = ['dashboard', 'intake', 'rep', 'staff', 'audit', 'settings', 'guide'];
+      if (facilityTabs.includes(tab)) {
+        setTab('cases');
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenPersonCase = (caseId: string, targetTab: TabId = 'cases') => {
+    setSelectedCaseId(caseId);
+    setWorkspace('person');
+    setTab(targetTab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleUpdateCase = async (updates: Partial<OffenderCase>) => {
     if (!currentRecord) return;
     const res = await Api.updateCase(currentRecord.id, updates);
@@ -101,7 +127,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleDecidePlacement = async (
-    decision: 'approved' | 'modified' | 'overridden',
+    decision: 'approved' | 'modified' | 'overridden' | 'rejected',
     pathway_position: number,
     reason: string
   ) => {
@@ -147,6 +173,7 @@ const AppContent: React.FC = () => {
 
   const handleLogClinicalReview = (caseId: string) => {
     setSelectedCaseId(caseId);
+    setWorkspace('person');
     setTab('clinical');
     showAlert('Switched to protected clinical notes. Record evaluation details below.', 'Clinical Review');
   };
@@ -198,33 +225,60 @@ const AppContent: React.FC = () => {
       <Sidebar
         currentTab={tab}
         onSelectTab={(selectedTab) => {
+          // Sync workspace if tab belongs to person or facility
+          const personTabs: TabId[] = ['plan', 'prog', 'mx', 'trend', 'clinical', 'person_intake', 'hand'];
+          if (personTabs.includes(selectedTab)) {
+            setWorkspace('person');
+          } else if (['dashboard', 'intake', 'rep', 'staff', 'audit', 'settings', 'guide'].includes(selectedTab)) {
+            setWorkspace('facility');
+          }
           setTab(selectedTab);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        workspace={workspace}
+        onSelectWorkspace={handleSelectWorkspace}
+        selectedCase={currentRecord}
       />
 
       {/* Main Content Area (offset by sidebar width on desktop) */}
       <div className="lg:pl-72 flex-1 flex flex-col min-w-0">
         <Header
           selectedCaseId={selectedCaseId}
-          onCaseChange={setSelectedCaseId}
+          onCaseChange={(caseId) => {
+            setSelectedCaseId(caseId);
+          }}
           cases={cases}
           currentTab={tab}
           onOpenLogin={() => setIsLoginModalOpen(true)}
           onGoHome={() => setShowLanding(true)}
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           onOpenNewCaseModal={() => setIsNewCaseModalOpen(true)}
-          onSelectTab={(newTab) => setTab(newTab)}
+          onSelectTab={(newTab) => {
+            const personTabs: TabId[] = ['plan', 'prog', 'mx', 'trend', 'clinical', 'person_intake', 'hand'];
+            if (personTabs.includes(newTab)) {
+              setWorkspace('person');
+            } else if (['dashboard', 'intake', 'rep', 'staff', 'audit', 'settings', 'guide'].includes(newTab)) {
+              setWorkspace('facility');
+            }
+            setTab(newTab);
+          }}
+          workspace={workspace}
+          onSelectWorkspace={handleSelectWorkspace}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {tab === 'dashboard' && (
             <RoleDashboard
               cases={cases}
-              onSelectTab={(newTab) => setTab(newTab)}
-              onSelectCase={(caseId) => setSelectedCaseId(caseId)}
+              onSelectTab={(newTab) => {
+                if (['plan', 'prog', 'mx', 'trend', 'clinical', 'person_intake', 'hand'].includes(newTab)) {
+                  setWorkspace('person');
+                }
+                setTab(newTab);
+              }}
+              onSelectCase={(caseId) => handleOpenPersonCase(caseId, 'cases')}
               onOpenNewCaseModal={() => setIsNewCaseModalOpen(true)}
             />
           )}
@@ -233,7 +287,10 @@ const AppContent: React.FC = () => {
             <CasesView
               currentRecord={currentRecord}
               cases={cases}
-              onSelectCase={setSelectedCaseId}
+              onSelectCase={(caseId) => {
+                setSelectedCaseId(caseId);
+                setWorkspace('person');
+              }}
               onDecide={handleDecidePlacement}
               onUpdateCase={handleUpdateCase}
               showAlert={showAlert}
@@ -258,9 +315,21 @@ const AppContent: React.FC = () => {
 
           {tab === 'intake' && (
             <DocumentIntakeCenter
+              mode="facility"
               cases={cases}
               selectedCaseId={selectedCaseId}
-              onSelectCase={setSelectedCaseId}
+              onSelectCase={(caseId) => handleOpenPersonCase(caseId, 'cases')}
+              onRefreshCase={fetchCases}
+              showAlert={showAlert}
+            />
+          )}
+
+          {tab === 'person_intake' && (
+            <DocumentIntakeCenter
+              mode="person"
+              cases={cases}
+              selectedCaseId={selectedCaseId}
+              onSelectCase={(caseId) => handleOpenPersonCase(caseId, 'person_intake')}
               onRefreshCase={fetchCases}
               showAlert={showAlert}
             />
@@ -345,8 +414,7 @@ const AppContent: React.FC = () => {
         onClose={() => setIsNewCaseModalOpen(false)}
         onCaseCreated={(newCase) => {
           setCases((prev) => [newCase, ...prev]);
-          setSelectedCaseId(newCase.id);
-          setTab('cases');
+          handleOpenPersonCase(newCase.id, 'cases');
         }}
         showAlert={showAlert}
       />
@@ -357,6 +425,7 @@ const AppContent: React.FC = () => {
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={() => {
           setShowLanding(false);
+          setWorkspace('facility');
           setTab('dashboard');
         }}
       />
@@ -375,8 +444,10 @@ const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <ScrollRevealManager />
-      <AppContent />
+      <I18nProvider>
+        <ScrollRevealManager />
+        <AppContent />
+      </I18nProvider>
     </AuthProvider>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../context/I18nContext';
 import { Api } from '../services/api';
 import { StaffRole } from '../types';
 import {
@@ -13,6 +14,9 @@ import {
   CheckCircle2,
   RefreshCw,
   AlertTriangle,
+  Languages,
+  Download,
+  FileCode,
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -21,11 +25,47 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
   const { user, institution, systemStatus, refreshInstitution, refreshSystemStatus } = useAuth();
+  const { locale, setLocale, t } = useI18n();
   const isAdmin = user?.role === 'Administrator';
 
   const [name, setName] = useState(institution?.name || 'RehabPath360');
   const [code, setCode] = useState(institution?.code || 'REHAB-360');
   const [logoUrl, setLogoUrl] = useState(institution?.logo_url || '');
+  const [dbStatus, setDbStatus] = useState<any>(null);
+  const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
+
+  useEffect(() => {
+    Api.getDatabaseStatus().then(setDbStatus).catch(() => {});
+  }, []);
+
+  const downloadBackup = async () => {
+    if (!isAdmin) return;
+    setIsDownloadingBackup(true);
+    try {
+      const token = localStorage.getItem('rehabpath360_auth_token');
+      const res = await fetch('/api/system/database/backup', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to download backup');
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rehabpath360-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showAlert('Database snapshot backup downloaded successfully.', 'Backup Complete');
+    } catch (err: any) {
+      showAlert(err.message || 'Backup failed.', 'Backup Error');
+    } finally {
+      setIsDownloadingBackup(false);
+    }
+  };
 
   const [designations, setDesignations] = useState<Record<StaffRole, string>>({
     Administrator: institution?.staff_designations?.Administrator || 'Executive Administrator',
@@ -223,6 +263,43 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
         </div>
       </section>
 
+      {/* Language & Localisation Architecture */}
+      <section className="card bg-[#0b1a30]">
+        <h2 className="text-base font-bold font-serif text-white mb-1 flex items-center gap-2">
+          <Languages className="w-4 h-4 text-sky-400" />
+          <span>Language &amp; Internationalisation (i18n)</span>
+        </h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Select interface language. Translations are catalogue-based with strict English fallback and dynamic badge updates.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setLocale('en')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
+              locale === 'en'
+                ? 'bg-sky-600/20 border-sky-500 text-white shadow-sm'
+                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-sky-400" />
+            <span>English (Default / UK / Global)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setLocale('hi')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
+              locale === 'hi'
+                ? 'bg-emerald-600/20 border-emerald-500 text-white shadow-sm'
+                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>हिन्दी (Hindi)</span>
+          </button>
+        </div>
+      </section>
+
       {/* Configuration Form */}
       <form onSubmit={handleSave} className="space-y-6">
         {/* Section 1: Facility Identity */}
@@ -388,6 +465,42 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ showAlert }) => {
                 <span><strong>Administrator permission required.</strong> You're signed in as {user?.role || 'staff'}. You can check the current mode, but only an Administrator can switch the shared server database.</span>
               </div>
             )}
+          </div>
+
+          {/* Database Backup & Enterprise Migration Readiness */}
+          <div className="mt-4 p-4 rounded-xl border border-slate-700 bg-slate-900/40 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-xs font-semibold text-white flex items-center gap-2">
+                  <FileCode className="w-4 h-4 text-emerald-400" />
+                  <span>Enterprise Relational Migrations &amp; Backup Snapshots</span>
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Production migrations available for PostgreSQL / Supabase, and atomic JSON snapshot backups.
+                </p>
+              </div>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={downloadBackup}
+                  disabled={isDownloadingBackup}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-white disabled:opacity-50 shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5 text-sky-400" />
+                  <span>{isDownloadingBackup ? 'Exporting...' : 'Download Database Snapshot (.json)'}</span>
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+              <div className="p-2.5 rounded-lg bg-[#0b1a30] border border-slate-800 flex items-center justify-between">
+                <span className="text-slate-300 font-mono">20261015000000_init_rehabpath360.sql</span>
+                <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">Ready</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-[#0b1a30] border border-slate-800 flex items-center justify-between">
+                <span className="text-slate-300 font-mono">20261015000001_institution_multitenancy.sql</span>
+                <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">Ready</span>
+              </div>
+            </div>
           </div>
         </div>
 

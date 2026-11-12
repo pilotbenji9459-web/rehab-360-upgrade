@@ -132,8 +132,8 @@ export function validateCaseFieldPermissions(
     pathway_position: ['Warden'],
     decision_reason: ['Warden'],
     // Education & skills
-    education_level: ['Educator', 'Case Manager'],
-    certifications: ['Educator', 'Case Manager'],
+    education_level: ['Educator', 'Case Manager', 'Warden'],
+    certifications: ['Educator', 'Case Manager', 'Warden'],
     // Attendance & basic engagement
     session_attendance: ['Case Manager', 'Educator', 'Warden'],
     programme_engagement: ['Case Manager', 'Psychologist', 'Warden'],
@@ -155,17 +155,31 @@ export function validateCaseFieldPermissions(
   // Check gate scores updates
   if (fieldsToUpdate.gate_scores) {
     const gates = fieldsToUpdate.gate_scores;
-if (gates.beh !== undefined && role !== 'Warden') {
-  return {
-    allowed: false,
-    disallowedField: 'gate_scores.beh (Behaviour Gate)',
-  };
-}
-    if (gates.wb !== undefined && role !== 'Psychologist') {
-      return { allowed: false, disallowedField: 'gate_scores.wb (Clinical Well-being Gate)' };
+    if (gates.beh !== undefined && role !== 'Warden') {
+      return {
+        allowed: false,
+        disallowedField: 'gate_scores.beh (Behaviour Gate)',
+      };
     }
-     if ((gates.edu !== undefined || gates.skl !== undefined) && role !== 'Warden') {
-      return { allowed: false, disallowedField: 'gate_scores (Education/Skills Gate)' };
+    if (gates.wb !== undefined && role !== 'Psychologist') {
+      return {
+        allowed: false,
+        disallowedField: 'gate_scores.wb (Clinical Well-being Gate)',
+      };
+    }
+    // Educators, Case Managers, and Wardens may update Education and Skills evidence gates.
+    // Psychologists are strictly prohibited from editing Education and Skills gates.
+    if (gates.edu !== undefined && !['Educator', 'Case Manager', 'Warden'].includes(role)) {
+      return {
+        allowed: false,
+        disallowedField: 'gate_scores.edu (Education Gate)',
+      };
+    }
+    if (gates.skl !== undefined && !['Educator', 'Case Manager', 'Warden'].includes(role)) {
+      return {
+        allowed: false,
+        disallowedField: 'gate_scores.skl (Vocational Skills Gate)',
+      };
     }
   }
 

@@ -90,8 +90,8 @@ export function canPerform(role: StaffRole | string, action: 'decide' | 'advance
   const permissions: Record<'decide' | 'advance' | 'psy' | 'gedu', string[]> = {
     decide: ['Warden', 'Administrator', 'officer'],
     advance: ['Warden', 'Administrator', 'officer'],
-    psy: ['Psychologist', 'Administrator', 'officer', 'psych'],
-    gedu: ['Warden', 'Administrator', 'officer'],
+    psy: ['Psychologist', 'Administrator', 'psych'],
+    gedu: ['Educator', 'Case Manager', 'Warden', 'Administrator', 'officer'],
   };
   return (permissions[action] || []).includes(role);
 }

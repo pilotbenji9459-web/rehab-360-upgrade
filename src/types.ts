@@ -58,7 +58,7 @@ export interface OffenderCase {
   score_history: number[]; // 5 cycles
   gate_history: number[]; // 5 cycles
   certifications: string[];
-  decision: 'approved' | 'modified' | 'overridden' | null;
+  decision: 'approved' | 'modified' | 'overridden' | 'rejected' | null;
   pathway_position: number | null; // 0..11
   decision_reason: string;
   rehabilitation_remarks: string[];
@@ -159,10 +159,13 @@ export interface AuditEvent {
   status: 'success' | 'denied';
 }
 
+export type WorkspaceMode = 'facility' | 'person';
+
 export type TabId =
   | 'dashboard'
   | 'cases'
   | 'intake'
+  | 'person_intake'
   | 'plan'
   | 'prog'
   | 'clinical'
