@@ -51,6 +51,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
     () => typeof window !== 'undefined' && window.location.hash === '#security'
   );
 
+  // Roles is a separate view, not a scroll target on the homepage.
+  // React must respond when a hash link is clicked (including browser Back).
+  useEffect(() => {
+    const syncPageWithHash = () => {
+      const isRolesPage = window.location.hash === '#security';
+      setShowSecurityPage(isRolesPage);
+      if (isRolesPage || window.location.hash === '#home') {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    };
+    window.addEventListener('hashchange', syncPageWithHash);
+    syncPageWithHash();
+    return () => window.removeEventListener('hashchange', syncPageWithHash);
+  }, []);
+
   // Trading card state & animation hooks
   const [cardsRevealed, setCardsRevealed] = useState(false);
   const frameworkSectionRef = useRef<HTMLElement | null>(null);
@@ -118,7 +133,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
   }, []);
 
   return (
-    <div data-motion-scope="landing" className="min-h-screen bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
+    <div id="home" data-motion-scope="landing" className="min-h-screen min-w-0 max-w-full overflow-x-clip bg-[#071325] text-slate-100 font-sans selection:bg-[#0079d6] selection:text-white">
       {/* Compact branded navigation */}
       <header className="sticky top-0 z-40 border-b border-[#20415b] bg-[#08192d]/95 backdrop-blur-xl">
         <nav aria-label="Main navigation" className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -223,7 +238,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
               </div>
               <span className="text-xs text-[#5cc2bd] font-medium hidden sm:inline-block">AI Placement Verification Active</span>
             </div>
-            <img
+            <img fetchPriority="high" decoding="async"
               src={heroBannerImg}
               alt="RehabPath360 Case Management and Pathway Planning Dashboard Workspace"
               referrerPolicy="no-referrer"
@@ -232,7 +247,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
           </div>
 
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto text-left">
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto text-left">
             <div className="p-4.5 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm">
               <span className="text-3xl font-bold text-white font-serif">9 Domains</span>
               <p className="text-sm text-slate-300 mt-1.5 leading-snug">Multi-dimensional matrix covering education, behavior, and wellbeing</p>
@@ -270,7 +285,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
             {/* Pillar 1: Clinical Psychology */}
             <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#5cc2bd]/50 transition-all">
               <div className="h-52 overflow-hidden bg-[#071325] flex items-center justify-center p-2">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/assets/images/clinical_psychometric_telemetry.svg"
                   alt="Clinical psychology psychometric telemetry and multi-axis evaluation"
                   className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
@@ -294,7 +309,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
             {/* Pillar 2: Vocational Skills */}
             <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-[#0284c7]/50 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/assets/images/vocational_trade_mastery_1792261681702.jpg"
                   alt="Vocational workshop training and accredited technical education"
                   referrerPolicy="no-referrer"
@@ -319,7 +334,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
             {/* Pillar 3: Community Reintegration */}
             <div className="reveal-feature rounded-2xl bg-[#0b1a30] border border-[#1e3a5f] overflow-hidden flex flex-col shadow-lg hover:border-emerald-500/50 transition-all">
               <div className="h-52 overflow-hidden bg-slate-950">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/assets/images/parole_handover_secure.svg"
                   alt="Cryptographic parole handover and community supervision dispatch"
                   referrerPolicy="no-referrer"
@@ -369,7 +384,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
 
           {/* Pathway Progression Visual Banner */}
           <div className="mb-14 rounded-2xl overflow-hidden border border-[#1e3a5f] bg-[#0b1a30] shadow-2xl transition-all duration-300 hover:border-[#5cc2bd]/50">
-            <img
+            <img loading="lazy" decoding="async"
               src={pathwayMilestoneImg}
               alt="4-Level Pathway Model illustration: Foundation, Development, Capability, Reintegration"
               referrerPolicy="no-referrer"
@@ -420,7 +435,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
 
                 {/* Card Visual Spec Window */}
                 <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-emerald-500/20">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/assets/images/psych_assessment_1792261204307.jpg"
                     alt="Level 1 Foundation: Psychological clinical evaluation and emotional stabilization"
                     referrerPolicy="no-referrer"
@@ -450,7 +465,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                 {/* Card Content & Spec Telemetry */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   <div>
-                    <div className="flex items-baseline justify-between mb-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-emerald-300 transition-colors">
                         Foundation
                       </h3>
@@ -464,7 +479,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                   </div>
 
                   {/* Technical Specification Grid */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                  <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
                     <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
                       <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
                       <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
@@ -528,7 +543,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
 
                 {/* Card Visual Spec Window */}
                 <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-sky-500/20">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/assets/images/education_classroom_1792261680983.jpg"
                     alt="Level 2 Development: Adult education classroom learning and pro-social capability"
                     referrerPolicy="no-referrer"
@@ -558,7 +573,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                 {/* Card Content & Spec Telemetry */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   <div>
-                    <div className="flex items-baseline justify-between mb-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-sky-300 transition-colors">
                         Development
                       </h3>
@@ -572,7 +587,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                   </div>
 
                   {/* Technical Specification Grid */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                  <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
                     <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
                       <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
                       <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
@@ -636,7 +651,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
 
                 {/* Card Visual Spec Window */}
                 <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-purple-500/20">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/assets/images/vocational_skills_1792261206507.jpg"
                     alt="Level 3 Capability: Vocational trade workshop and certified technical skills"
                     referrerPolicy="no-referrer"
@@ -666,7 +681,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                 {/* Card Content & Spec Telemetry */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   <div>
-                    <div className="flex items-baseline justify-between mb-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-purple-300 transition-colors">
                         Capability
                       </h3>
@@ -680,7 +695,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                   </div>
 
                   {/* Technical Specification Grid */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                  <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
                     <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
                       <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
                       <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
@@ -744,7 +759,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
 
                 {/* Card Visual Spec Window */}
                 <div className="h-56 overflow-hidden bg-slate-950 relative border-b border-amber-500/20">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/assets/images/community_reintegration_1792261209316.jpg"
                     alt="Level 4 Reintegration: Community transition and probation officer handover support"
                     referrerPolicy="no-referrer"
@@ -774,7 +789,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                 {/* Card Content & Spec Telemetry */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   <div>
-                    <div className="flex items-baseline justify-between mb-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-3xl font-extrabold text-white font-serif tracking-tight group-hover:text-amber-300 transition-colors">
                         Reintegration
                       </h3>
@@ -788,7 +803,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
                   </div>
 
                   {/* Technical Specification Grid */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
+                  <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-mono">
                     <div className="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col">
                       <span className="text-[10px] text-slate-400 uppercase tracking-wider">Primary Gate</span>
                       <span className="font-bold text-white mt-0.5 text-sm flex items-center gap-1">
@@ -828,7 +843,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onEnterPo
           {/* Multidisciplinary Case Review Showcase */}
           <div className="reveal-feature mt-14 rounded-2xl bg-gradient-to-r from-[#0b1a30] via-[#0e2444] to-[#11305c] border border-[#1e3a5f] overflow-hidden shadow-2xl flex flex-col lg:flex-row items-center">
             <div className="lg:w-1/2 h-72 lg:h-80 overflow-hidden bg-slate-950 w-full shrink-0">
-              <img
+              <img loading="lazy" decoding="async"
                 src="/assets/images/milestone_gate_review_1792261681316.jpg"
                 alt="Multidisciplinary Case Conference Team evaluating offender evidence"
                 referrerPolicy="no-referrer"
