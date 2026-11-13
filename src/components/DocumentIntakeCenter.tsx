@@ -37,7 +37,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   showAlert,
   mode = 'facility',
 }) => {
-  const { user } = useAuth();
+  const { user, institution } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Target case for person mode or facility manual assignment
@@ -48,6 +48,9 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const activeDocumentRef = useRef<string | null>(null);
   const [uploadedDoc, setUploadedDoc] = useState<UploadedDocument | null>(null);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
   const [reviewFields, setReviewFields] = useState<ExtractedField[]>([]);
@@ -87,6 +90,9 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
   }, [mode, selectedCaseId]);
 
   const clearResults = () => {
+    activeDocumentRef.current = null;
+    setIsAiAnalyzing(false);
+    setAiError(null);
     setUploadedDoc(null);
     setVerificationResult(null);
     setReviewFields([]);
@@ -120,6 +126,34 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
     clearResults();
   };
 
+  // Gemini is a separate optional step: local extraction is already visible.
+  // Keep the original evidence accessible even if the AI provider is slow.
+  const runAiEnhancement = async (document: UploadedDocument) => {
+    if (document.case_id === 'unassigned') return;
+    activeDocumentRef.current = document.id;
+    setAiError(null);
+    setIsAiAnalyzing(true);
+    try {
+      const result = await Api.analyzeDocument(document.id);
+      if (activeDocumentRef.current !== document.id) return;
+      setUploadedDoc(result.document);
+      activeDocumentRef.current = result.document.id;
+      setVerificationResult(result.verification);
+      setReviewFields(result.verification.fields || []);
+      if (result.verification.analysisSource !== 'gemini') {
+        setAiError(result.verification.warnings.find(w => /Gemini|AI analysis/i.test(w))
+          || 'Gemini was unavailable; the local extraction is still saved.');
+      }
+      void fetchDocuments();
+    } catch (error) {
+      if (activeDocumentRef.current === document.id) {
+        setAiError(error instanceof Error ? error.message : 'AI verification could not finish. Local extraction remains saved.');
+      }
+    } finally {
+      if (activeDocumentRef.current === document.id) setIsAiAnalyzing(false);
+    }
+  };
+
   const handleUploadAndAnalyze = async () => {
     if (!selectedFile) {
       showAlert('Choose a document file first, then proceed with analysis.', 'No Document Selected');
@@ -150,7 +184,11 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
         setTargetCaseId(result.detected_case_id);
       }
 
-      await fetchDocuments();
+      // Do not await Gemini: display the saved document and local evidence now.
+      void fetchDocuments();
+      if (institution?.is_demo && result.document.case_id !== 'unassigned') {
+        void runAiEnhancement(result.document);
+      }
 
       if (!result.verification?.rawTextPreview?.trim()) {
         showAlert(
@@ -188,11 +226,13 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
       setIsUploading(true);
       const res = await Api.assignDocument(uploadedDoc.id, caseIdToAssign);
       setUploadedDoc(res.document);
+      activeDocumentRef.current = res.document.id;
       setVerificationResult(res.verification);
       setReviewFields(res.verification.fields || []);
       setTargetCaseId(caseIdToAssign);
-      await fetchDocuments();
-      showAlert(`Document assigned to case ${caseIdToAssign}. Comparative verification generated.`, 'Assigned');
+      void fetchDocuments();
+      if (institution?.is_demo) void runAiEnhancement(res.document);
+      showAlert(`Document assigned to case ${caseIdToAssign}. Local comparison is ready; AI enhancement runs separately.`, 'Assigned');
     } catch (err: any) {
       showAlert(err.message || 'Assignment failed.', 'Error');
     } finally {
@@ -410,7 +450,7 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
                   className="px-5 py-2.5 rounded-xl bg-[#0079d6] hover:bg-[#0284c7] text-white text-xs font-semibold shadow-lg shadow-[#0079d6]/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  <span>{isUploading ? 'Extracting & Verifying...' : 'Process Document & Extract Evidence'}</span>
+                  <span>{isUploading ? 'Uploading & extracting text...' : 'Upload & Extract Document'}</span>
                 </button>
 
                 <button
@@ -433,6 +473,30 @@ export const DocumentIntakeCenter: React.FC<DocumentIntakeCenterProps> = ({
       {/* Verification & Diff Review Section */}
       {verificationResult && uploadedDoc && (
         <div className="card space-y-5 border-t-3 border-[#0284c7]">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#1e3a5f] bg-[#0d223d] p-3 text-sm text-slate-200" role="status">
+            {isAiAnalyzing ? (
+              <>
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sky-400" />
+                <span className="min-w-0 flex-1">Document saved and local evidence ready. Gemini is reviewing it separately; you can continue using the app.</span>
+              </>
+            ) : (
+              <span className="min-w-0 flex-1">
+                {verificationResult.analysisSource === 'gemini'
+                  ? 'Gemini analysis complete. Review the extracted values before accepting them.'
+                  : 'Local text extraction complete. Your document has been saved.'}
+              </span>
+            )}
+            {!isAiAnalyzing && institution?.is_demo && uploadedDoc.case_id !== 'unassigned' && uploadedDoc.status === 'pending_review' && (
+              <button
+                type="button"
+                onClick={() => void runAiEnhancement(uploadedDoc)}
+                className="shrink-0 rounded-lg border border-sky-500/50 bg-sky-700/30 px-3 py-2 text-xs font-semibold text-sky-100 hover:bg-sky-700/50"
+              >
+                {verificationResult.analysisSource === 'gemini' ? 'Re-analyze with Gemini' : 'Run Gemini AI review'}
+              </button>
+            )}
+          </div>
+          {aiError && <p className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-sm text-amber-200" role="alert">{aiError} The uploaded file and local evidence remain available.</p>}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1e3a5f]">
             <div>
               <div className="flex items-center gap-2">
