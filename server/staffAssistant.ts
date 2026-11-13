@@ -155,9 +155,15 @@ export async function answerStaffQuestion(options: {
   allowExternalCaseData: boolean;
 }): Promise<{ answer: string; mode: 'ai' | 'guide' | 'case' | 'offline'; navigate_to?: AssistantDestination; notice?: string }> {
   const { role, question, record, history = [], documents = [], allowExternalCaseData } = options;
-  // Gemini handles the actual conversation when available. Deterministic answers
-  // are used ONLY as an explicitly labelled offline fallback.
+  // Simple record facts and navigation are already known to the server.
+  // Answer them instantly, accurately, and without a paid model round-trip.
   const fallback = localGuide(role, question, record, documents);
+  const exact = record ? answerExactCaseField(record, question, documents) : undefined;
+  if (exact) return { answer: exact, mode: 'case' as const };
+  const navigationIntent = /\b(where|find|open|navigate|go to|show me|take me|which tab|which page|how do i get to)\b/i.test(question);
+  if (navigationIntent && fallback.navigate_to) {
+    return { ...fallback, mode: 'guide' as const };
+  }
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) return {
     ...fallback,
@@ -178,7 +184,7 @@ export async function answerStaffQuestion(options: {
   const safeHistory = history.slice(-8).filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string')
     .map(m => ({ role: m.role, text: m.text.slice(0, 450) }));
   const systemInstruction = `You are Pathway, a friendly, competent assistant inside RehabPath360.
-Talk like a helpful, capable conversational assistant. Interpret follow-up questions using the recent conversation AND selected-case facts. For example, after discussing an offence, "severity level?" means offence severity, not gate scores. Focus on the actual question; never dump unrelated statistics. Ask a clarifying question only when necessary.
+Answer clearly and concisely, usually in one or two sentences (under 65 words). Give the direct answer first, with no preamble or unrelated statistics. Interpret follow-up questions using recent conversation and selected-case facts. For example, after discussing an offence, "severity level?" means offence severity, not gate scores. Ask for clarification only if necessary.
 You have no tools to edit records. Never claim to perform actions or offer medical, legal, parole or psychological recommendations.
 Authenticated staff role: ${role}.
 The ONLY screens that this role may navigate to are: ${JSON.stringify(allowed)}.
@@ -192,7 +198,7 @@ Answer in the language of the user's current question if possible.`;
   try {
     const ai = new GoogleGenAI({ apiKey: key });
     const response = await ai.models.generateContent({
-      model: process.env.GEMINI_ASSISTANT_MODEL || 'gemini-3.8-flash',
+      model: process.env.GEMINI_ASSISTANT_MODEL || 'gemini-2.5-flash-lite',
       contents: JSON.stringify({
         previous_messages: safeHistory,
         question,
@@ -202,8 +208,8 @@ Answer in the language of the user's current question if possible.`;
       config: {
         systemInstruction,
         responseMimeType: 'application/json',
-        temperature: 0.35,
-        maxOutputTokens: 700,
+        temperature: 0.2,
+        maxOutputTokens: 320,
         // Do not abort a valid model response after an arbitrary 12 seconds.
         // The UI shows elapsed time while the provider completes the request.
       },
@@ -218,7 +224,7 @@ Answer in the language of the user's current question if possible.`;
     const destination = typeof parsed.navigate_to === 'string' && canNavigateTo(role, parsed.navigate_to)
       ? parsed.navigate_to : undefined;
     // Case facts are minimized to approved nonclinical numeric and status fields.
-    return { answer: parsed.answer.slice(0, 3000), mode: 'ai', ...(destination ? { navigate_to: destination } : {}) };
+    return { answer: parsed.answer.slice(0, 1200), mode: 'ai', ...(destination ? { navigate_to: destination } : {}) };
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown provider error';
     console.error('Staff assistant Gemini request failed:', detail);
