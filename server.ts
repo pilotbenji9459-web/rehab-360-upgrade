@@ -26,6 +26,7 @@ import {
 import {
   extractTextFromBuffer,
   verifyDocumentWithAI,
+  verifyDocumentLocally,
 } from './server/documentAi';
 import { answerStaffQuestion } from './server/staffAssistant';
 
@@ -1291,12 +1292,11 @@ app.post(
         return;
       }
 
-      // Save file to disk safely
-      const uniqueFilename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      // Parse and validate BEFORE writing a file. Failed uploads must not leave
+      // orphaned documents on disk.
+      const uniqueFilename = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const uploadDirectory = path.resolve(process.cwd(), 'uploads');
-      fs.mkdirSync(uploadDirectory, { recursive: true });
       const storagePath = path.join(uploadDirectory, uniqueFilename);
-      fs.writeFileSync(storagePath, file.buffer);
 
       // Extract text and table structure
       const parsedData = await extractTextFromBuffer(file.buffer, file.mimetype, file.originalname);
@@ -1348,7 +1348,9 @@ app.post(
       // If a case is associated, run verification against it
       let aiVerification: any = null;
       if (targetCase) {
-        aiVerification = await verifyDocumentWithAI(
+        // Return usable extracted evidence immediately; the optional Gemini
+        // pass runs separately and must never block the upload response.
+        aiVerification = verifyDocumentLocally(
           parsedData.text,
           targetCase,
           file.originalname
@@ -1362,6 +1364,10 @@ app.post(
           rawTextPreview: parsedData.text.slice(0, 1000),
         };
       }
+
+      // Persist only once parsing, case scoping and local verification succeed.
+      fs.mkdirSync(uploadDirectory, { recursive: true });
+      fs.writeFileSync(storagePath, file.buffer);
 
       // Record document in persistent database
       const doc = DB.addDocument({
@@ -1419,6 +1425,63 @@ app.post(
   }
 );
 
+// POST /api/documents/:id/analyze - Optional, separate Gemini enhancement.
+// Upload and local verification are already complete before this request starts.
+app.post('/api/documents/:id/analyze', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const user = req.user!;
+  const staff = DB.findUserById(user.id, user.institution_id);
+  if (!staff || staff.status !== 'active') {
+    res.status(403).json({ error: 'Your account is inactive.' });
+    return;
+  }
+  const doc = DB.findDocumentById(req.params.id, user.institution_id);
+  if (!doc) {
+    res.status(404).json({ error: 'Document not found in your institution.' });
+    return;
+  }
+  if (doc.status !== 'pending_review') {
+    res.status(409).json({ error: 'This document has already been reviewed. AI cannot overwrite human-reviewed evidence.' });
+    return;
+  }
+  const targetCase = doc.case_id !== 'unassigned'
+    ? DB.findCaseById(doc.case_id, user.institution_id) : undefined;
+  if (!targetCase) {
+    res.status(409).json({ error: 'Assign the document to an authorized case before requesting AI analysis.' });
+    return;
+  }
+  const institution = DB.getInstitution();
+  const allowExternalAI = institution.is_demo || process.env.ENABLE_EXTERNAL_CASE_AI === 'true';
+  if (!allowExternalAI) {
+    res.status(403).json({ error: 'External document AI is disabled for real institution records until privacy authorization is configured.' });
+    return;
+  }
+  if (!process.env.GEMINI_API_KEY?.trim()) {
+    res.status(503).json({ error: 'Gemini is not configured. Local document extraction remains available.' });
+    return;
+  }
+  try {
+    if (!fs.existsSync(doc.storage_path)) {
+      res.status(410).json({ error: 'Uploaded document file is unavailable on the server. Re-upload it to analyze.' });
+      return;
+    }
+    const buffer = fs.readFileSync(doc.storage_path);
+    const parsed = await extractTextFromBuffer(buffer, doc.mime_type, doc.original_name);
+    const verification = await verifyDocumentWithAI(parsed.text, targetCase, doc.original_name, allowExternalAI);
+    const latest = DB.findDocumentById(doc.id, user.institution_id);
+    if (!latest || latest.status !== 'pending_review' || latest.case_id !== targetCase.id) {
+      res.status(409).json({ error: 'The document changed while AI was analyzing it. Refresh to see the latest record.' });
+      return;
+    }
+    latest.extracted_summary = verification.summary;
+    latest.ai_analysis = verification;
+    DB.updateDocument(latest, user.institution_id);
+    res.json({ success: true, document: latest, verification });
+  } catch (error) {
+    console.error('Document AI enhancement error:', error instanceof Error ? error.message : error);
+    res.status(503).json({ error: 'AI analysis could not finish. The uploaded document and local extraction are still saved. You can retry.' });
+  }
+});
+
 // POST /api/documents/:id/assign - Assign an unassigned facility document to a specific case
 app.post(
   '/api/documents/:id/assign',
@@ -1456,7 +1519,7 @@ app.post(
       }
 
       const parsedData = await extractTextFromBuffer(buffer, doc.mime_type, doc.original_name);
-      const aiVerification = await verifyDocumentWithAI(
+      const aiVerification = verifyDocumentLocally(
         parsedData.text,
         targetCase,
         doc.original_name
