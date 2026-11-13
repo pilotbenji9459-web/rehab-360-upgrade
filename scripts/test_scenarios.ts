@@ -79,6 +79,29 @@ async function runTests() {
     !!julian && (answerExactCaseField(julian, 'what charge is julian facing?') || '').includes(julian.crime_type),
     'Staff AI: charges question returns recorded offence rather than unrelated statistics.'
   );
+  // Pathway AI must answer known facts and feature locations without a model call.
+  const { answerStaffQuestion } = await import('../server/staffAssistant');
+  const quickFact = await answerStaffQuestion({
+    role: 'Warden', question: 'severity level?', record: julian!,
+    allowExternalCaseData: false,
+  });
+  assert(
+    quickFact.mode === 'case' && quickFact.answer.includes('out of 5') && !quickFact.notice,
+    'Pathway AI answers saved case facts immediately without Gemini or an API key.'
+  );
+  const quickNavigation = await answerStaffQuestion({
+    role: 'Warden', question: 'Where are the case documents?', record: julian!,
+    allowExternalCaseData: false,
+  });
+  assert(
+    quickNavigation.mode === 'guide' && quickNavigation.navigate_to === 'person_intake',
+    'Pathway AI opens person-specific documents without a slow model call.'
+  );
+  const uploadDuration = answerExactCaseField(julian!, 'How long does a document upload take?');
+  assert(
+    uploadDuration === undefined,
+    'Pathway AI does not confuse upload duration with a prisoner sentence.'
+  );
   const notesBefore = DB.getClinicalNotes(caseId);
   assert(notesBefore.length >= 0, 'Clinical notes storage exists in persistent database schema.');
 
