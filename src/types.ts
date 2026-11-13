@@ -121,6 +121,7 @@ export interface VerificationResult {
   fields: ExtractedField[];
   warnings: string[];
   rawTextPreview: string;
+  analysisSource?: 'gemini' | 'local';
 }
 
 export interface UploadedDocument {
