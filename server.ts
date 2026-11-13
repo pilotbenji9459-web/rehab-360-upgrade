@@ -27,6 +27,7 @@ import {
   extractTextFromBuffer,
   verifyDocumentWithAI,
   verifyDocumentLocally,
+  DocumentParsingTimeoutError,
 } from './server/documentAi';
 import { answerStaffQuestion } from './server/staffAssistant';
 
@@ -1300,7 +1301,13 @@ app.post(
       const storagePath = path.join(uploadDirectory, uniqueFilename);
 
       // Extract text and table structure
+      const extractionStarted = Date.now();
       const parsedData = await extractTextFromBuffer(file.buffer, file.mimetype, file.originalname);
+      console.info('[DocumentIntake] Parsed upload', {
+        extension: path.extname(file.originalname).toLowerCase(),
+        bytes: file.size,
+        duration_ms: Date.now() - extractionStarted,
+      });
       if (!parsedData.text.trim()) {
         res.status(422).json({
           error: 'The file was uploaded, but no readable text was found. If this is a scanned PDF, text extraction requires OCR; please upload a text-based PDF, Word, Excel, or CSV document.',
@@ -1420,8 +1427,14 @@ app.post(
         tablePreview: parsedData.tablePreview,
       });
     } catch (err: any) {
-      console.error('Document upload error:', err);
-      res.status(500).json({ error: `Document parsing error: ${err.message}` });
+      console.error('[DocumentIntake] Upload failed:', err instanceof Error ? err.message : err);
+      if (err instanceof DocumentParsingTimeoutError) {
+        res.status(504).json({ error: err.message });
+      } else if (/unsupported|password|corrupt|invalid pdf|invalid zip|no readable|excel\/csv file exceeds|end of central directory/i.test(String(err?.message || ''))) {
+        res.status(422).json({ error: 'The document could not be extracted. Try a smaller, valid text-based PDF, DOCX, CSV, XLSX, or TXT file.' });
+      } else {
+        res.status(500).json({ error: 'Document intake failed on the server. Please check the Render logs for [DocumentIntake] and retry with a small TXT file.' });
+      }
     }
   }
 );
@@ -1901,6 +1914,23 @@ app.get('/api/reports/export-csv', authenticateToken, (req: AuthenticatedRequest
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="rehabpath360_caseload_export.csv"');
   res.send(csvContent);
+});
+
+// Translate upload validation failures into JSON. Without this, Multer sends
+// an HTML error page, leaving the client with an unhelpful generic error.
+app.use((err: unknown, req: express.Request, res: Response, next: express.NextFunction) => {
+  if (req.path === '/api/documents/upload') {
+    if (err instanceof multer.MulterError) {
+      const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+      res.status(status).json({ error: status === 413 ? 'File exceeds the 15 MB upload limit.' : 'Invalid document upload. Please select one supported file.' });
+      return;
+    }
+    if (err instanceof Error) {
+      res.status(415).json({ error: err.message });
+      return;
+    }
+  }
+  next(err);
 });
 
 // -------------------------------------------------------------
