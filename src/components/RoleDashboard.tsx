@@ -228,7 +228,7 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
       </div>
 
       {/* 4 Primary Summary KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tour="kpi-summary-cards">
+      <div className="grid grid-cols-1 min-[410px]:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="kpi-summary-cards">
         {/* Card 1: Active Cases */}
         <div className="dashboard-kpi dashboard-kpi--blue reveal-feature">
           <div className="flex items-center justify-between">
