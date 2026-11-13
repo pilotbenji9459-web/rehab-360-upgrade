@@ -119,7 +119,9 @@ export function answerExactCaseField(
   if (/\b(placement|decision|approved|approval|pathway stage)\b/i.test(q)) {
     return `${intro}, placement is ${record.decision || 'pending verification'}${record.pathway_position == null ? '' : ` at pathway stage ${record.pathway_position + 1}`}. A human reviewer makes placement decisions.`;
   }
-  if (/\b(documents?|files?|attachments?|evidence)\b/i.test(q) && !/\b(where|find|navigate|open|go to)\b/i.test(q)) {
+  // Only list stored documents when the user explicitly asks for the list/count.
+  // A question about document upload speed is not a request for case evidence.
+  if (/\b(how many|list|which documents|what documents|show (?:me )?(?:the )?(?:case )?(?:documents|files|attachments)|documents? (?:are|were) (?:uploaded|attached)|documents? (?:status|count))\b/i.test(q)) {
     const items = documents.slice(0, 12).map(d=>`• ${d.original_name || d.filename}: ${d.status}`);
     return `${intro}, there are ${documents.length} linked documents.${items.length ? '\n' + items.join('\n') : ''}`;
   }
