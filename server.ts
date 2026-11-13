@@ -425,7 +425,8 @@ app.post('/api/auth/login', async (req, res): Promise<void> => {
     return;
   }
 
-  const isValidPassword = bcrypt.compareSync(password, user.password_hash);
+  // Async bcrypt prevents one login from blocking all other requests.
+  const isValidPassword = await bcrypt.compare(password, user.password_hash);
   if (!isValidPassword) {
     DB.logAuditEvent({
       institution_id: user.institution_id,
