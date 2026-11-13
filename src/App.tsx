@@ -13,21 +13,21 @@ import { LoginModal } from './components/LoginModal';
 import { Header } from './components/Header';
 import { StaffAssistant } from './components/StaffAssistant';
 import { Sidebar } from './components/Sidebar';
-import { RoleDashboard } from './components/RoleDashboard';
-import { CasesView } from './components/CasesView';
-import { DocumentIntakeCenter } from './components/DocumentIntakeCenter';
-import { ClinicalNotesView } from './components/ClinicalNotesView';
-import { DomainMatrixView } from './components/DomainMatrixView';
-import { ProgressionGatesView } from './components/ProgressionGatesView';
-import { RehabPlanView } from './components/RehabPlanView';
-import { WellBeingIndicatorsView } from './components/WellBeingIndicatorsView';
-import { ProgressTrendView } from './components/ProgressTrendView';
-import { HandoverBriefView } from './components/HandoverBriefView';
-import { ReportView } from './components/ReportView';
-import { StaffManagementView } from './components/StaffManagementView';
-import { AuditTrailView } from './components/AuditTrailView';
-import { GuideView } from './components/GuideView';
-import { SettingsView } from './components/SettingsView';
+const RoleDashboard = React.lazy(() => import('./components/RoleDashboard').then(module => ({ default: module.RoleDashboard })));
+const CasesView = React.lazy(() => import('./components/CasesView').then(module => ({ default: module.CasesView })));
+const DocumentIntakeCenter = React.lazy(() => import('./components/DocumentIntakeCenter').then(module => ({ default: module.DocumentIntakeCenter })));
+const ClinicalNotesView = React.lazy(() => import('./components/ClinicalNotesView').then(module => ({ default: module.ClinicalNotesView })));
+const DomainMatrixView = React.lazy(() => import('./components/DomainMatrixView').then(module => ({ default: module.DomainMatrixView })));
+const ProgressionGatesView = React.lazy(() => import('./components/ProgressionGatesView').then(module => ({ default: module.ProgressionGatesView })));
+const RehabPlanView = React.lazy(() => import('./components/RehabPlanView').then(module => ({ default: module.RehabPlanView })));
+const WellBeingIndicatorsView = React.lazy(() => import('./components/WellBeingIndicatorsView').then(module => ({ default: module.WellBeingIndicatorsView })));
+const ProgressTrendView = React.lazy(() => import('./components/ProgressTrendView').then(module => ({ default: module.ProgressTrendView })));
+const HandoverBriefView = React.lazy(() => import('./components/HandoverBriefView').then(module => ({ default: module.HandoverBriefView })));
+const ReportView = React.lazy(() => import('./components/ReportView').then(module => ({ default: module.ReportView })));
+const StaffManagementView = React.lazy(() => import('./components/StaffManagementView').then(module => ({ default: module.StaffManagementView })));
+const AuditTrailView = React.lazy(() => import('./components/AuditTrailView').then(module => ({ default: module.AuditTrailView })));
+const GuideView = React.lazy(() => import('./components/GuideView').then(module => ({ default: module.GuideView })));
+const SettingsView = React.lazy(() => import('./components/SettingsView').then(module => ({ default: module.SettingsView })));
 import { NewCaseModal } from './components/NewCaseModal';
 import { BootstrapSetupModal } from './components/BootstrapSetupModal';
 import { ModalAlert } from './components/ModalAlert';
@@ -282,7 +282,8 @@ const AppContent: React.FC = () => {
           onSelectWorkspace={handleSelectWorkspace}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 min-w-0 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          <React.Suspense fallback={<div className="card py-10 text-center text-slate-300" role="status">Loading workspace…</div>}>
           {tab === 'dashboard' && (
             <RoleDashboard
               cases={cases}
@@ -419,6 +420,7 @@ const AppContent: React.FC = () => {
           {tab === 'settings' && <SettingsView showAlert={showAlert} />}
 
           {tab === 'guide' && <GuideView />}
+          </React.Suspense>
         </main>
       </div>
 
