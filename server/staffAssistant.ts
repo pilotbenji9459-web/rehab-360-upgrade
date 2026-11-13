@@ -82,10 +82,10 @@ export function answerExactCaseField(
   if (/\b(severity|seriousness|severity level|how severe|level of offence|level of offense)\b/i.test(q)) {
     return `${intro}, the recorded offence severity is ${record.crime_severity} out of 5. This is the application's recorded scale, not a legal classification.`;
   }
-  if (/\b(sentence|sentenced|duration|how long|months in custody)\b/i.test(q)) {
+  if (/\b(sentence|sentenced|months in custody|time in prison|sentence length)\b/i.test(q)) {
     return `${intro}, the sentence length is ${record.sentence_length_months} months.`;
   }
-  if (/\b(attendance|attend|sessions?)\b/i.test(q)) {
+  if (/\b(attendance|attend|session attendance)\b/i.test(q)) {
     return `${intro}, session attendance is ${record.session_attendance}%.`;
   }
   if (/\b(employ(?:ment|ed)|job|work history)\b/i.test(q)) {
@@ -128,7 +128,18 @@ export function answerExactCaseField(
 
 function localGuide(role: StaffRole, question: string, caseRecord?: OffenderCase, docs: UploadedDocument[] = []) {
   const q = question.toLowerCase();
-  if (caseRecord) {
+  const navigationIntent = /\b(where|find|open|navigate|go to|show me|take me|which tab|which page|how do i get to)\b/i.test(q);
+  if (navigationIntent && /\b(documents?|files?|attachments?|evidence)\b/i.test(q)) {
+    const target: AssistantDestination = caseRecord ? 'person_intake' : 'intake';
+    if (canNavigateTo(role, target)) {
+      return {
+        answer: caseRecord ? 'Open Case Evidence & Documents for the selected person.' : 'Open the Facility Document Intake Centre.',
+        navigate_to: target,
+        mode: 'guide' as const,
+      };
+    }
+  }
+  if (caseRecord && !navigationIntent) {
     const exact = answerExactCaseField(caseRecord, question, docs);
     if (exact) return { answer: exact, mode: 'case' as const };
   }
@@ -158,12 +169,13 @@ export async function answerStaffQuestion(options: {
   // Simple record facts and navigation are already known to the server.
   // Answer them instantly, accurately, and without a paid model round-trip.
   const fallback = localGuide(role, question, record, documents);
-  const exact = record ? answerExactCaseField(record, question, documents) : undefined;
-  if (exact) return { answer: exact, mode: 'case' as const };
   const navigationIntent = /\b(where|find|open|navigate|go to|show me|take me|which tab|which page|how do i get to)\b/i.test(question);
   if (navigationIntent && fallback.navigate_to) {
     return { ...fallback, mode: 'guide' as const };
   }
+  const exact = record && !/\b(where|find|open|navigate|go to|which tab|which page|how do i get to)\b/i.test(question)
+    ? answerExactCaseField(record, question, documents) : undefined;
+  if (exact) return { answer: exact, mode: 'case' as const };
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) return {
     ...fallback,
