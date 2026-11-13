@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 export function ScrollRevealManager() {
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (reducedMotion.matches || typeof IntersectionObserver === 'undefined') return;
+    if (reducedMotion.matches || window.matchMedia('(max-width: 767px)').matches || typeof IntersectionObserver === 'undefined') return;
 
     const root = document.getElementById('root');
     if (!root) return;
