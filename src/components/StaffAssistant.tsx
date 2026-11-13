@@ -124,7 +124,7 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                 <div className="pathway-ai-message-content">
                   {message.role === 'assistant' && (
                     <div className="pathway-ai-response-mode">
-                      {message.mode === 'ai' ? 'Gemini AI' : message.mode === 'offline' ? 'Offline guidance · AI unavailable' : 'Verified record'}
+                      {message.mode === 'ai' ? 'Pathway AI · Live' : message.mode === 'offline' ? 'Local guidance · AI unavailable' : message.mode === 'case' ? 'Verified case data' : 'App guidance'}
                     </div>
                   )}
                   {message.notice && <div className="pathway-ai-service-notice" role="status">{message.notice}</div>}
@@ -143,7 +143,7 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                 <span>
                   {t('ai.thinking')} {waitingSeconds > 0 ? `(${waitingSeconds}s)` : ''}
                   {waitingSeconds >= 20 && (
-                    <span className="block text-xs opacity-75">Gemini is still working. Your question has not been cancelled.</span>
+                    <span className="block text-xs opacity-75">Pathway AI is still working. Your question has not been cancelled.</span>
                   )}
                 </span>
               </div>
