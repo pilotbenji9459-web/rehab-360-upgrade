@@ -38,6 +38,31 @@ export interface VerificationResult {
   analysisSource?: 'gemini' | 'local';
 }
 
+/** A stalled document parser must never hold the upload HTTP request forever. */
+const DOCUMENT_PARSE_TIMEOUT_MS = 20_000;
+const PDF_PREVIEW_PAGE_LIMIT = 8;
+
+export class DocumentParsingTimeoutError extends Error {
+  constructor() {
+    super('Document parsing took too long. Try a smaller text-based PDF (first 8 pages), DOCX, CSV, or TXT file.');
+    this.name = 'DocumentParsingTimeoutError';
+  }
+}
+
+async function withDocumentDeadline<T>(work: Promise<T>, timeoutMs = DOCUMENT_PARSE_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new DocumentParsingTimeoutError()), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 /**
  * Extracts plain text from an uploaded file buffer based on MIME type
  */
@@ -65,7 +90,12 @@ export async function extractTextFromBuffer(
     fileType === '.xls' ||
     fileType === '.csv'
   ) {
-    const workbook = xlsx.read(buffer, { type: 'buffer' });
+    // Large/complex spreadsheets are expensive to parse synchronously.
+    // We only need the first 100 rows for the evidence preview.
+    if (buffer.length > 8 * 1024 * 1024) {
+      throw new Error('Excel/CSV file exceeds the 8 MB preview limit. Export the relevant sheet or rows and upload again.');
+    }
+    const workbook = xlsx.read(buffer, { type: 'buffer', sheetRows: 101 });
     const sheetNames = workbook.SheetNames;
     const firstSheet = workbook.Sheets[sheetNames[0]];
     const rawRows = xlsx.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
@@ -87,24 +117,28 @@ export async function extractTextFromBuffer(
   if (
     fileType === '.docx'
   ) {
-    const result = await mammoth.extractRawText({ buffer });
+    const result = await withDocumentDeadline(mammoth.extractRawText({ buffer }));
     return { text: result.value };
   }
 
-  // PDF (pdf-parse v2 API). Do not decode a failed PDF as UTF-8 binary.
+  // PDF (pdf-parse v2 API). A document with hundreds of pages must not
+  // monopolize the server. The first eight pages provide a bounded preview;
+  // scanned/image-only PDFs still require OCR and are rejected explicitly.
   if (fileType === '.pdf') {
-    const pdfModule: any = await import('pdf-parse');
+    const pdfModule: any = await withDocumentDeadline(import('pdf-parse'));
     if (pdfModule.PDFParse) {
-      const parser = new pdfModule.PDFParse({ data: buffer });
+      const parser = new pdfModule.PDFParse({ data: Uint8Array.from(buffer) });
       try {
-        const pdfData = await parser.getText();
+        const pdfData = await withDocumentDeadline(parser.getText({ first: PDF_PREVIEW_PAGE_LIMIT }));
         return { text: String(pdfData.text || '').trim() };
       } finally {
-        await parser.destroy();
+        // A failed or timed-out parse must release its PDF worker/resources.
+        try { await withDocumentDeadline(Promise.resolve(parser.destroy()), 5_000); }
+        catch (cleanupError) { console.warn('PDF parser cleanup did not finish:', cleanupError instanceof Error ? cleanupError.message : cleanupError); }
       }
     }
     const parseFunc = pdfModule.default || pdfModule;
-    const pdfData = await parseFunc(buffer);
+    const pdfData = await withDocumentDeadline(parseFunc(buffer, { max: PDF_PREVIEW_PAGE_LIMIT }));
     return { text: String(pdfData.text || '').trim() };
   }
 
@@ -156,8 +190,8 @@ Tasks:
 5. Distinguish between hard factual statements and clinical or observational interpretations.
 6. Assign a confidence score (0-100) reflecting textual clarity (never assume certainty).`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+      const response = await withDocumentDeadline(ai.models.generateContent({
+        model: process.env.GEMINI_DOCUMENT_MODEL || 'gemini-2.5-flash-lite',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -202,7 +236,7 @@ Tasks:
             required: ['summary', 'fields'],
           },
         },
-      });
+      }), 45_000);
 
       const parsed = JSON.parse(response.text || '{}');
       const warnings: string[] = Array.isArray(parsed.warnings)

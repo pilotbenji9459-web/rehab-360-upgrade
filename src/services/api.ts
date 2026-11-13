@@ -26,7 +26,7 @@ export const AuthService = {
   },
 };
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(endpoint: string, options: RequestInit = {}, timeoutMs = 0): Promise<T> {
   const token = AuthService.getToken();
   const headers = new Headers(options.headers || {});
 
@@ -38,10 +38,27 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(endpoint, {
-    ...options,
-    headers,
-  });
+  // Only document uploads/optional document AI have a bounded wait.
+  // Pathway AI chat requests deliberately retain their normal lifetime.
+  const controller = timeoutMs > 0 ? new AbortController() : null;
+  const timeout = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
+  let response: Response;
+  try {
+    response = await fetch(endpoint, {
+      ...options,
+      headers,
+      ...(controller ? { signal: controller.signal } : {}),
+    });
+  } catch (error) {
+    if (controller?.signal.aborted) {
+      throw new Error(endpoint.includes('/upload')
+        ? 'The document upload did not finish within 45 seconds. Check Document History before retrying; the server may have saved it.'
+        : 'Optional AI review is taking too long. Your original document and local extraction remain saved.');
+    }
+    throw error;
+  } finally {
+    if (timeout !== null) window.clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     let errorMsg = `Server error (${response.status})`;
@@ -230,7 +247,7 @@ export const Api = {
     }>('/api/documents/upload', {
       method: 'POST',
       body: formData,
-    });
+    }, 45_000);
   },
 
   // Optional second phase: never hold the initial upload open while Gemini runs.
@@ -238,6 +255,7 @@ export const Api = {
     request<{ success: boolean; document: UploadedDocument; verification: VerificationResult }>(
       `/api/documents/${encodeURIComponent(documentId)}/analyze`,
       { method: 'POST' },
+      60_000,
     ),
 
   getDocuments: (caseId?: string) =>

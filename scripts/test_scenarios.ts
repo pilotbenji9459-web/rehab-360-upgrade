@@ -173,6 +173,42 @@ async function runTests() {
   const mobileText = await extractTextFromBuffer(testBuffer, 'text/plain', 'mobile-upload');
   assert(mobileText.text.includes('88%'), 'Extensionless mobile text documents extract through MIME fallback.');
 
+  // Regression: a genuine one-page PDF must parse quickly and return text.
+  // This fixture contains only fictional rehabilitation data.
+  function createTinyPdf(): Buffer {
+    const stream = 'BT /F1 12 Tf 40 700 Td (Session attendance: 87%) Tj ET';
+    const objects = [
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+      `<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}\nendstream`,
+    ];
+    let pdf = '%PDF-1.4\n';
+    const offsets = [0];
+    for (let i = 0; i < objects.length; i++) {
+      offsets.push(Buffer.byteLength(pdf));
+      pdf += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`;
+    }
+    const xref = Buffer.byteLength(pdf);
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    for (const offset of offsets.slice(1)) {
+      pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+    }
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    return Buffer.from(pdf, 'latin1');
+  }
+  const pdfPreview = await extractTextFromBuffer(createTinyPdf(), 'application/pdf', 'fictional-case.pdf');
+  assert(pdfPreview.text.includes('Session attendance: 87%'), 'PDF intake extracts real text without a long-running spinner.');
+
+  let largeSpreadsheetRejected = false;
+  try {
+    await extractTextFromBuffer(Buffer.alloc(8 * 1024 * 1024 + 1), 'application/vnd.ms-excel', 'huge.xls');
+  } catch (error) {
+    largeSpreadsheetRejected = /8 MB preview limit/.test(String(error));
+  }
+  assert(largeSpreadsheetRejected, 'Oversized spreadsheets fail promptly instead of blocking document intake.');
+
   let unknownTypeRejected = false;
   try {
     await extractTextFromBuffer(Buffer.from([0, 1, 2, 255]), 'application/octet-stream', 'sample.bin');
