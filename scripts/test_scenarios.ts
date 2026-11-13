@@ -124,6 +124,19 @@ async function runTests() {
   const testBuffer = Buffer.from('Client attended 88% of literacy sessions and earned Forklift certificate.');
   const parsed = await extractTextFromBuffer(testBuffer, 'text/plain', 'evaluation.txt');
   assert(parsed.text.includes('88%'), 'Document text extraction parses raw content successfully.');
+  const { verifyDocumentLocally, verifyDocumentWithAI } = await import('../server/documentAi');
+  const intakeCase = DB.findCaseById('RP-1041')!;
+  const evidenceText = 'Session attendance: 87%\\nEducation level: 3\\nSkills score: 70%';
+  const instantEvidence = verifyDocumentLocally(evidenceText, intakeCase, 'intake.txt');
+  assert(
+    instantEvidence.analysisSource === 'local' && instantEvidence.fields.some(field => field.fieldName === 'session_attendance'),
+    'Document intake produces reviewable local evidence without waiting for Gemini.'
+  );
+  const restrictedEvidence = await verifyDocumentWithAI(evidenceText, intakeCase, 'intake.txt', false);
+  assert(
+    restrictedEvidence.analysisSource === 'local',
+    'External AI is disabled for documents unless explicitly authorized.'
+  );
 
   // Regression coverage: restricted gate edits and mobile document recognition.
   assert(
