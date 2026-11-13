@@ -18,7 +18,7 @@ export const SecurityPermissionsPage: React.FC = () => (
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
-            <table className="min-w-[880px] w-full text-left text-sm text-slate-200">
+            <table data-roles-matrix className="w-full min-w-[880px] max-sm:min-w-0 text-left text-sm text-slate-200">
               <thead className="bg-slate-800/80 text-white font-semibold border-b border-slate-700">
                 <tr>
                   <th className="py-3.5 px-4.5 font-semibold text-xs tracking-wider uppercase text-slate-300">Role</th>

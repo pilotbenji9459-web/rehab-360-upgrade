@@ -69,7 +69,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      await refreshSystemStatus();
+      // Fetch status in parallel: it must not delay restoring a valid session.
+      void refreshSystemStatus();
       const token = AuthService.getToken();
       if (!token) {
         setIsLoading(false);
@@ -101,7 +102,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       AuthService.setToken(token);
       setUser(loggedInUser);
       if (inst) setInstitution(inst);
-      await refreshSystemStatus();
+      // The login endpoint already returned the authenticated user and
+      // institution. Do not block entry on a second status round-trip.
+      void refreshSystemStatus();
       return loggedInUser;
     } finally {
       setIsLoading(false);

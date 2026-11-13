@@ -82,10 +82,10 @@ export function answerExactCaseField(
   if (/\b(severity|seriousness|severity level|how severe|level of offence|level of offense)\b/i.test(q)) {
     return `${intro}, the recorded offence severity is ${record.crime_severity} out of 5. This is the application's recorded scale, not a legal classification.`;
   }
-  if (/\b(sentence|sentenced|duration|how long|months in custody)\b/i.test(q)) {
+  if (/\b(sentence|sentenced|months in custody|time in prison|sentence length)\b/i.test(q)) {
     return `${intro}, the sentence length is ${record.sentence_length_months} months.`;
   }
-  if (/\b(attendance|attend|sessions?)\b/i.test(q)) {
+  if (/\b(attendance|attend|session attendance)\b/i.test(q)) {
     return `${intro}, session attendance is ${record.session_attendance}%.`;
   }
   if (/\b(employ(?:ment|ed)|job|work history)\b/i.test(q)) {
@@ -119,7 +119,9 @@ export function answerExactCaseField(
   if (/\b(placement|decision|approved|approval|pathway stage)\b/i.test(q)) {
     return `${intro}, placement is ${record.decision || 'pending verification'}${record.pathway_position == null ? '' : ` at pathway stage ${record.pathway_position + 1}`}. A human reviewer makes placement decisions.`;
   }
-  if (/\b(documents?|files?|attachments?|evidence)\b/i.test(q) && !/\b(where|find|navigate|open|go to)\b/i.test(q)) {
+  // Only list stored documents when the user explicitly asks for the list/count.
+  // A question about document upload speed is not a request for case evidence.
+  if (/\b(how many|list|which documents|what documents|show (?:me )?(?:the )?(?:case )?(?:documents|files|attachments)|documents? (?:are|were) (?:uploaded|attached)|documents? (?:status|count))\b/i.test(q)) {
     const items = documents.slice(0, 12).map(d=>`• ${d.original_name || d.filename}: ${d.status}`);
     return `${intro}, there are ${documents.length} linked documents.${items.length ? '\n' + items.join('\n') : ''}`;
   }
@@ -128,7 +130,18 @@ export function answerExactCaseField(
 
 function localGuide(role: StaffRole, question: string, caseRecord?: OffenderCase, docs: UploadedDocument[] = []) {
   const q = question.toLowerCase();
-  if (caseRecord) {
+  const navigationIntent = /\b(where|find|open|navigate|go to|show me|take me|which tab|which page|how do i get to)\b/i.test(q);
+  if (navigationIntent && /\b(documents?|files?|attachments?|evidence)\b/i.test(q)) {
+    const target: AssistantDestination = caseRecord ? 'person_intake' : 'intake';
+    if (canNavigateTo(role, target)) {
+      return {
+        answer: caseRecord ? 'Open Case Evidence & Documents for the selected person.' : 'Open the Facility Document Intake Centre.',
+        navigate_to: target,
+        mode: 'guide' as const,
+      };
+    }
+  }
+  if (caseRecord && !navigationIntent) {
     const exact = answerExactCaseField(caseRecord, question, docs);
     if (exact) return { answer: exact, mode: 'case' as const };
   }
@@ -155,9 +168,16 @@ export async function answerStaffQuestion(options: {
   allowExternalCaseData: boolean;
 }): Promise<{ answer: string; mode: 'ai' | 'guide' | 'case' | 'offline'; navigate_to?: AssistantDestination; notice?: string }> {
   const { role, question, record, history = [], documents = [], allowExternalCaseData } = options;
-  // Gemini handles the actual conversation when available. Deterministic answers
-  // are used ONLY as an explicitly labelled offline fallback.
+  // Simple record facts and navigation are already known to the server.
+  // Answer them instantly, accurately, and without a paid model round-trip.
   const fallback = localGuide(role, question, record, documents);
+  const navigationIntent = /\b(where|find|open|navigate|go to|show me|take me|which tab|which page|how do i get to)\b/i.test(question);
+  if (navigationIntent && fallback.navigate_to) {
+    return { ...fallback, mode: 'guide' as const };
+  }
+  const exact = record && !/\b(where|find|open|navigate|go to|which tab|which page|how do i get to)\b/i.test(question)
+    ? answerExactCaseField(record, question, documents) : undefined;
+  if (exact) return { answer: exact, mode: 'case' as const };
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) return {
     ...fallback,
@@ -178,7 +198,7 @@ export async function answerStaffQuestion(options: {
   const safeHistory = history.slice(-8).filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string')
     .map(m => ({ role: m.role, text: m.text.slice(0, 450) }));
   const systemInstruction = `You are Pathway, a friendly, competent assistant inside RehabPath360.
-Talk like a helpful, capable conversational assistant. Interpret follow-up questions using the recent conversation AND selected-case facts. For example, after discussing an offence, "severity level?" means offence severity, not gate scores. Focus on the actual question; never dump unrelated statistics. Ask a clarifying question only when necessary.
+Answer clearly and concisely, usually in one or two sentences (under 65 words). Give the direct answer first, with no preamble or unrelated statistics. Interpret follow-up questions using recent conversation and selected-case facts. For example, after discussing an offence, "severity level?" means offence severity, not gate scores. Ask for clarification only if necessary.
 You have no tools to edit records. Never claim to perform actions or offer medical, legal, parole or psychological recommendations.
 Authenticated staff role: ${role}.
 The ONLY screens that this role may navigate to are: ${JSON.stringify(allowed)}.
@@ -192,7 +212,7 @@ Answer in the language of the user's current question if possible.`;
   try {
     const ai = new GoogleGenAI({ apiKey: key });
     const response = await ai.models.generateContent({
-      model: process.env.GEMINI_ASSISTANT_MODEL || 'gemini-3.8-flash',
+      model: process.env.GEMINI_ASSISTANT_MODEL || 'gemini-2.5-flash-lite',
       contents: JSON.stringify({
         previous_messages: safeHistory,
         question,
@@ -202,11 +222,10 @@ Answer in the language of the user's current question if possible.`;
       config: {
         systemInstruction,
         responseMimeType: 'application/json',
-        temperature: 0.35,
-        maxOutputTokens: 500,
-        // Avoid the SDK's multi-minute default request lifetime.
-        // Provider billing may still apply if a timed-out request finishes remotely.
-        abortSignal: AbortSignal.timeout(12000),
+        temperature: 0.2,
+        maxOutputTokens: 320,
+        // Do not abort a valid model response after an arbitrary 12 seconds.
+        // The UI shows elapsed time while the provider completes the request.
       },
     });
     const parsed = JSON.parse(response.text || '{}') as { answer?: unknown; navigate_to?: unknown };
@@ -219,16 +238,13 @@ Answer in the language of the user's current question if possible.`;
     const destination = typeof parsed.navigate_to === 'string' && canNavigateTo(role, parsed.navigate_to)
       ? parsed.navigate_to : undefined;
     // Case facts are minimized to approved nonclinical numeric and status fields.
-    return { answer: parsed.answer.slice(0, 3000), mode: 'ai', ...(destination ? { navigate_to: destination } : {}) };
+    return { answer: parsed.answer.slice(0, 1200), mode: 'ai', ...(destination ? { navigate_to: destination } : {}) };
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown provider error';
     console.error('Staff assistant Gemini request failed:', detail);
-    const isTimeout = /timeout|timed.out|abort|deadline/i.test(detail);
     const isQuota = /429|quota|resource.exhausted|rate.limit/i.test(detail);
     const isAuth = /401|403|api.key|permission|unauthorized|unauthenticated/i.test(detail);
-    const notice = isTimeout
-      ? 'Gemini took too long to respond, so this request stopped after 12 seconds.'
-      : isQuota
+    const notice = isQuota
       ? 'Gemini quota or rate limit was reached. Check your Google AI Studio API quota.'
       : isAuth
         ? 'Gemini rejected the API key or project permissions. Check GEMINI_API_KEY in Render.'

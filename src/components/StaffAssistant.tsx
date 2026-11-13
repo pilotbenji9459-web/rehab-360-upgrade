@@ -27,9 +27,17 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
   const [caseId, setCaseId] = useState(selectedCaseId || '');
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const [waitingSeconds, setWaitingSeconds] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
+  // Keep the request alive while showing progress instead of cutting off at 12s.
+  useEffect(() => {
+    if (!busy) { setWaitingSeconds(0); return; }
+    const start = Date.now();
+    const timer = window.setInterval(() => setWaitingSeconds(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [busy]);
   useEffect(() => { setCaseId(selectedCaseId || ''); }, [selectedCaseId]);
   useEffect(() => { setIsOpen(false); setMessages([]); setDraft(''); }, [user?.id]);
   useEffect(() => { setMessages([]); }, [caseId]);
@@ -116,7 +124,7 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                 <div className="pathway-ai-message-content">
                   {message.role === 'assistant' && (
                     <div className="pathway-ai-response-mode">
-                      {message.mode === 'ai' ? 'Gemini AI' : message.mode === 'offline' ? 'Offline guidance · AI unavailable' : 'Verified record'}
+                      {message.mode === 'ai' ? 'Pathway AI · Live' : message.mode === 'offline' ? 'Local guidance · AI unavailable' : message.mode === 'case' ? 'Verified case data' : 'App guidance'}
                     </div>
                   )}
                   {message.notice && <div className="pathway-ai-service-notice" role="status">{message.notice}</div>}
@@ -129,7 +137,17 @@ export const StaffAssistant: React.FC<Props> = ({ cases, selectedCaseId, onNavig
                 </div>
               </div>
             ))}
-            {busy && <div className="pathway-ai-thinking"><Loader2 size={16} className="pathway-ai-spinner"/> {t('ai.thinking')}</div>}
+            {busy && (
+              <div className="pathway-ai-thinking" role="status">
+                <Loader2 size={16} className="pathway-ai-spinner"/>
+                <span>
+                  {t('ai.thinking')} {waitingSeconds > 0 ? `(${waitingSeconds}s)` : ''}
+                  {waitingSeconds >= 20 && (
+                    <span className="block text-xs opacity-75">Pathway AI is still working. Your question has not been cancelled.</span>
+                  )}
+                </span>
+              </div>
+            )}
             <div ref={endRef}/>
           </div>
           <form className="pathway-ai-composer" onSubmit={event => { event.preventDefault(); void ask(draft); }}>

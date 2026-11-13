@@ -1028,3 +1028,50 @@ html[data-theme="light"] .app-header .rp-profile-menu button:last-of-type span {
   .app-header .rp-header-case {flex:1 1 112px;}
   .app-header .rp-header-case select {font-size:12px;}
 }
+
+/* Phone-first exhibition layout: keep every page within the visual viewport. */
+#root, .app-root, [data-motion-scope="landing"] { min-width:0; max-width:100%; }
+.app-root, [data-motion-scope="landing"] { overflow-x:clip; }
+@media (max-width: 640px) {
+  .app-root main { padding-inline:12px; }
+  .app-root main :is(.card,.dashboard-panel,.dashboard-kpi) { max-width:100%; }
+  .app-root main :is(input,textarea,select) { min-width:0; }
+  .app-root main .grid > * { min-width:0; }
+  /* Small devices should not animate dozens of image/card reveals. */
+  [data-motion-scope="landing"] .scroll-pop-pending,
+  [data-motion-scope="dashboard"] .scroll-pop-pending,
+  [data-motion-scope="landing"] .trading-card-entry {
+    opacity:1!important; transform:none!important; filter:none!important;
+    animation:none!important;
+  }
+  [data-motion-scope="landing"] .trading-card { transform:none!important; }
+}
+/* The public Roles matrix is a horizontally scrollable table on desktop,
+   but readable cards on phones rather than an 880px-wide clipped grid. */
+@media (max-width: 767px) {
+  table[data-roles-matrix] { display:block; width:100%; min-width:0!important; }
+  table[data-roles-matrix] thead {
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  table[data-roles-matrix] tbody { display:grid; gap:12px; padding:12px; }
+  table[data-roles-matrix] tr {
+    display:block; min-width:0; border:1px solid #304965;
+    border-radius:14px; background:#10253f; padding:10px 14px;
+  }
+  table[data-roles-matrix] td {
+    display:block; min-width:0; padding:7px 0; overflow-wrap:anywhere;
+    border-bottom:1px solid rgba(148,163,184,.16); line-height:1.45;
+  }
+  table[data-roles-matrix] td:last-child { border-bottom:0; }
+  table[data-roles-matrix] td:first-child { font-size:17px; padding:7px 0 12px; }
+  table[data-roles-matrix] td:not(:first-child)::before {
+    display:block; margin-bottom:2px; color:#a8bed5; font-size:11px;
+    font-weight:650; text-transform:uppercase; letter-spacing:.035em;
+  }
+  table[data-roles-matrix] td:nth-child(2)::before { content:"Pathway verification"; }
+  table[data-roles-matrix] td:nth-child(3)::before { content:"Clinical notes"; }
+  table[data-roles-matrix] td:nth-child(4)::before { content:"Education and gate edits"; }
+  table[data-roles-matrix] td:nth-child(5)::before { content:"Document intake"; }
+  table[data-roles-matrix] td:nth-child(6)::before { content:"Audit logs"; }
+}

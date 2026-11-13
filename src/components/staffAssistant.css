@@ -73,3 +73,32 @@
   line-height:1.55;
   overflow-wrap:anywhere;
 }
+
+/* Keep the assistant inside small phone screens, including on-screen keyboards. */
+@media (max-width:520px) {
+  .pathway-ai-layer {
+    right:8px;
+    bottom:max(8px, env(safe-area-inset-bottom, 0px));
+    max-width:calc(100vw - 16px);
+  }
+  .pathway-ai-window {
+    width:calc(100vw - 16px);
+    max-width:100%;
+    height:min(650px, calc(100dvh - 80px));
+    min-height:0;
+    max-height:calc(100dvh - 80px);
+    margin-bottom:8px;
+  }
+  .pathway-ai-header {padding:11px 13px;}
+  .pathway-ai-brand-icon {width:36px;height:36px;}
+  .pathway-ai-title {font-size:18px;}
+  .pathway-ai-context {padding:9px 13px;}
+  .pathway-ai-composer {padding:9px 11px;}
+  .pathway-ai-composer textarea {font-size:16px;}
+}
+@media (max-height:520px) {
+  .pathway-ai-window {height:calc(100dvh - 68px);max-height:calc(100dvh - 68px);}
+  .pathway-ai-context-top {display:none;}
+  .pathway-ai-context {padding:6px 12px;}
+  .pathway-ai-composer p {display:none;}
+}

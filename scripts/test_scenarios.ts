@@ -79,6 +79,29 @@ async function runTests() {
     !!julian && (answerExactCaseField(julian, 'what charge is julian facing?') || '').includes(julian.crime_type),
     'Staff AI: charges question returns recorded offence rather than unrelated statistics.'
   );
+  // Pathway AI must answer known facts and feature locations without a model call.
+  const { answerStaffQuestion } = await import('../server/staffAssistant');
+  const quickFact = await answerStaffQuestion({
+    role: 'Warden', question: 'severity level?', record: julian!,
+    allowExternalCaseData: false,
+  });
+  assert(
+    quickFact.mode === 'case' && quickFact.answer.includes('out of 5') && !quickFact.notice,
+    'Pathway AI answers saved case facts immediately without Gemini or an API key.'
+  );
+  const quickNavigation = await answerStaffQuestion({
+    role: 'Warden', question: 'Where are the case documents?', record: julian!,
+    allowExternalCaseData: false,
+  });
+  assert(
+    quickNavigation.mode === 'guide' && quickNavigation.navigate_to === 'person_intake',
+    'Pathway AI opens person-specific documents without a slow model call.'
+  );
+  const uploadDuration = answerExactCaseField(julian!, 'How long does a document upload take?');
+  assert(
+    uploadDuration === undefined,
+    'Pathway AI does not confuse upload duration with a prisoner sentence.'
+  );
   const notesBefore = DB.getClinicalNotes(caseId);
   assert(notesBefore.length >= 0, 'Clinical notes storage exists in persistent database schema.');
 
@@ -124,6 +147,19 @@ async function runTests() {
   const testBuffer = Buffer.from('Client attended 88% of literacy sessions and earned Forklift certificate.');
   const parsed = await extractTextFromBuffer(testBuffer, 'text/plain', 'evaluation.txt');
   assert(parsed.text.includes('88%'), 'Document text extraction parses raw content successfully.');
+  const { verifyDocumentLocally, verifyDocumentWithAI } = await import('../server/documentAi');
+  const intakeCase = DB.findCaseById('RP-1041')!;
+  const evidenceText = 'Session attendance: 87%\\nEducation level: 3\\nSkills score: 70%';
+  const instantEvidence = verifyDocumentLocally(evidenceText, intakeCase, 'intake.txt');
+  assert(
+    instantEvidence.analysisSource === 'local' && instantEvidence.fields.some(field => field.fieldName === 'session_attendance'),
+    'Document intake produces reviewable local evidence without waiting for Gemini.'
+  );
+  const restrictedEvidence = await verifyDocumentWithAI(evidenceText, intakeCase, 'intake.txt', false);
+  assert(
+    restrictedEvidence.analysisSource === 'local',
+    'External AI is disabled for documents unless explicitly authorized.'
+  );
 
   // Regression coverage: restricted gate edits and mobile document recognition.
   assert(

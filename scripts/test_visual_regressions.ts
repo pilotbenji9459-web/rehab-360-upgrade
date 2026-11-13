@@ -21,4 +21,15 @@ assert.ok(css.includes('scroll-media-pop')&&css.includes('scale(.94)'), 'Pop-in 
 assert.ok(landing.includes('data-motion-scope="landing"')&&landing.includes('reveal-feature'), 'Landing images and feature sections participate in reveal');
 assert.ok(dashboard.includes('data-motion-scope="dashboard"')&&dashboard.includes('reveal-feature'), 'Dashboard cards participate in reveal');
 assert.ok(app.includes('<ScrollRevealManager />'), 'Scroll reveal controller is mounted');
-console.log('Light-mode sidebar contrast and scroll-reveal regression checks passed.');
+const roles=read('src/components/SecurityPermissionsPage.tsx');
+const auth=read('src/context/AuthContext.tsx');
+const login=read('src/components/LoginModal.tsx');
+const assistant=read('src/components/StaffAssistant.tsx');
+const i18n=read('src/context/I18nContext.tsx');
+assert.ok(landing.includes("addEventListener('hashchange'") && landing.includes('setShowSecurityPage(isRolesPage)'), 'Roles link and Back navigation update React view.');
+assert.ok(roles.includes('data-roles-matrix') && css.includes('table[data-roles-matrix] td:nth-child(6)::before'), 'Roles permissions matrix is readable as phone cards.');
+assert.ok(auth.includes('void refreshSystemStatus();') && !auth.includes('await refreshSystemStatus();'), 'Login and session restoration do not await status polling.');
+assert.ok(login.includes('max-h-[calc(100dvh-1rem)]'), 'Login remains scrollable on short mobile screens.');
+assert.ok(app.includes('React.lazy') && app.includes('React.Suspense'), 'Large authenticated pages are code-split from initial landing/login.');
+assert.ok(assistant.includes("message.mode === 'ai' ? 'Pathway AI") && i18n.includes('Pathway AI is thinking…'), 'Assistant thinking and response labels use Pathway AI branding.');
+console.log('Mobile navigation, login and Pathway AI regression checks passed.');

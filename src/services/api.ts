@@ -233,6 +233,13 @@ export const Api = {
     });
   },
 
+  // Optional second phase: never hold the initial upload open while Gemini runs.
+  analyzeDocument: (documentId: string) =>
+    request<{ success: boolean; document: UploadedDocument; verification: VerificationResult }>(
+      `/api/documents/${encodeURIComponent(documentId)}/analyze`,
+      { method: 'POST' },
+    ),
+
   getDocuments: (caseId?: string) =>
     request<{ documents: UploadedDocument[] }>(
       caseId ? `/api/documents?case_id=${encodeURIComponent(caseId)}` : '/api/documents'

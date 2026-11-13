@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle, CheckCircle2, X, Eye, EyeOff } from 'lucide-react';
 import { StaffRole } from '../types';
@@ -25,6 +25,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginWaitSeconds, setLoginWaitSeconds] = useState(0);
+  useEffect(() => {
+    if (!isLoading) { setLoginWaitSeconds(0); return; }
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => setLoginWaitSeconds(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+    return () => window.clearInterval(interval);
+  }, [isLoading]);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
@@ -33,6 +40,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
     setError(null);
     setIsLoading(true);
 
@@ -63,9 +71,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto animate-fade-in"
     >
-      <div className="relative w-full max-w-xl rounded-2xl bg-[#0c1c36] border border-slate-700 text-slate-100 shadow-2xl p-6 sm:p-8 overflow-hidden my-8">
+      <div className="relative w-full max-w-xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] rounded-2xl bg-[#0c1c36] border border-slate-700 text-slate-100 shadow-2xl p-4 sm:p-8 overflow-y-auto overscroll-contain my-0 sm:my-4">
         {/* Subtle decorative top bar */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0079d6] via-[#5cc2bd] to-[#38bdf8]" />
 
@@ -111,7 +119,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="officer@rehabpath.gov"
-                    className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
+                    className="w-full pl-9 pr-3 py-2 text-base sm:text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
                   />
                 </div>
               </div>
@@ -138,7 +146,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-9 pr-11 py-2 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
+                    className="w-full pl-9 pr-11 py-2 text-base sm:text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-[#0079d6] transition-colors"
                   />
                   <button
                     type="button"
@@ -166,6 +174,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                   </>
                 )}
               </button>
+              {isLoading && loginWaitSeconds >= 5 && (
+                <p className="text-xs text-sky-200 text-center" role="status">
+                  Connecting to the server ({loginWaitSeconds}s). On a first visit, hosting may need time to start. Your login has not been cancelled.
+                </p>
+              )}
             </form>
 
             {/* Quick Demo Credentials Picker */}
@@ -176,7 +189,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               <p className="text-[11px] text-slate-400 mb-3">
                 Click any pre-provisioned role below to fill credentials and test role-based permissions:
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 min-[370px]:grid-cols-2 gap-2">
                 {DEMO_ACCOUNTS.map((acc) => {
                   const isSelected = email === acc.email;
                   return (
