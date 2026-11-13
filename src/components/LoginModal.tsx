@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle, CheckCircle2, X, Eye, EyeOff } from 'lucide-react';
 import { StaffRole } from '../types';
@@ -25,6 +25,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginWaitSeconds, setLoginWaitSeconds] = useState(0);
+  useEffect(() => {
+    if (!isLoading) { setLoginWaitSeconds(0); return; }
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => setLoginWaitSeconds(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+    return () => window.clearInterval(interval);
+  }, [isLoading]);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
@@ -33,6 +40,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
     setError(null);
     setIsLoading(true);
 
@@ -166,6 +174,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                   </>
                 )}
               </button>
+              {isLoading && loginWaitSeconds >= 5 && (
+                <p className="text-xs text-sky-200 text-center" role="status">
+                  Connecting to the server ({loginWaitSeconds}s). On a first visit, hosting may need time to start. Your login has not been cancelled.
+                </p>
+              )}
             </form>
 
             {/* Quick Demo Credentials Picker */}
